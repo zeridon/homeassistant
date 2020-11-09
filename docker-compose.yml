@@ -9,6 +9,7 @@ services:
       - "proxy-html:/usr/share/nginx/html"
       - "proxy-vhost.d:/etc/nginx/vhost.d"
       - "/var/run/docker.sock:/tmp/docker.sock:ro"
+      - "./proxy/conf.d/block-abuses.conf:/etc/nginx/vhost.d/default"
     ports:
       - "80:80"
       - "443:443"
