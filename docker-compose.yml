@@ -1,0 +1,54 @@
+version: "3.7"
+
+services:
+  proxy:
+    restart: always
+    image: jwilder/nginx-proxy
+    volumes:
+      - "proxy-certs:/etc/nginx/certs:ro"
+      - "proxy-html:/usr/share/nginx/html"
+      - "proxy-vhost.d:/etc/nginx/vhost.d"
+      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ENABLE_IPV6: 'false'
+      DEFAULT_HOST: "${HA_DOMAIN:-homeauto.local}"
+    labels:
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
+      - com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen
+
+  sslgen:
+    restart: always
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    volumes:
+      - "proxy-certs:/etc/nginx/certs"
+      - "proxy-html:/usr/share/nginx/html"
+      - "proxy-vhost.d:/etc/nginx/vhost.d"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    environment:
+      DEFAULT_EMAIL: "${HA_CERT_EMAIL:-some@mail.com}"
+    depends_on:
+      - proxy
+
+  homeassistant:
+    restart: always
+    image: homeassistant/home-assistant:0.117.5
+    ports:
+      - "8123"
+    volumes:
+      - "./homeassistant-config:/config"
+    environment:
+      VIRTUAL_HOST: "${HA_DOMAIN:-homeauto.local}"
+      VRTUAL_PORT: "8123"
+      VIRTUAL_PROTO: 'http'
+      HSTS: 'off'
+      LETSENCRYPT_HOST: "${HA_DOMAIN:-homeauto.local}"
+    depends_on:
+      - proxy
+
+volumes:
+  proxy-certs:
+  proxy-vhost.d:
+  proxy-html:
