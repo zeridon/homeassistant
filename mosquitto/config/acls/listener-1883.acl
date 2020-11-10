@@ -20,6 +20,9 @@ topic read shellies/+/command
 # LWT
 topic write shellies/+/online
 
+# status since v1.8.0
+topic write shellies/+/info
+
 # Shelly 1
 # shellies/shelly1-<deviceid>/...
 topic read shellies/+/relay/0/command
@@ -196,7 +199,9 @@ topic write shellies/+/sensor/temperature
 
 # Shelly H&T
 # shellies/shellyht-<deviceid>/...
+topic write shellies/+/sensor/act_reasons
 topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/error
 topic write shellies/+/sensor/humidity
 topic write shellies/+/sensor/temperature
 
