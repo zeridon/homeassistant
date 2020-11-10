@@ -1,0 +1,272 @@
+user debugger
+topic readwrite #
+
+user homeassistant
+topic readwrite #
+
+#
+# Shelly related acl
+#
+
+user shellies
+# announce/scan
+topic write shellies/announce
+topic write shellies/+/announce
+
+# force state / control
+topic read shellies/command
+topic read shellies/+/command
+
+# LWT
+topic write shellies/+/online
+
+# Shelly 1
+# shellies/shelly1-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic write shellies/+/input/0
+topic write shellies/+/longpush/0
+topic write shellies/+/relay/0
+
+# Shelly 1PM
+# shellies/shelly1pm-<deviceid>/...
+topic write shellies/+/overtemperature
+topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/power
+topic write shellies/+/temperature
+topic write shellies/+/temperature_f
+
+# Shelly 1/1PM with DS1820 sensors:
+topic write shellies/+/ext_temperature/0
+topic write shellies/+/ext_temperature/1
+topic write shellies/+/ext_temperature/2
+topic write shellies/+/ext_temperature_f/0
+topic write shellies/+/ext_temperature_f/1
+topic write shellies/+/ext_temperature_f/2
+
+# Shelly 1/1PM with DHT22 sensor
+topic write shellies/+/ext_humidity/0
+
+# Shelly2
+# shellies/shellyswitch-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic read shellies/+/relay/1/command
+topic write shellies/+/input/0
+topic write shellies/+/input/1
+topic write shellies/+/relay/energy
+topic write shellies/+/relay/power
+
+# Shelly 2 in roller mode
+topic read shellies/+/roller/0/command
+topic write shellies/+/roller/0
+
+# Shelly2.5
+# shellies/shellyswitch25-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic read shellies/+/relay/1/command
+topic write shellies/+/input/0
+topic write shellies/+/input/1
+topic write shellies/+/longpush/0
+topic write shellies/+/longpush/1
+topic write shellies/+/overtemperature
+topic write shellies/+/relay/0
+topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/power
+topic write shellies/+/relay/1
+topic write shellies/+/relay/1/energy
+topic write shellies/+/relay/1/power
+topic write shellies/+/temperature
+
+# Shelly 2.5 in roller mode
+topic read shellies/+/roller/0/command
+topic read shellies/+/roller/0/command/pos
+topic write shellies/+/roller/0
+topic write shellies/+/roller/0/energy
+topic write shellies/+/roller/0/pos
+topic write shellies/+/roller/0/power
+
+# Shelly4Pro
+# shellies/shelly4pro-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic read shellies/+/relay/1/command
+topic read shellies/+/relay/2/command
+topic read shellies/+/relay/3/command
+topic write shellies/+/input/0
+topic write shellies/+/input/1
+topic write shellies/+/input/2
+topic write shellies/+/input/3
+topic write shellies/+/relay/0
+topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/power
+topic write shellies/+/relay/1
+topic write shellies/+/relay/1/energy
+topic write shellies/+/relay/1/power
+topic write shellies/+/relay/2
+topic write shellies/+/relay/2/energy
+topic write shellies/+/relay/2/power
+topic write shellies/+/relay/3
+topic write shellies/+/relay/3/energy
+topic write shellies/+/relay/3/power
+
+# Shelly Plug
+# shellies/shellyplug-<deviceid>/..
+topic read shellies/+/relay/0/command
+topic write shellies/+/relay/0
+topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/power
+
+# Shelly PlugS
+# shellies/shellyplug-s-<deviceid>/...
+topic write shellies/+/overtemperature
+topic write shellies/+/temperature
+
+# Shelly Bulb
+# shellies/shellybulb-<deviceid>/...
+topic read shellies/+/color/0/command
+topic read shellies/+/color/0/set
+topic write shellies/+/color/0
+topic write shellies/+/color/0/status
+
+# Shelly Vintage
+# shellies/ShellyVintage-<deviceid>/...
+topic read shellies/+/light/0/command
+topic read shellies/+/light/0/set
+topic write shellies/+/light/0
+topic write shellies/+/light/0/energy
+topic write shellies/+/light/0/power
+topic write shellies/+/light/0/status
+
+# Shelly DUO
+# shellies/ShellyBulbDuo-<deviceid>/...
+topic read shellies/+/light/0/command
+topic read shellies/+/light/0/set
+topic write shellies/+/light/0
+topic write shellies/+/light/0/energy
+topic write shellies/+/light/0/power
+topic write shellies/+/light/0/status
+
+# Shelly RGBW
+# shellies/shellyrgbw2-<deviceid>/...
+topic read shellies/+/color/0/command
+topic read shellies/+/color/0/set
+topic read shellies/+/white/0/command
+topic read shellies/+/white/0/set
+topic read shellies/+/white/1/command
+topic read shellies/+/white/1/set
+topic read shellies/+/white/2/command
+topic read shellies/+/white/2/set
+topic read shellies/+/white/3/command
+topic read shellies/+/white/3/set
+topic write shellies/+/color/0
+topic write shellies/+/color/0/status
+topic write shellies/+/white/0
+topic write shellies/+/white/0/status
+topic write shellies/+/white/1
+topic write shellies/+/white/1/status
+topic write shellies/+/white/2
+topic write shellies/+/white/2/status
+topic write shellies/+/white/3
+topic write shellies/+/white/3/status
+
+# Shelly Dimmer/SL
+# shellies/shellydimmer-<deviceid>/...
+topic read shellies/+/light/0/command
+topic read shellies/+/light/0/set
+topic write shellies/+/input/0
+topic write shellies/+/input/1
+topic write shellies/+/light/0
+topic write shellies/+/light/0/energy
+topic write shellies/+/light/0/power
+topic write shellies/+/light/0/status
+topic write shellies/+/loaderror
+topic write shellies/+/longpush/0
+topic write shellies/+/longpush/1
+topic write shellies/+/overload
+topic write shellies/+/overtemperature
+topic write shellies/+/temperature
+topic write shellies/+/temperature_f
+
+# Shelly Sense
+# shellies/shellysense-<deviceid>/...
+topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/charger
+topic write shellies/+/sensor/humidity
+topic write shellies/+/sensor/lux
+topic write shellies/+/sensor/motion
+topic write shellies/+/sensor/temperature
+
+# Shelly H&T
+# shellies/shellyht-<deviceid>/...
+topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/humidity
+topic write shellies/+/sensor/temperature
+
+# Shelly Smoke
+# shellies/shellysmoke-<deviceid>/..
+topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/smoke
+topic write shellies/+/sensor/temperature
+
+# Shelly Flood
+# shellies/shellyflood-<deviceid>/...
+topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/flood
+topic write shellies/+/sensor/temperature
+
+# Shelly Door/Window
+# shellies/shellydw-<deviceid>/...
+topic write shellies/+/sensor/battery
+topic write shellies/+/sensor/lux
+topic write shellies/+/sensor/state
+topic write shellies/+/sensor/tilt
+topic write shellies/+/sensor/vibration
+
+# Shelly EM
+# shellies/shellyem-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic write shellies/+/emeter/0/energy
+topic write shellies/+/emeter/0/power
+topic write shellies/+/emeter/0/reactive_power
+topic write shellies/+/emeter/0/returned_energy
+topic write shellies/+/emeter/0/total
+topic write shellies/+/emeter/0/total_returned
+topic write shellies/+/emeter/0/voltage
+topic write shellies/+/emeter/1/energy
+topic write shellies/+/emeter/1/power
+topic write shellies/+/emeter/1/reactive_power
+topic write shellies/+/emeter/1/returned_energy
+topic write shellies/+/emeter/1/total
+topic write shellies/+/emeter/1/total_returned
+topic write shellies/+/emeter/1/voltage
+topic write shellies/+/relay/0
+
+# Shelly 3EM
+# shellies/shellyem3-<deviceid>/...
+topic read shellies/+/relay/0/command
+topic write shellies/+/emeter/0/current
+topic write shellies/+/emeter/0/energy
+topic write shellies/+/emeter/0/pf
+topic write shellies/+/emeter/0/power
+topic write shellies/+/emeter/0/reactive_power
+topic write shellies/+/emeter/0/returned_energy
+topic write shellies/+/emeter/0/total
+topic write shellies/+/emeter/0/total_returned
+topic write shellies/+/emeter/0/voltage
+topic write shellies/+/emeter/1/current
+topic write shellies/+/emeter/1/energy
+topic write shellies/+/emeter/1/pf
+topic write shellies/+/emeter/1/power
+topic write shellies/+/emeter/1/reactive_power
+topic write shellies/+/emeter/1/returned_energy
+topic write shellies/+/emeter/1/total
+topic write shellies/+/emeter/1/total_returned
+topic write shellies/+/emeter/1/voltage
+topic write shellies/+/emeter/2/current
+topic write shellies/+/emeter/2/energy
+topic write shellies/+/emeter/2/pf
+topic write shellies/+/emeter/2/power
+topic write shellies/+/emeter/2/reactive_power
+topic write shellies/+/emeter/2/returned_energy
+topic write shellies/+/emeter/2/total
+topic write shellies/+/emeter/2/total_returned
+topic write shellies/+/emeter/2/voltage
+topic write shellies/+/relay/0

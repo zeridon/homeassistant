@@ -49,6 +49,18 @@ services:
       LETSENCRYPT_HOST: "${HA_DOMAIN:-homeauto.local}"
     depends_on:
       - proxy
+      - mqtt
+
+  mqtt:
+    restart: always
+    image: eclipse-mosquitto:1.6.12
+    volumes:
+      - "./mosquitto/config:/mosquitto/config"
+      - "./mosquitto/log:/mosquitto/log"
+      - "./mosquitto/data:/mosquitto/data"
+    ports:
+      - "1883:1883"
+    command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf -v
 
 volumes:
   proxy-certs:
