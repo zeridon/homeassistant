@@ -27,6 +27,7 @@ topic write shellies/+/info
 # shellies/shelly1-<deviceid>/...
 topic read shellies/+/relay/0/command
 topic write shellies/+/input/0
+topic write shellies/+/input_event/0
 topic write shellies/+/longpush/0
 topic write shellies/+/relay/0
 
