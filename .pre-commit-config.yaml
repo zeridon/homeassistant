@@ -1,16 +1,29 @@
+---
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v2.4.0
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.3.0
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-        args: [ --unsafe ]
       - id: check-added-large-files
       - id: check-executables-have-shebangs
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: check-xml
+      - id: check-yaml
+        args: [--unsafe]
       - id: detect-private-key
+      - id: end-of-file-fixer
+        exclude: homeassistant-config/.HA_VERSION
       - id: mixed-line-ending
       - id: trailing-whitespace
-      - id: sort-simple-yaml
+
+  - repo: https://github.com/IamTheFij/docker-pre-commit.git
+    rev: v2.0.0
+    hooks:
+      - id: docker-compose-check
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.25.0
+    hooks:
+      - id: yamllint
