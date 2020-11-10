@@ -23,7 +23,19 @@ repos:
     rev: v2.0.0
     hooks:
       - id: docker-compose-check
+
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.25.0
     hooks:
       - id: yamllint
+
+  - repo: local
+    hooks:
+      - id: homeassistant-config-check
+        name: Check Homeassistant config
+        description: Runs docker homeassistant to check configuration validity
+        language: docker_image
+        entry: homeassistant/home-assistant:latest hass --script check_config --config /src/homeassistant-config --files
+        pass_filenames: false
+        files: ^homeassistant-config/
+        types: [file]
