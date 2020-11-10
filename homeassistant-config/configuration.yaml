@@ -14,3 +14,9 @@ scene: !include scenes.yaml
 webostv:
   host: !secret propaganda_address
   name: propagandaTV
+
+vacuum:
+  - platform: xiaomi_miio
+    host: !secret s5_vacuum_address
+    token: !secret s5_vacuum_token
+    name: Robo Rooter
