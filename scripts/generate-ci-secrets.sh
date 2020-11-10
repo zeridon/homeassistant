@@ -13,25 +13,36 @@ fi
 secrets=($(grep -r '!secret' homeassistant-config --exclude=secrets.yaml --exclude=ci-secrets.yaml| awk '{print $NF}' | sort | uniq))
 
 function getValue() {
-  if echo "$1" | grep -q "_port"; then
-    echo "8080"
-  elif echo "$1" | grep -q "_email"; then
-    echo "user@mail.com"
-  elif echo "$1" | grep -q "_host"; then
-    echo "0.0.0.0"
-  elif echo "$1" | grep -q "localhost"; then
-    echo "0.0.0.0"
-  elif echo "$1" | grep -q "_url"; then
-    echo "http://endpoint.com"
-  elif echo "$1" | grep -q "_token"; then
-    echo "e2394ce1-9898-426c-b897-dd351ded18b2"
-  elif echo "$1" | grep -q "_api_key"; then
-    echo "e2394ce1-9898-426c-b897-dd351ded18b2"
-  elif echo "$1" | grep -q "_secret"; then
-    echo "e2394ce1-9898-426c-b897-dd351ded18b2"
-  else
-    echo "somevalue"
-  fi
+	if echo "$1" | grep -q "_port"; then
+		echo "8080"
+		return
+	elif echo "$1" | grep -q "_email"; then
+		echo "user@mail.com"
+		return
+	elif echo "$1" | grep -q "_host"; then
+		echo "0.0.0.0"
+		return
+	elif echo "$1" | grep -q "localhost"; then
+		echo "0.0.0.0"
+		return
+	elif echo "$1" | grep -q "_url"; then
+		echo "http://endpoint.com"
+		return
+	elif echo "$1" | grep -q "s5_vacuum_token"; then
+		echo "00000000000000000000000000000000"
+	elif echo "$1" | grep -q "_token"; then
+		echo "00000000-0000-0000-0000-000000000000"
+		return
+	elif echo "$1" | grep -q "_api_key"; then
+		echo "00000000-0000-0000-0000-000000000000"
+		return
+	elif echo "$1" | grep -q "_secret"; then
+		echo "00000000-0000-0000-0000-000000000000"
+		return
+	else
+		echo "somevalue"
+		return
+	fi
 }
 
 for secret in "${secrets[@]}"; do
