@@ -37,7 +37,7 @@ services:
   homeassistant:
     restart: always
     image: homeassistant/home-assistant:0.117.5
-    ports:
+    expose:
       - "8123"
     volumes:
       - "./homeassistant-config:/config"
@@ -54,6 +54,7 @@ services:
   mqtt:
     restart: always
     image: eclipse-mosquitto:1.6.12
+    user: "1001:1001"
     volumes:
       - "./mosquitto/config:/mosquitto/config"
       - "./mosquitto/log:/mosquitto/log"
