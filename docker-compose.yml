@@ -61,7 +61,7 @@ services:
       - "./mosquitto/data:/mosquitto/data"
     ports:
       - "1883:1883"
-    command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf -v
+    command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
 
 volumes:
   proxy-certs:
