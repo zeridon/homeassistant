@@ -26,3 +26,6 @@
       mac: '{{ trigger.payload_json.mac }}'
       fw_ver: '{{ trigger.payload_json.fw_ver }}'
       model: '{{ trigger.payload_json.model }}'
+      shellyht-E00685:
+        force_update_sensors: true
+        expire_after: 900
