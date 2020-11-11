@@ -75,14 +75,18 @@ topic read shellies/+/relay/0/command
 topic read shellies/+/relay/1/command
 topic write shellies/+/input/0
 topic write shellies/+/input/1
+topic write shellies/+/input_event/0
+topic write shellies/+/input_event/1
 topic write shellies/+/longpush/0
 topic write shellies/+/longpush/1
 topic write shellies/+/overtemperature
 topic write shellies/+/relay/0
 topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/overpower_value
 topic write shellies/+/relay/0/power
 topic write shellies/+/relay/1
 topic write shellies/+/relay/1/energy
+topic write shellies/+/relay/1/overpower_value
 topic write shellies/+/relay/1/power
 topic write shellies/+/temperature
 
