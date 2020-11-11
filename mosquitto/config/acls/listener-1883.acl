@@ -148,10 +148,18 @@ topic write shellies/+/light/0/energy
 topic write shellies/+/light/0/power
 topic write shellies/+/light/0/status
 
-# Shelly RGBW
+# Shelly RGBW2
 # shellies/shellyrgbw2-<deviceid>/...
+# RGBW mode
 topic read shellies/+/color/0/command
 topic read shellies/+/color/0/set
+topic write shellies/+/color/0
+topic write shellies/+/color/0/status
+topic write shellies/+/input/0
+topic write shellies/+/input_event/0
+topic write shellies/+/longpush/0
+
+# 4ch mode
 topic read shellies/+/white/0/command
 topic read shellies/+/white/0/set
 topic read shellies/+/white/1/command
@@ -160,8 +168,6 @@ topic read shellies/+/white/2/command
 topic read shellies/+/white/2/set
 topic read shellies/+/white/3/command
 topic read shellies/+/white/3/set
-topic write shellies/+/color/0
-topic write shellies/+/color/0/status
 topic write shellies/+/white/0
 topic write shellies/+/white/0/status
 topic write shellies/+/white/1
