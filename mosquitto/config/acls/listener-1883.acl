@@ -35,6 +35,7 @@ topic write shellies/+/relay/0
 # shellies/shelly1pm-<deviceid>/...
 topic write shellies/+/overtemperature
 topic write shellies/+/relay/0/energy
+topic write shellies/+/relay/0/overpower_value
 topic write shellies/+/relay/0/power
 topic write shellies/+/temperature
 topic write shellies/+/temperature_f
@@ -49,6 +50,11 @@ topic write shellies/+/ext_temperature_f/2
 
 # Shelly 1/1PM with DHT22 sensor
 topic write shellies/+/ext_humidity/0
+
+# Shelly 1/1PM with sensors (agregate topics)
+topic write shellies/+/ext_temperatures
+topic write shellies/+/ext_temperatures_f
+topic write shellies/+/ext_humidities
 
 # Shelly2
 # shellies/shellyswitch-<deviceid>/...
