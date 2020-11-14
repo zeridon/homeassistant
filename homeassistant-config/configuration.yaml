@@ -29,3 +29,12 @@ http:
   login_attempts_threshold: 5
   use_x_forwarded_for: True
   trusted_proxies: 0.0.0.0/0
+
+recorder:
+  auto_purge: True
+  purge_keep_days: 7
+  commit_interval: 5
+  exclude:
+    domains:
+      - automation
+      - updater
