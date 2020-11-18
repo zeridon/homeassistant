@@ -1,5 +1,9 @@
 ---
-# Configure a default setup of Home Assistant (frontend, api, etc)
+homeassistant:
+  # load packages
+  packages: !include_dir_named integrations
+
+# def config ...
 default_config:
 
 # Text to speech

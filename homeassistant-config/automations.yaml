@@ -1,73 +1,12 @@
----
-- id: shellies_announce
-  alias: Shellies Announce
-  trigger:
-  - platform: homeassistant
-    event: start
-  - platform: time_pattern
-    hours: /1
-  action:
-    service: mqtt.publish
-    data:
-      topic: shellies/command
-      payload: announce
-
-- id: shellies_discovery
-  alias: Shellies Discovery
-  mode: queued
-  max: 999
-  trigger:
-    platform: mqtt
-    topic: shellies/announce
-  action:
-    service: python_script.shellies_discovery
-    data_template:
-      id: '{{ trigger.payload_json.id }}'
-      mac: '{{ trigger.payload_json.mac }}'
-      fw_ver: '{{ trigger.payload_json.fw_ver }}'
-      model: '{{ trigger.payload_json.model }}'
-      shellyht-E00685:
-        force_update_sensors: true
-        expire_after: 900
-
-- id: homeassistant-update-notify
-  alias: HA Update notification
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.updater
-    from: 'off'
-    to: 'on'
-  action:
-  - service: notify.notify
-    data:
-      title: HA Update available
-      message: There is a new Home Assistant release available.
-
-- id: shellies-update-notification
-  alias: Shellies Update notification
-  mode: single
-  trigger:
-  - platform: state
-    entity_id: group.shellies_firmware
-    from: 'off'
-    to: 'on'
-  action:
-  - service: notify.notify
-    data:
-      title: Update Shellies
-      message: There is a new Shelly release available.
-
-- id: 'update-shelly-firmware'
-  alias: Update Shellies
-  mode: single
-  description: Update shellies firmware if/when available
-  trigger:
-  - platform: state
-    entity_id: group.shellies_firmware
-    from: 'off'
-    to: 'on'
-  action:
-  - service: mqtt.publish
-    data:
-      topic: shellies/command
-      payload: update_fw
+# This file is used by the automations editor
+# in the Home Assistant frontend.
+#
+# I personally do not use it, mainly because I like doing this in YAML.
+# However, from time to time, it is helpful to click a bit and see
+# what the frontend makes of it.
+#
+# This file must exist for the frontend Automation editor to work.
+# Hence, it is here, empty.
+#
+# If you are looking for my automations: See automations folder.
+[]

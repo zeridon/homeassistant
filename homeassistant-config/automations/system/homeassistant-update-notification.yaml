@@ -1,0 +1,17 @@
+---
+id: homeassistant-update-notify
+alias: HA Update notification
+description: Send notification when new version of Home-Assistant is detected
+
+trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.updater
+    from: 'off'
+    to: 'on'
+
+action:
+  - service: notify.notify
+    data:
+      title: HA Update available
+      message: There is a new Home Assistant release available.

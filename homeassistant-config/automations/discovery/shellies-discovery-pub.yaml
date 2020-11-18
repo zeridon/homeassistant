@@ -1,0 +1,19 @@
+id: shellies_discovery
+alias: Shellies Discovery
+description: >-
+  Generate necessary payloads to discover shellies
+mode: queued
+max: 999
+trigger:
+  platform: mqtt
+  topic: shellies/announce
+action:
+  service: python_script.shellies_discovery
+  data_template:
+    id: '{{ trigger.payload_json.id }}'
+    mac: '{{ trigger.payload_json.mac }}'
+    fw_ver: '{{ trigger.payload_json.fw_ver }}'
+    model: '{{ trigger.payload_json.model }}'
+    shellyht-E00685:
+      force_update_sensors: true
+      expire_after: 900

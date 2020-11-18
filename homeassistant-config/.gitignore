@@ -13,6 +13,10 @@
 !lovelace/*
 !packages/
 !packages/*
+!integrations/
+!integrations/*
+!automations/
+!automations/*
 !python_scripts/
 !python_scripts/*
 !custom_components/
