@@ -1,6 +1,14 @@
 ---
 version: "3.7"
 
+# networks for comm
+networks:
+  default:
+    driver: bridge
+  socket_proxy:
+    external:
+      name: socket_proxy
+
 services:
   proxy:
     restart: always
@@ -9,7 +17,7 @@ services:
       - "proxy-certs:/etc/nginx/certs:ro"
       - "proxy-html:/usr/share/nginx/html"
       - "proxy-vhost.d:/etc/nginx/vhost.d"
-      - "/var/run/docker.sock:/tmp/docker.sock:ro"
+        #- "/var/run/docker.sock:/tmp/docker.sock:ro"
       - "./proxy/conf.d/block-abuses.conf:/etc/nginx/vhost.d/default"
     ports:
       - "80:80"
@@ -17,9 +25,15 @@ services:
     environment:
       ENABLE_IPV6: 'false'
       DEFAULT_HOST: "${HA_DOMAIN:-homeauto.local}"
+      DOCKER_HOST: tcp://socket-proxy:2375
     labels:
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
       - com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen
+    networks:
+      - default
+      - socket_proxy
+    depends_on:
+      - socket-proxy
 
   sslgen:
     restart: always
@@ -28,11 +42,16 @@ services:
       - "proxy-certs:/etc/nginx/certs"
       - "proxy-html:/usr/share/nginx/html"
       - "proxy-vhost.d:/etc/nginx/vhost.d"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+        #- "/var/run/docker.sock:/var/run/docker.sock:ro"
     environment:
       DEFAULT_EMAIL: "${HA_CERT_EMAIL:-some@mail.com}"
+      DOCKER_HOST: tcp://socket-proxy:2375
     depends_on:
       - proxy
+      - socket-proxy
+    networks:
+      - default
+      - socket_proxy
 
   homeassistant:
     restart: always
@@ -50,6 +69,8 @@ services:
     depends_on:
       - proxy
       - mqtt
+    networks:
+      - default
 
   mqtt:
     restart: always
@@ -62,6 +83,80 @@ services:
     ports:
       - "1883:1883"
     command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
+    networks:
+      - default
+
+  # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: always
+    networks:
+      socket_proxy:
+    privileged: true
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - LOG_LEVEL=warning # debug,info,notice,warning,err,crit,alert,emerg
+      ## Variables match the URL prefix (i.e. AUTH blocks access to /auth/* parts of the API, etc.).
+      # 0 to revoke access.
+      # 1 to grant access.
+      ## Granted by Default
+      - EVENTS=1
+      - PING=1
+      - VERSION=1
+      ## Revoked by Default
+      # Security critical
+      - AUTH=0
+      - SECRETS=0
+      - POST=1 # Watchtower
+      - DELETE=1 # Watchtower
+        # GET Optons
+      - BUILD=0
+      - COMMIT=0
+      - CONFIGS=0
+      - CONTAINERS=1 # Traefik, portainer, etc.
+      - DISTRIBUTION=0
+      - EXEC=0
+      - IMAGES=1 # Portainer, Watchtower
+      - INFO=1 # Portainer
+      - NETWORKS=1 # Portainer, Watchtower
+      - NODES=0
+      - PLUGINS=0
+      - SERVICES=1 # Portainer
+      - SESSION=0
+      - SWARM=0
+      - SYSTEM=0
+      - TASKS=1 # Portaienr
+      - VOLUMES=1 # Portainer
+      # POST Options
+      - CONTAINERS_CREATE=1 # WatchTower
+      - CONTAINERS_START=1 # WatchTower
+      - CONTAINERS_UPDATE=1 # WatchTower
+      # DELETE Options
+      - CONTAINERS_DELETE=1 # WatchTower
+      - IMAGES_DELETE=1 # WatchTower
+
+  # Docker-GC - Automatic Docker Garbage Collection
+  # Create docker-gc-exclude file
+  dockergc:
+    image: clockworksoul/docker-gc-cron:latest
+    restart: unless-stopped
+    networks:
+      - socket_proxy
+    volumes:
+      # - /var/run/docker.sock:/var/run/docker.sock # Use Docker Socket Proxy instead for improved security
+      - ./docker-gc/docker-gc-exclude:/etc/docker-gc-exclude
+    environment:
+      CRON: 0 0 0 * * ? # Everyday at midnight. Previously 0 0 * * *
+      FORCE_IMAGE_REMOVAL: 1
+      FORCE_CONTAINER_REMOVAL: 0
+      GRACE_PERIOD_SECONDS: 86400
+      DRY_RUN: 0
+      CLEAN_UP_VOLUMES: 1
+      TZ: $TZ
+      DOCKER_HOST: tcp://socket-proxy:2375
+    depends_on:
+      - socket-proxy
 
 volumes:
   proxy-certs:
