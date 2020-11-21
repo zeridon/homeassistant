@@ -153,7 +153,7 @@ services:
       GRACE_PERIOD_SECONDS: 86400
       DRY_RUN: 0
       CLEAN_UP_VOLUMES: 1
-      TZ: $TZ
+      TZ: ${TZ:-Etc/UTC}
       DOCKER_HOST: tcp://socket-proxy:2375
     depends_on:
       - socket-proxy
