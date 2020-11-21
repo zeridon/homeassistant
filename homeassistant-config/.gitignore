@@ -18,6 +18,9 @@
 !automations/
 !automations/*
 !automations/**/*
+!entities/
+!entities/*
+!entities/**/*
 !python_scripts/
 !python_scripts/*
 !custom_components/

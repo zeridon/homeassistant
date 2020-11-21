@@ -11,7 +11,6 @@ tts:
   - platform: google_translate
     base_url: !secret tts_base_url
 
-group: !include groups.yaml
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
