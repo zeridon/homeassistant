@@ -1,0 +1,12 @@
+id: '802d7e28-2cdd-4651-8ef0-01401cdd26d6'
+alias: Boiler OFF - 20:30
+description: 'Turn Boiler OFF in the afternoon'
+mode: single
+trigger:
+  - platform: time
+    at: "20:30:00"
+action:
+  - type: turn_off
+    device_id: 701873e4af114c9f61a6edbaea4938d8
+    entity_id: switch.shelly_1pm_ba5659_relay_0
+    domain: switch

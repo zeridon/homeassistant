@@ -1,0 +1,12 @@
+id: 'fb915f11-ded1-48e0-8e09-bf0bebfdf739'
+alias: Boiler ON - 03:55
+description: 'Turn Boiler ON in the morning'
+mode: single
+trigger:
+  - platform: time
+    at: "03:55:00"
+action:
+  - type: turn_on
+    device_id: 701873e4af114c9f61a6edbaea4938d8
+    entity_id: switch.shelly_1pm_ba5659_relay_0
+    domain: switch

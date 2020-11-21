@@ -17,6 +17,7 @@
 !integrations/*
 !automations/
 !automations/*
+!automations/**/*
 !python_scripts/
 !python_scripts/*
 !custom_components/
