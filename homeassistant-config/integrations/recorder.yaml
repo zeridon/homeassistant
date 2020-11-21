@@ -1,0 +1,11 @@
+---
+# configuration for recorder integration (data archive and so on)
+# https://www.home-assistant.io/integrations/recorder
+recorder:
+  auto_purge: True
+  purge_keep_days: 7
+  commit_interval: 30
+  exclude:
+    domains:
+      - automation
+      - updater
