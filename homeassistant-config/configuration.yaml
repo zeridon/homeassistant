@@ -26,6 +26,3 @@ vacuum:
     name: Robo Rooter
 
 python_script:
-
-shelly:
-  discovery: false
