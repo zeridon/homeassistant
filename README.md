@@ -19,4 +19,4 @@ I regularly update my configuration files. If you like anything here, Be sure to
 * [Daikin Airconditioning](https://daikin.com)
 
 ## Usefull scripts
-* generate-ci-secrets.sh - looks trough config and generates dummy secrets file for CI. Also usefull if you don't have mine to be able to start quickly.
+* `generate-ci-secrets.sh` - looks trough config and generates dummy secrets file for CI. Also usefull if you don't have mine to be able to start quickly.
