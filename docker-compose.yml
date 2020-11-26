@@ -69,6 +69,7 @@ services:
     depends_on:
       - proxy
       - mqtt
+      - repeater
     networks:
       - default
 
@@ -157,6 +158,19 @@ services:
       DOCKER_HOST: tcp://socket-proxy:2375
     depends_on:
       - socket-proxy
+
+  # mDNS/Bonjour/SSDP repeater
+  # based on https://github.com/alsmith/multicast-relay
+  # unfortunately has to run in host mode.
+  #
+  # Used to enable discovery ... though if it is going to be used is another story
+  repeater:
+    image: zeridon/multicast-relay
+    build:
+      context: https://github.com/alsmith/multicast-relay.git
+    restart: always
+    network_mode: "host"
+    command: --verbose --noSonosDiscovery --relay '224.0.1.187:5683' --interfaces ${RELAY_INTERFACES}
 
 volumes:
   proxy-certs:
