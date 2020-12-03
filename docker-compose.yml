@@ -173,6 +173,40 @@ services:
     network_mode: "host"
     command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
 
+  # InfluxDB - Database for sensor data
+  # Create influxdb.conf
+  influxdb:
+    image: influxdb:latest
+    container_name: influxdb
+    restart: always
+    networks:
+      - default
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "8086"
+    volumes:
+      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+      - ./influxdb/db:/var/lib/influxdb
+
+  # Grafana - Graphical data visualization for InfluxDB data
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    networks:
+      - default
+    security_opt:
+      - no-new-privileges:true
+    ports:
+       - "3000:3000"
+    user: "0"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    # environment:
+    # yamllint disable-line rule:line-length
+    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+
 volumes:
   proxy-certs:
   proxy-vhost.d:
