@@ -39,6 +39,15 @@ function getValue() {
 	elif echo "$1" | grep -q "_secret"; then
 		echo "00000000-0000-0000-0000-000000000000"
 		return
+	elif echo "$1" | grep -q "_latitude"; then
+		echo "0.000000"
+		return
+	elif echo "$1" | grep -q "_longitude"; then
+		echo "0.000000"
+		return
+	elif echo "$1" | grep -q "_elevation"; then
+		echo "0"
+		return
 	else
 		echo "somevalue"
 		return

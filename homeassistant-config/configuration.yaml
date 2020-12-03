@@ -1,5 +1,11 @@
 ---
 homeassistant:
+  name: Home
+  latitude: !secret zone_home_latitude
+  longitude: !secret zone_home_longitude
+  elevation: !secret zone_home_elevation
+  time_zone: "Europe/Sofia"
+  unit_system: metric
   # load packages
   packages: !include_dir_named integrations
 
