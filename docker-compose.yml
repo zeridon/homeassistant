@@ -177,7 +177,6 @@ services:
   # Create influxdb.conf
   influxdb:
     image: influxdb:latest
-    container_name: influxdb
     restart: always
     networks:
       - default
@@ -192,7 +191,6 @@ services:
   # Grafana - Graphical data visualization for InfluxDB data
   grafana:
     image: grafana/grafana:latest
-    container_name: grafana
     restart: unless-stopped
     networks:
       - default
