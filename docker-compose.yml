@@ -204,6 +204,8 @@ services:
     # environment:
     # yamllint disable-line rule:line-length
     #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+    depends_on:
+      - influxdb
 
 volumes:
   proxy-certs:
