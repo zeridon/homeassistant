@@ -3,75 +3,93 @@ version: "3.7"
 
 # networks for comm
 networks:
-  default:
-    driver: bridge
   socket_proxy:
-    external:
-      name: socket_proxy
+    internal: true
+  svcs:
 
 services:
   proxy:
-    restart: always
-    image: jwilder/nginx-proxy
-    volumes:
-      - "proxy-certs:/etc/nginx/certs:ro"
-      - "proxy-html:/usr/share/nginx/html"
-      - "proxy-vhost.d:/etc/nginx/vhost.d"
-        #- "/var/run/docker.sock:/tmp/docker.sock:ro"
-      - "./proxy/conf.d/block-abuses.conf:/etc/nginx/vhost.d/default"
+    # The official v2 Traefik docker image
+    image: traefik:v2.3.5
+    # Enables the web UI and tells Traefik to listen to docker
+    command:
+      # we are gona use apis
+      - --api=true
+      - --api.insecure=true
+      - --api.dashboard=true
+      # we run in docker so use it to provide info
+      - --providers.docker=true
+      - --providers.docker.exposedByDefault=false
+      - --providers.docker.endpoint=tcp://socket-proxy:2375
+      # be quiet please
+      - --global.checkNewVersion=false
+      - --global.sendAnonymousUsage=false
+      # debug levels
+      - --log.level=DEBUG
+      # entrypoints definitions
+      - --entryPoints.traefik.address=:8080
+      - --entryPoints.web-bad.address=:80
+      - --entryPoints.web-sec.address=:443
+      # cf ip's to resolve clients
+      - --entrypoints.web-sec.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22,192.168.99.0/24,192.168.166.0/24
+      # certresolver ... attach to entrypoint
+      - --entrypoints.web-bad.http.tls.certresolver=dns-cloudflare
+      # domain names for all
+      - --entrypoints.web-bad.http.tls.domains[0].main=$BASE_DOMAIN
+      - --entrypoints.web-bad.http.tls.domains[0].sans=*.$BASE_DOMAIN
+      # letsencrypt via cf
+      # LetsEncrypt Staging Server - uncomment when testing
+      #- --certificatesResolvers.dns-cloudflare.acme.caServer=https://acme-staging-v02.api.letsencrypt.org/directory
+      - --certificatesResolvers.dns-cloudflare.acme.email=$CLOUDFLARE_EMAIL
+      - --certificatesResolvers.dns-cloudflare.acme.storage=/acme.json
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.provider=cloudflare
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+      - --certificatesResolvers.dns-cloudflare.acme.dnsChallenge.delayBeforeCheck=15
     ports:
+      # The HTTP port
       - "80:80"
       - "443:443"
-    environment:
-      ENABLE_IPV6: 'false'
-      DEFAULT_HOST: "${HA_DOMAIN:-homeauto.local}"
-      DOCKER_HOST: tcp://socket-proxy:2375
-    labels:
-      - com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy
-      - com.github.jrcs.letsencrypt_nginx_proxy_companion.docker_gen
-    networks:
-      - default
-      - socket_proxy
-    depends_on:
-      - socket-proxy
-
-  sslgen:
-    restart: always
-    image: jrcs/letsencrypt-nginx-proxy-companion
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
     volumes:
-      - "proxy-certs:/etc/nginx/certs"
-      - "proxy-html:/usr/share/nginx/html"
-      - "proxy-vhost.d:/etc/nginx/vhost.d"
-        #- "/var/run/docker.sock:/var/run/docker.sock:ro"
-    environment:
-      DEFAULT_EMAIL: "${HA_CERT_EMAIL:-some@mail.com}"
-      DOCKER_HOST: tcp://socket-proxy:2375
-    depends_on:
-      - proxy
-      - socket-proxy
+      # So that Traefik can listen to the Docker events
+      - ./traefik/acme/acme.json:/acme.json
+    labels:
+      - "traefik.enable=true"
+      # HTTP-to-HTTPS Redirect
+      - "traefik.http.routers.http-catchall.entrypoints=web-bad"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
     networks:
-      - default
+      - svcs
       - socket_proxy
+    environment:
+      # secrets for cloudflare
+      - CF_API_EMAIL=$CLOUDFLARE_EMAIL
+      - CF_API_KEY=$CLOUDFLARE_API_TOKEN
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:0.118.4
+    image: homeassistant/home-assistant:0.118.5
     expose:
       - "8123"
     volumes:
       - "./homeassistant-config:/config"
-    environment:
-      VIRTUAL_HOST: "${HA_DOMAIN:-homeauto.local}"
-      VRTUAL_PORT: "8123"
-      VIRTUAL_PROTO: 'http'
-      HSTS: 'off'
-      LETSENCRYPT_HOST: "${HA_DOMAIN:-homeauto.local}"
     depends_on:
       - mqtt
-      - proxy
-      - repeater
+    labels:
+      # enable
+      - "traefik.enable=true"
+      # Routers
+      - "traefik.http.routers.hass-rtr.rule=Host(`${HA_DOMAIN}`)"
+      - "traefik.http.routers.hass-rtr.entrypoints=web-sec"
+      - "traefik.http.routers.hass-rtr.tls=true"
+      # and finaly the services
+      - "traefik.http.routers.hass-rtr.service=hass-svc"
+      - "traefik.http.services.hass-svc.loadbalancer.server.port=8123"
     networks:
-      - default
+      - svcs
 
   mqtt:
     restart: always
@@ -85,15 +103,75 @@ services:
       - "1883:1883"
     command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
     networks:
-      - default
+      - svcs
+
+  # mDNS/Bonjour/SSDP repeater
+  # based on https://github.com/alsmith/multicast-relay
+  # unfortunately has to run in host mode.
+  #
+  # to discover shellies: --relay '224.0.1.187:5683'
+  # Used to enable discovery ... though if it is going to be used is another story
+  repeater:
+    image: zeridon/multicast-relay
+    build:
+      context: https://github.com/alsmith/multicast-relay.git
+    restart: always
+    network_mode: "host"
+    command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
+
+  # InfluxDB - Database for sensor data
+  # Create influxdb.conf
+  influxdb:
+    image: influxdb:latest
+    restart: always
+    networks:
+      - svcs
+    security_opt:
+      - no-new-privileges:true
+    expose:
+      - "8086"
+    volumes:
+      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+      - ./influxdb/db:/var/lib/influxdb
+
+  # Grafana - Graphical data visualization for InfluxDB data
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    networks:
+      - svcs
+    security_opt:
+      - no-new-privileges:true
+    ports:
+       - "3000:3000"
+    user: "0"
+    volumes:
+      - ./grafana:/var/lib/grafana
+    # environment:
+    # yamllint disable-line rule:line-length
+    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+    depends_on:
+      - influxdb
+    labels:
+      # enable
+      - "traefik.enable=true"
+      # Routers
+      - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.grafana-rtr.entrypoints=web-sec"
+      - "traefik.http.routers.grafana-rtr.tls=true"
+      # and finaly the services
+      - "traefik.http.routers.grafana-rtr.service=grafana-svc"
+      - "traefik.http.services.grafana-svc.loadbalancer.server.port=3000"
 
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
     image: tecnativa/docker-socket-proxy
     restart: always
     networks:
-      socket_proxy:
+      - socket_proxy
     privileged: true
+    ports:
+      - "127.0.0.1:2375:2375" # Port 2375 should only ever get exposed to the internal network.
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
@@ -137,6 +215,40 @@ services:
       - CONTAINERS_DELETE=1 # WatchTower
       - IMAGES_DELETE=1 # WatchTower
 
+  # Cloudflare-Companion - Automatic CNAME DNS Creation
+  cf-companion:
+    image: tiredofit/traefik-cloudflare-companion:latest
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+    networks:
+      - socket_proxy
+      - svcs
+    environment:
+      # base container setup
+      - TIMEZONE=$TZ
+      - COLORIZE_OUTPUT=FALSE
+      - ENABLE_CRON=FALSE
+      - ENABLE_LOGROTATE=FALSE
+      - ENABLE_SMTP=FALSE
+      - ENABLE_ZABBIX=FALSE
+      # companion setup
+      # where to point the cname
+      - TARGET_DOMAIN=$HA_DOMAIN
+      # domain in which to put the cnames
+      # cf on free plan does not allow multilevel subdomains over ssl
+      - DOMAIN1=$BASE_DOMAIN
+      - DOMAIN1_PROXIED=TRUE
+      - DOMAIN1_ZONE_ID=$CLOUDFLARE_ZONE_ID # Copy from Cloudflare Overview page
+      - TRAEFIK_VERSION=2
+      - CF_EMAIL=$CLOUDFLARE_EMAIL
+      - CF_TOKEN=$CLOUDFLARE_API_TOKEN
+      - DOCKER_HOST=tcp://socket-proxy:2375
+    #labels:
+      # Add hosts specified in rules here to force cf-companion to create the CNAMEs
+      # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
+      #- "traefik.http.routers.cf-companion-rtr.rule=Host(`portainer.$DOMAIN`) || `synglances.$DOMAIN`)"
+
   # Docker-GC - Automatic Docker Garbage Collection
   # Create docker-gc-exclude file
   dockergc:
@@ -159,55 +271,18 @@ services:
     depends_on:
       - socket-proxy
 
-  # mDNS/Bonjour/SSDP repeater
-  # based on https://github.com/alsmith/multicast-relay
-  # unfortunately has to run in host mode.
-  #
-  # to discover shellies: --relay '224.0.1.187:5683'
-  # Used to enable discovery ... though if it is going to be used is another story
-  repeater:
-    image: zeridon/multicast-relay
-    build:
-      context: https://github.com/alsmith/multicast-relay.git
-    restart: always
-    network_mode: "host"
-    command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
-
-  # InfluxDB - Database for sensor data
-  # Create influxdb.conf
-  influxdb:
-    image: influxdb:latest
-    restart: always
+  whoami:
+    # A container that exposes an API to show its IP address
+    image: traefik/whoami
+    labels:
+      # enable
+      - "traefik.enable=true"
+      # Routers
+      - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.whoami-rtr.entrypoints=web-sec"
+      - "traefik.http.routers.whoami-rtr.tls=true"
+      # and finaly the services
+      - "traefik.http.routers.whoami-rtr.service=whoami-svc"
+      - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
     networks:
-      - default
-    security_opt:
-      - no-new-privileges:true
-    expose:
-      - "8086"
-    volumes:
-      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
-      - ./influxdb/db:/var/lib/influxdb
-
-  # Grafana - Graphical data visualization for InfluxDB data
-  grafana:
-    image: grafana/grafana:latest
-    restart: unless-stopped
-    networks:
-      - default
-    security_opt:
-      - no-new-privileges:true
-    ports:
-       - "3000:3000"
-    user: "0"
-    volumes:
-      - ./grafana:/var/lib/grafana
-    # environment:
-    # yamllint disable-line rule:line-length
-    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
-    depends_on:
-      - influxdb
-
-volumes:
-  proxy-certs:
-  proxy-vhost.d:
-  proxy-html:
+      - svcs
