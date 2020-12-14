@@ -11,6 +11,7 @@ services:
   proxy:
     # The official v2 Traefik docker image
     image: traefik:v2.3.5
+    restart: always
     # Enables the web UI and tells Traefik to listen to docker
     command:
       # we are gona use apis
@@ -115,7 +116,7 @@ services:
     image: zeridon/multicast-relay
     build:
       context: https://github.com/alsmith/multicast-relay.git
-    restart: always
+    restart: unless-stopped
     network_mode: "host"
     command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
 
@@ -123,7 +124,7 @@ services:
   # Create influxdb.conf
   influxdb:
     image: influxdb:latest
-    restart: always
+    restart: unless-stopped
     networks:
       - svcs
     security_opt:
