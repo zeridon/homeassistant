@@ -94,7 +94,7 @@ services:
 
   mqtt:
     restart: always
-    image: eclipse-mosquitto:1.6.12
+    image: eclipse-mosquitto:2.0.4
     user: "1001:1001"
     volumes:
       - "./mosquitto/config:/mosquitto/config"
