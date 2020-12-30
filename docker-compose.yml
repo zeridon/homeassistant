@@ -72,7 +72,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:0.118.5
+    image: homeassistant/home-assistant:2020.12.2
     expose:
       - "8123"
     volumes:
@@ -106,63 +106,63 @@ services:
     networks:
       - svcs
 
-  # mDNS/Bonjour/SSDP repeater
-  # based on https://github.com/alsmith/multicast-relay
-  # unfortunately has to run in host mode.
-  #
-  # to discover shellies: --relay '224.0.1.187:5683'
-  # Used to enable discovery ... though if it is going to be used is another story
-  repeater:
-    image: zeridon/multicast-relay
-    build:
-      context: https://github.com/alsmith/multicast-relay.git
-    restart: unless-stopped
-    network_mode: "host"
-    command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
-
-  # InfluxDB - Database for sensor data
-  # Create influxdb.conf
-  influxdb:
-    image: influxdb:latest
-    restart: unless-stopped
-    networks:
-      - svcs
-    security_opt:
-      - no-new-privileges:true
-    expose:
-      - "8086"
-    volumes:
-      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
-      - ./influxdb/db:/var/lib/influxdb
-
-  # Grafana - Graphical data visualization for InfluxDB data
-  grafana:
-    image: grafana/grafana:latest
-    restart: unless-stopped
-    networks:
-      - svcs
-    security_opt:
-      - no-new-privileges:true
-    ports:
-       - "3000:3000"
-    user: "0"
-    volumes:
-      - ./grafana:/var/lib/grafana
-    # environment:
-    # yamllint disable-line rule:line-length
-    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
-    depends_on:
-      - influxdb
-    labels:
-      # enable
-      - "traefik.enable=true"
-      # Routers
-      - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.${BASE_DOMAIN}`)"
-      - "traefik.http.routers.grafana-rtr.entrypoints=web-sec"
-      - "traefik.http.routers.grafana-rtr.tls=true"
-      # and finaly the services
-      - "traefik.http.routers.grafana-rtr.service=grafana-svc"
-      - "traefik.http.services.grafana-svc.loadbalancer.server.port=3000"
+####  # mDNS/Bonjour/SSDP repeater
+####  # based on https://github.com/alsmith/multicast-relay
+####  # unfortunately has to run in host mode.
+####  #
+####  # to discover shellies: --relay '224.0.1.187:5683'
+####  # Used to enable discovery ... though if it is going to be used is another story
+####  repeater:
+####    image: zeridon/multicast-relay
+####    build:
+####      context: https://github.com/alsmith/multicast-relay.git
+####    restart: unless-stopped
+####    network_mode: "host"
+####    command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
+####
+####  # InfluxDB - Database for sensor data
+####  # Create influxdb.conf
+####  influxdb:
+####    image: influxdb:latest
+####    restart: unless-stopped
+####    networks:
+####      - svcs
+####    security_opt:
+####      - no-new-privileges:true
+####    expose:
+####      - "8086"
+####    volumes:
+####      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
+####      - ./influxdb/db:/var/lib/influxdb
+####
+####  # Grafana - Graphical data visualization for InfluxDB data
+####  grafana:
+####    image: grafana/grafana:latest
+####    restart: unless-stopped
+####    networks:
+####      - svcs
+####    security_opt:
+####      - no-new-privileges:true
+####    ports:
+####       - "3000:3000"
+####    user: "0"
+####    volumes:
+####      - ./grafana:/var/lib/grafana
+####    # environment:
+# yamllint disable-line rule:line-length
+####    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
+####    depends_on:
+####      - influxdb
+####    labels:
+####      # enable
+####      - "traefik.enable=true"
+####      # Routers
+####      - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.${BASE_DOMAIN}`)"
+####      - "traefik.http.routers.grafana-rtr.entrypoints=web-sec"
+####      - "traefik.http.routers.grafana-rtr.tls=true"
+####      # and finaly the services
+####      - "traefik.http.routers.grafana-rtr.service=grafana-svc"
+####      - "traefik.http.services.grafana-svc.loadbalancer.server.port=3000"
 
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
@@ -245,6 +245,7 @@ services:
       - CF_EMAIL=$CLOUDFLARE_EMAIL
       - CF_TOKEN=$CLOUDFLARE_API_TOKEN
       - DOCKER_HOST=tcp://socket-proxy:2375
+      - REFRESH_ENTRIES=TRUE
     #labels:
       # Add hosts specified in rules here to force cf-companion to create the CNAMEs
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
@@ -272,18 +273,18 @@ services:
     depends_on:
       - socket-proxy
 
-  whoami:
-    # A container that exposes an API to show its IP address
-    image: traefik/whoami
-    labels:
-      # enable
-      - "traefik.enable=true"
-      # Routers
-      - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.${BASE_DOMAIN}`)"
-      - "traefik.http.routers.whoami-rtr.entrypoints=web-sec"
-      - "traefik.http.routers.whoami-rtr.tls=true"
-      # and finaly the services
-      - "traefik.http.routers.whoami-rtr.service=whoami-svc"
-      - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
-    networks:
-      - svcs
+####  whoami:
+####    # A container that exposes an API to show its IP address
+####    image: traefik/whoami
+####    labels:
+####      # enable
+####      - "traefik.enable=true"
+####      # Routers
+####      - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.${BASE_DOMAIN}`)"
+####      - "traefik.http.routers.whoami-rtr.entrypoints=web-sec"
+####      - "traefik.http.routers.whoami-rtr.tls=true"
+####      # and finaly the services
+####      - "traefik.http.routers.whoami-rtr.service=whoami-svc"
+####      - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
+####    networks:
+####      - svcs
