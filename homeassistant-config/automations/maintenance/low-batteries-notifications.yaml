@@ -1,0 +1,15 @@
+---
+id: '1609355264963'
+alias: Low battery level detection & notification for all battery sensors
+description: ''
+use_blueprint:
+  path: sbyx/low-battery-level-detection-notification-for-all-battery-sensors.yaml
+  input:
+    day: '0'
+    time: '12:00:00'
+    exclude:
+      entity_id:
+      - sensor.pingvin_phone_app_battery_level
+    actions:
+    - service: notify.mobile_app_pingvin_phone_app
+      data: New batteries needed for {{sensors}}!!!
