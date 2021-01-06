@@ -1,0 +1,21 @@
+---
+id: '1609959023251'
+alias: 'Turn kitchen Light on'
+description: 'Turn the kitchen light on when someone is home and the entry door is closed. Will misfire probably'
+trigger:
+- platform: state
+  entity_id: person.kotka
+  to: home
+- platform: state
+  entity_id: person.vladimir_vitkov
+  to: home
+condition:
+- condition: state
+  entity_id: binary_sensor.shelly_door_window_2_483fda81e1d1_opening
+  state: 'off'
+action:
+- type: turn_on
+  device_id: 62478055d3445ad0cf56fa09dcde5128
+  entity_id: light.kukhnenska_lampa
+  domain: light
+mode: single
