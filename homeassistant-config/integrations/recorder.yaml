@@ -3,9 +3,22 @@
 # https://www.home-assistant.io/integrations/recorder
 recorder:
   auto_purge: True
-  purge_keep_days: 7
-  commit_interval: 30
+  purge_keep_days: 5
+  commit_interval: 10
   exclude:
     domains:
       - automation
       - updater
+    entity_globs:
+      # ignore unused/noisy
+      - binary_sensor.*firmware_update
+      - binary_sensor.*_longpush_*
+      - binary_sensor.*_shortpush_*
+      - sensor.*_ssid
+      - sensor.*_rssi
+      # generally useless on shellies with power metering
+      - sensor.shelly*_temperature
+      # so unreliable that they are almost useless
+      - sensor.spalnia_*_energy_consumption
+      - sensor.dnevna_*_energy_consumption
+      - sensor.rozovo_*_energy_consumptio

@@ -1,0 +1,33 @@
+#####
+# The history component will track everything that is going on within
+# Home Assistant and allows the user to browse through it.
+#
+# https://www.home-assistant.io/components/history/
+#####
+
+history:
+# use_include_order: True
+#  include:
+#    entities:
+#      - binary_sensor.garagedoor
+#      - device_tracker.meta_rashmi
+#      - person.rashmi
+#      - device_tracker.meta_alok
+#      - person.alok
+  exclude:
+    entity_globs:
+      # ignore unused/noisy
+      - binary_sensor.*firmware_update
+      - binary_sensor.*_longpush_*
+      - binary_sensor.*_shortpush_*
+      - sensor.*_ssid
+      - sensor.*_rssi
+      - sensor.*_uptime
+      # generally useless on shellies with power metering
+      - sensor.shelly*_temperature
+      # so unreliable that they are almost useless
+      - sensor.spalnia_*_energy_consumption
+      - sensor.dnevna_*_energy_consumption
+      - sensor.rozovo_*_energy_consumption
+    domains:
+      - automation
