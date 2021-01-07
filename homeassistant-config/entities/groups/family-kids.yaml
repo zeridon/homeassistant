@@ -1,6 +1,6 @@
 ---
 # All devices for the kids
 
-family:
+kids:
   name: 'The Irresponsible'
   entities:

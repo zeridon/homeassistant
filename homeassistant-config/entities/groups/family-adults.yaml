@@ -1,7 +1,7 @@
 ---
 # All devices for the adults
 
-family:
+adults:
   name: 'The Adults'
   entities:
     - person.vladimir_vitkov
