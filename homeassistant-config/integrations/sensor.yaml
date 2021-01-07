@@ -3,7 +3,7 @@ sensor:
   - platform: template
     sensors:
       all_house_energy_usage:
-        unit_of_measurement: 'W'
+        unit_of_measurement: 'kWh'
         value_template: >
           {#sum all sensors and add some static load due to shellies not self measuring and other #}
           {{
