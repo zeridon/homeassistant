@@ -1,0 +1,8 @@
+---
+# All devices for the family
+
+family:
+  name: 'The Family'
+  entities:
+    - person.vladimir_vitkov
+    - person.kotka
