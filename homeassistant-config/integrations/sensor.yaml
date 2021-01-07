@@ -8,10 +8,9 @@ sensor:
           {#sum all sensors and add some static load due to shellies not self measuring and other #}
           {{
             (
-              (states('sensor.shelly_1pm_40f520008838_power_0') | float) +
-              (states('sensor.shelly_1pm_40f52001721b_power_0') | float) +
-              (states('sensor.shelly_1pm_ba0ab9_power_0') | float) +
-              (states('sensor.shelly_1pm_ba5659_power_0') | float) +
-              ((6/3600) | float)
-            ) | float | round(2)
+              (states('sensor.shelly_1pm_40f520008838_energy_0') | float) +
+              (states('sensor.shelly_1pm_40f52001721b_energy_0') | float) +
+              (states('sensor.shelly_1pm_ba0ab9_energy_0') | float) +
+              (states('sensor.shelly_1pm_ba5659_energy_0') | float)
+            ) | round(2)
           }}
