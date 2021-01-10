@@ -6,6 +6,8 @@ networks:
   socket_proxy:
     internal: true
   svcs:
+  mqtt_net:
+    internal: true
 
 services:
   proxy:
@@ -91,6 +93,7 @@ services:
       - "traefik.http.services.hass-svc.loadbalancer.server.port=8123"
     networks:
       - svcs
+      - mqtt_net
 
   mqtt:
     restart: always
@@ -105,6 +108,24 @@ services:
     command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
     networks:
       - svcs
+      - mqtt_net
+
+  luftdaten2mqtt:
+    restart: unless-stopped
+    image: zeridon/luftdaten2mqtt
+    build:
+      context: https://github.com/zeridon/airrohr-to-ha-mqtt.git
+    depends_on:
+      - mqtt
+    networks:
+      - svcs
+      - mqtt_net
+    ports:
+      - "8081:8080"
+    environment:
+      - MQTT_HOST=mqtt
+      - MQTT_USER=${MQTT_LUFTDATEN_USER:-user}
+      - MQTT_PASS=${MQTT_LUFTDATEN_PASS:-pass}
 
 ####  # mDNS/Bonjour/SSDP repeater
 ####  # based on https://github.com/alsmith/multicast-relay

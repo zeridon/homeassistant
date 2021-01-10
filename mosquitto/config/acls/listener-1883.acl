@@ -292,3 +292,9 @@ topic write shellies/+/emeter/2/total
 topic write shellies/+/emeter/2/total_returned
 topic write shellies/+/emeter/2/voltage
 topic write shellies/+/relay/0
+
+# airohr2hamqtt
+# https://github.com/zeridon/airrohr-to-ha-mqtt/
+user luftdaten
+topic write homeassistant/sensor/+/config
+topic write luftdaten/+/+
