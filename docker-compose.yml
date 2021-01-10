@@ -6,8 +6,6 @@ networks:
   socket_proxy:
     internal: true
   svcs:
-  mqtt_net:
-    internal: true
 
 services:
   proxy:
@@ -93,7 +91,6 @@ services:
       - "traefik.http.services.hass-svc.loadbalancer.server.port=8123"
     networks:
       - svcs
-      - mqtt_net
 
   mqtt:
     restart: always
@@ -108,7 +105,6 @@ services:
     command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
     networks:
       - svcs
-      - mqtt_net
 
   luftdaten2mqtt:
     restart: unless-stopped
@@ -119,7 +115,6 @@ services:
       - mqtt
     networks:
       - svcs
-      - mqtt_net
     ports:
       - "8081:8080"
     environment:
