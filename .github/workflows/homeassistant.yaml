@@ -9,6 +9,7 @@ on:
     - cron: 0 12 * * *
 
 jobs:
+
   yamllint:
     runs-on: ubuntu-latest
     steps:
@@ -18,6 +19,7 @@ jobs:
         uses: "docker://pipelinecomponents/yamllint:latest"
         with:
           args: yamllint .
+
   remarklint:
     runs-on: ubuntu-18.04
     steps:
@@ -28,58 +30,20 @@ jobs:
         continue-on-error: true
         with:
           args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
-  home_assistant_stable:
+
+  home_assistant:
     runs-on: ubuntu-latest
     needs: [yamllint, remarklint]
+    strategy:
+      matrix:
+        version: ["stable", "beta", "dev"]
     steps:
       - name: Getting your configuration from GitHub
         uses: actions/checkout@v2
       - name: Generate secrets
         run: ./scripts/generate-ci-secrets.sh && mv homeassistant-config/ci-secrets.yaml homeassistant-config/secrets.yaml
-      - name: Home Assistant Version
-        uses: "docker://homeassistant/home-assistant:stable"
+      - name: Home Assistant Configuration check
+        uses: frenck/action-home-assistant@v1.0.0
         with:
-          args: |
-            python -m homeassistant --version
-      - name: Home Assistant Check
-        uses: "docker://homeassistant/home-assistant:stable"
-        with:
-          args: |
-            python -m homeassistant --config ./homeassistant-config/ --script check_config  --info all
-  home_assistant_beta:
-    runs-on: ubuntu-latest
-    needs: [yamllint, remarklint]
-    steps:
-      - name: Getting your configuration from GitHub
-        uses: actions/checkout@v2
-      - name: Generate secrets
-        run: ./scripts/generate-ci-secrets.sh && mv homeassistant-config/ci-secrets.yaml homeassistant-config/secrets.yaml
-      - name: Home Assistant Version
-        uses: "docker://homeassistant/home-assistant:beta"
-        with:
-          args: |
-            python -m homeassistant --version
-      - name: Home Assistant Check
-        uses: "docker://homeassistant/home-assistant:beta"
-        with:
-          args: |
-            python -m homeassistant --config ./homeassistant-config/ --script check_config  --info all
-####Temporary disable dev check as it fails nonsensically
-###  home_assistant_dev:
-###    runs-on: ubuntu-latest
-###    needs: [yamllint, remarklint]
-###    steps:
-###      - name: Getting your configuration from GitHub
-###        uses: actions/checkout@v2
-###      - name: Generate secrets
-###        run: ./scripts/generate-ci-secrets.sh && mv homeassistant-config/ci-secrets.yaml homeassistant-config/secrets.yaml
-###      - name: Home Assistant Version
-###        uses: "docker://homeassistant/home-assistant:dev"
-###        with:
-###          args: |
-###            python -m homeassistant --version
-###      - name: Home Assistant Check
-###        uses: "docker://homeassistant/home-assistant:dev"
-###        with:
-###          args: |
-###            python -m homeassistant --config ./homeassistant-config/ --script check_config  --info all
+          path: ./homeassistant-config
+          version: "${{ matrix.version }}"
