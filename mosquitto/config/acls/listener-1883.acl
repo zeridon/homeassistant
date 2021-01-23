@@ -298,3 +298,10 @@ topic write shellies/+/relay/0
 user luftdaten
 topic write homeassistant/sensor/+/config
 topic write luftdaten/+/+
+
+# tasmota
+user tasmotas
+topic write tasmotas/tele/+/+
+topic write tasmotas/cmnd/+/+
+topic write tasmotas/stat/+/+
+topic write homeassistant/+/+/config
