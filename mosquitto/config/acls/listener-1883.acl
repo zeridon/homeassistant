@@ -302,6 +302,7 @@ topic write luftdaten/+/+
 # tasmota
 user tasmotas
 topic write tasmotas/tele/+/+
-topic write tasmotas/cmnd/+/+
+topic read tasmotas/cmnd/+/+
+topic read tasmotas/cmnd/tasmotas/#
 topic write tasmotas/stat/+/+
 topic write homeassistant/+/+/config
