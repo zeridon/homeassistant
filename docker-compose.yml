@@ -268,28 +268,6 @@ services:
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
       #- "traefik.http.routers.cf-companion-rtr.rule=Host(`portainer.$DOMAIN`) || `synglances.$DOMAIN`)"
 
-  # Docker-GC - Automatic Docker Garbage Collection
-  # Create docker-gc-exclude file
-  dockergc:
-    image: clockworksoul/docker-gc-cron:latest
-    restart: unless-stopped
-    networks:
-      - socket_proxy
-    volumes:
-      # - /var/run/docker.sock:/var/run/docker.sock # Use Docker Socket Proxy instead for improved security
-      - ./docker-gc/docker-gc-exclude:/etc/docker-gc-exclude
-    environment:
-      CRON: 0 0 0 * * ? # Everyday at midnight. Previously 0 0 * * *
-      FORCE_IMAGE_REMOVAL: 1
-      FORCE_CONTAINER_REMOVAL: 0
-      GRACE_PERIOD_SECONDS: 86400
-      DRY_RUN: 0
-      CLEAN_UP_VOLUMES: 1
-      TZ: ${TZ:-Etc/UTC}
-      DOCKER_HOST: tcp://socket-proxy:2375
-    depends_on:
-      - socket-proxy
-
 ####  whoami:
 ####    # A container that exposes an API to show its IP address
 ####    image: traefik/whoami
