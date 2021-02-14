@@ -72,7 +72,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2021.1.5
+    image: homeassistant/home-assistant:2021.2.3
     expose:
       - "8123"
     volumes:
@@ -94,7 +94,7 @@ services:
 
   mqtt:
     restart: always
-    image: eclipse-mosquitto:2.0.4
+    image: eclipse-mosquitto:2.0.7
     user: "1001:1001"
     volumes:
       - "./mosquitto/config:/mosquitto/config"
