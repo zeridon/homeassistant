@@ -110,7 +110,7 @@ services:
     restart: unless-stopped
     image: zeridon/luftdaten2mqtt:1.0.3
     build:
-      context: https://github.com/zeridon/airrohr-to-ha-mqtt.git#v1.0.3
+      context: https://github.com/zeridon/luftdaten2mqtt.git#v1.0.3
     depends_on:
       - mqtt
     networks:
