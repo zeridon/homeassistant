@@ -1,6 +1,8 @@
+# TODO: Remove it
 user debugger
 topic readwrite #
 
+# TODO: better segment where home-assistant can read/write
 user homeassistant
 topic readwrite #
 
@@ -9,6 +11,14 @@ topic readwrite #
 #
 
 user shellies
+# ACL's collected from https://shelly-api-docs.shelly.cloud/#shelly-family-overview
+# look for MQTT (each device has a section)
+# publish == write
+# report == write
+# accepts == read
+# published == read (e.g. message published on shellies/command triggers == shellies read this topic)
+
+# TODO: move to client-id's to better limit devices
 # announce/scan
 topic write shellies/announce
 topic write shellies/+/announce
