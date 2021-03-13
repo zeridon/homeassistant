@@ -1,17 +1,18 @@
-- id: '072f9e14-7049-4932-aef5-628ac4d4f0ef'
-  alias: 'Tumble Drier - END'
-  description: 'Mark tumble cycle as complete and notify'
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.shelly_1pm_40f52001721b_power_0
-    above: '3'
-    for: 00:02:00
-    below: '10'
-  condition:
+---
+id: '072f9e14-7049-4932-aef5-628ac4d4f0ef'
+alias: 'Tumble Drier - END'
+description: 'Mark tumble cycle as complete and notify'
+trigger:
+  platform: numeric_state
+  entity_id: sensor.shelly_1pm_40f52001721b_power_0
+  above: '3'
+  for: 00:02:00
+  below: '10'
+condition:
   - condition: state
     entity_id: input_boolean.sushilnia_raboti
     state: 'on'
-  action:
+action:
   - service: input_boolean.turn_off
     data: {}
     entity_id: input_boolean.sushilnia_raboti
@@ -21,4 +22,4 @@
   - service: notify.propagandatv
     data:
       message: Сушилнята приключи. Дрехите трябва да се приберат.
-  mode: single
+mode: single
