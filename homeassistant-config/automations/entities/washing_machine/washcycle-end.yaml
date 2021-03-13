@@ -1,0 +1,26 @@
+- id: '9537e6d4-379e-4a75-8272-f08b0955a491'
+  alias: 'Wash Cycle - Completed'
+  description: 'Notify wash cycle is completed. Also consume a unit of detergent.'
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.shelly_1pm_40f520016b7e_power_0
+    below: '120'
+    for: 00:02:00
+  condition:
+  - condition: state
+    entity_id: input_boolean.peralnia
+    state: 'on'
+  action:
+  - service: counter.decrement
+    data: {}
+    entity_id: counter.kapsuli_prane
+  - service: notify.notify
+    data:
+      message: Пералнята приключи. Прехвърли прането на простора
+  - service: notify.propagandatv
+    data:
+      message: Пералнята приключи. Прехвърли прането на простора
+  - service: input_boolean.turn_off
+    data: {}
+    entity_id: input_boolean.peralnia
+  mode: single
