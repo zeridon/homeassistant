@@ -17,8 +17,8 @@ recorder:
       - sensor.*_ssid
       - sensor.*_rssi
       # generally useless on shellies with power metering
-      - sensor.shelly*_temperature
+      #- sensor.shelly*_temperature
       # so unreliable that they are almost useless
       - sensor.spalnia_*_energy_consumption
       - sensor.dnevna_*_energy_consumption
-      - sensor.rozovo_*_energy_consumptio
+      - sensor.rozovo_*_energy_consumption
