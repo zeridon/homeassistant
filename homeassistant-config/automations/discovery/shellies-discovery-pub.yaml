@@ -16,8 +16,12 @@ action:
     model: '{{ trigger.payload_json.model }}'
     shellyht-E00685:
       force_update_sensors: true
-      expire_after: 3600
+      expire_after: 7200
+    shellyht-E00557:
+      force_update_sensors: true
+      expire_after: 7200
     shelly1pm-BA5659:
       relay-0: switch
     shellydw2-483FDA81E1D1:
       force_update_sensors: true
+      expire_after: 14400
