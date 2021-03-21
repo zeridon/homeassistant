@@ -10,5 +10,6 @@ shellies_firmware:
     - binary_sensor.shelly_1pm_40F520016B7E_firmware_update
     - binary_sensor.shelly_1pm_40F52001721B_firmware_update
     - binary_sensor.shelly_h_t_e00685_firmware_update
+    - binary_sensor.shelly_h_t_e00557_firmware_update
     #- binary_sensor.shelly_rgbw2_b0a85f_firmware_update
     - binary_sensor.shelly_door_window_2_483fda81e1d1_firmware_update
