@@ -49,6 +49,7 @@ topic write shellies/+/relay/0/overpower_value
 topic write shellies/+/relay/0/power
 topic write shellies/+/temperature
 topic write shellies/+/temperature_f
+topic write shellies/+/temperature_status
 
 # Shelly 1/1PM with DS1820 sensors:
 topic write shellies/+/ext_temperature/0
@@ -99,6 +100,7 @@ topic write shellies/+/relay/1/energy
 topic write shellies/+/relay/1/overpower_value
 topic write shellies/+/relay/1/power
 topic write shellies/+/temperature
+topic write shellies/+/temperature_status
 
 # Shelly 2.5 in roller mode
 topic read shellies/+/roller/0/command
@@ -251,6 +253,7 @@ topic write shellies/+/sensor/lux
 topic write shellies/+/sensor/state
 topic write shellies/+/sensor/tilt
 topic write shellies/+/sensor/vibration
+topic write shellies/+/sensor/temperature
 
 # Shelly EM
 # shellies/shellyem-<deviceid>/...
