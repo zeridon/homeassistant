@@ -1,15 +1,15 @@
 ---
 id: '3b8d386c-4845-4c97-b81c-3c18a2cb33b0'
-alias: 'Wash Cycle - Start'
-description: 'Start the washing cycle'
+alias: 'Kitchen Fridge - ON'
+description: 'Set fridge status to on'
 trigger:
   platform: numeric_state
-  entity_id: sensor.shelly_2_5_694435_power_1
+  entity_id: sensor.shelly_2_5_694435_power_0
   above: '5'
   for: 00:01:00
 condition: []
 action:
   - service: input_boolean.turn_on
     data: {}
-    entity_id: input_boolean.peralnia
+    entity_id: input_boolean.kitchen_fridge
 mode: single
