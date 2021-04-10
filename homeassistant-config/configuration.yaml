@@ -39,8 +39,3 @@ device_tracker:
     hosts:
       pingvin_phone_ping: !secret pingvin_phone_host
       kotka_phone_ping: !secret kotka_phone_host
-
-lovelace:
-  resources:
-    - url: /local/xiaomi-vacuum-card.js?v=4.2.0
-      type: module
