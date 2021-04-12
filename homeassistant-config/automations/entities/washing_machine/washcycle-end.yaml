@@ -4,8 +4,8 @@ alias: 'Wash Cycle - END'
 description: 'Notify wash cycle is completed. Also consume a unit of detergent.'
 trigger:
   platform: numeric_state
-  entity_id: sensor.shelly_1pm_40F520016B7E_power_1
-  below: '5'
+  entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+  below: '150'
   for: 00:02:00
 condition:
   - condition: state
