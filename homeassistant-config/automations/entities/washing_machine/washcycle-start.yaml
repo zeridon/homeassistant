@@ -4,9 +4,9 @@ alias: 'Wash Cycle - Start'
 description: 'Start the washing cycle'
 trigger:
   platform: numeric_state
-  entity_id: sensor.shelly_2_5_694435_power_1
-  above: '5'
-  for: 00:01:00
+  entity_id: sensor.shelly_1pm_40F520016B7E_power_1
+  above: '150'
+  for: 00:02:00
 condition: []
 action:
   - service: input_boolean.turn_on
