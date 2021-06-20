@@ -4,5 +4,5 @@
 family:
   name: 'The Family'
   entities:
-    - person.vladimir_vitkov
+    - person.pingvin
     - person.kotka

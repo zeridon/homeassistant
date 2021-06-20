@@ -4,5 +4,5 @@
 adults:
   name: 'The Adults'
   entities:
-    - person.vladimir_vitkov
+    - person.pingvin
     - person.kotka
