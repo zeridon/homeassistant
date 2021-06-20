@@ -1,0 +1,5 @@
+---
+# track state of the tumble drier
+sushilnia_raboti:
+  name: Сушилня
+  icon: mdi:tumble-dryer

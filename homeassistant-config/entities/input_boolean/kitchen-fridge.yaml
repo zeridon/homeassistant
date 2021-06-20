@@ -1,0 +1,5 @@
+---
+# boolean for tracking the kitchen fridge state
+kitchen_fridge:
+  name: Хладилник
+  icon: mdi:fridge
