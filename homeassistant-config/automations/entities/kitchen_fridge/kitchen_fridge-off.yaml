@@ -4,8 +4,8 @@ alias: 'Kitchen fridge - OFF'
 description: 'Set indicator the fridge is off'
 trigger:
   platform: numeric_state
-  entity_id: sensor.shelly_2_5_694435_power_0
-  below: '1'
+  entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+  below: '2'
   for: 00:01:00
 condition:
   - condition: state

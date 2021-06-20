@@ -4,7 +4,7 @@ alias: 'Kitchen Fridge - ON'
 description: 'Set fridge status to on'
 trigger:
   platform: numeric_state
-  entity_id: sensor.shelly_2_5_694435_power_0
+  entity_id: sensor.shelly_1pm_40F520016B7E_power_0
   above: '5'
   for: 00:01:00
 condition: []
