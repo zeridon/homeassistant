@@ -31,6 +31,8 @@ services:
       - --entryPoints.traefik.address=:8080
       - --entryPoints.web-bad.address=:80
       - --entryPoints.web-sec.address=:443
+      # luftdaten2mqtt ingest
+      - --entryPoints.luftdaten.address=:8081
       # cf ip's to resolve clients
       - --entrypoints.web-sec.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22,192.168.99.0/24,192.168.166.0/24
       # certresolver ... attach to entrypoint
@@ -52,6 +54,7 @@ services:
       - "443:443"
       # The Web UI (enabled by --api.insecure=true)
       - "8080:8080"
+      - "8081:8081"
     volumes:
       # So that Traefik can listen to the Docker events
       - ./traefik/acme/acme.json:/acme.json
@@ -116,12 +119,20 @@ services:
     networks:
       - svcs
     ports:
-      - "8081:8080"
+      - "8080"
     environment:
       - MQTT_HOST=mqtt
       - MQTT_USER=${MQTT_LUFTDATEN_USER:-user}
       - MQTT_PASS=${MQTT_LUFTDATEN_PASS:-pass}
       - LOG_LEVEL=INFO
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.luftdaten2mqtt-rtr.entrypoints=luftdaten"
+      - "traefik.http.routers.luftdaten2mqtt-rtr.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.luftdaten2mqtt-rtr.service=luftdaten2mqtt-svc"
+      - "traefik.http.routers.luftdaten2mqtt-rtr.middlewares=internal-ips"
+      - "traefik.http.middlewares.internal-ips.ipwhitelist.sourcerange=127.0.0.0/8,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      - "traefik.http.services.luftdaten2mqtt-svc.loadbalancer.server.port=8080"
 
 ####  # mDNS/Bonjour/SSDP repeater
 ####  # based on https://github.com/alsmith/multicast-relay
