@@ -1,0 +1,9 @@
+---
+# SOme rest(ish) commands for splendor
+# https://www.home-assistant.io/integrations/rest_command/
+rest_command:
+  restart_airrohr_sensor:
+    url: !secret airrohr_url
+    method: POST
+    content_type: "application/x-www-form-urlencoded"
+    payload: "submit=Restart"

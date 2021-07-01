@@ -1,0 +1,12 @@
+---
+id: 'restart-airrohr-on-stuck-bme'
+alias: Restart airRohr sensor
+mode: single
+description: Restart airrohr (luftdaten) sensor if the BME sensor is stuck
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.luftdaten_3958021_temperature
+    below: '-30'
+    for: '00:30:00'
+action:
+  - service: rest_command.restart_airrohr_sensor
