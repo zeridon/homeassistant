@@ -26,7 +26,7 @@ services:
       - --global.checkNewVersion=false
       - --global.sendAnonymousUsage=false
       # debug levels
-      - --log.level=ERROR
+      - --log.level=WARNING
       # entrypoints definitions
       - --entryPoints.traefik.address=:8080
       - --entryPoints.web-bad.address=:80
@@ -75,7 +75,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2021.6.5
+    image: homeassistant/home-assistant:2021.6.6
     expose:
       - "8123"
     volumes:
