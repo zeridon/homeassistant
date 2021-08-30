@@ -6,6 +6,7 @@ homeassistant:
   elevation: !secret zone_home_elevation
   time_zone: "Europe/Sofia"
   unit_system: metric
+  currency: BGN
   # load packages
   packages: !include_dir_named integrations
 
