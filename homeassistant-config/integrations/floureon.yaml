@@ -1,0 +1,7 @@
+---
+# Custom integration for floureon thermostats (beok tds21-ep)
+climate:
+  platform: floureon
+  name: bathroom_floor
+  host: !secret bathroom_floor_host
+  mac: !secret bathroom_floor_mac

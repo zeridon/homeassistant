@@ -48,6 +48,9 @@ function getValue() {
 	elif echo "$1" | grep -q "_elevation"; then
 		echo "0"
 		return
+	elif echo "$1" | grep -q "_mac"; then
+		echo "12:34:56:78:9a:bc"
+		return
 	else
 		echo "somevalue"
 		return
