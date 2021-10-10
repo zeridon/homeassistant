@@ -134,20 +134,20 @@ services:
       - "traefik.http.middlewares.internal-ips.ipwhitelist.sourcerange=127.0.0.0/8,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
       - "traefik.http.services.luftdaten2mqtt-svc.loadbalancer.server.port=8080"
 
-####  # mDNS/Bonjour/SSDP repeater
-####  # based on https://github.com/alsmith/multicast-relay
-####  # unfortunately has to run in host mode.
-####  #
-####  # to discover shellies: --relay '224.0.1.187:5683'
-####  # Used to enable discovery ... though if it is going to be used is another story
-####  repeater:
-####    image: zeridon/multicast-relay
-####    build:
-####      context: https://github.com/alsmith/multicast-relay.git
-####    restart: unless-stopped
-####    network_mode: "host"
-####    command: --verbose --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
-####
+  # mDNS/Bonjour/SSDP repeater
+  # based on https://github.com/alsmith/multicast-relay
+  # unfortunately has to run in host mode.
+  #
+  # to discover shellies: --relay '224.0.1.187:5683'
+  # Used to enable discovery ... though if it is going to be used is another story
+  repeater:
+    image: zeridon/multicast-relay
+    build:
+      context: https://github.com/alsmith/multicast-relay.git
+    restart: unless-stopped
+    network_mode: "host"
+    command: --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
+
 ####  # InfluxDB - Database for sensor data
 ####  # Create influxdb.conf
 ####  influxdb:
