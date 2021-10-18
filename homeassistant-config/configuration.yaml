@@ -40,3 +40,11 @@ device_tracker:
     hosts:
       pingvin_phone_ping: !secret pingvin_phone_host
       kotka_phone_ping: !secret kotka_phone_host
+
+discovery:
+  ignore:
+    - google_cast
+
+media_player:
+  - platform: lg_soundbar
+    host: !secret propaganda_bar_host
