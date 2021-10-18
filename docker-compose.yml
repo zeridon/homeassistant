@@ -75,7 +75,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2021.9.7
+    image: homeassistant/home-assistant:2021.10.2
     expose:
       - "8123"
     volumes:
@@ -146,7 +146,7 @@ services:
       context: https://github.com/alsmith/multicast-relay.git
     restart: unless-stopped
     network_mode: "host"
-    command: --noSonosDiscovery --interfaces ${RELAY_INTERFACES}
+    command: --allowNonEther --verbose --interfaces ${RELAY_INTERFACES}
 
 ####  # InfluxDB - Database for sensor data
 ####  # Create influxdb.conf
