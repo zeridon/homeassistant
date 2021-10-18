@@ -319,3 +319,13 @@ topic read tasmotas/cmnd/+/+
 topic read tasmotas/cmnd/tasmotas/#
 topic write tasmotas/stat/+/+
 topic write homeassistant/+/+/config
+
+# sonoff zbbridge
+user zbbridge
+topic write tasmotas/tele/+/+
+topic read tasmotas/cmnd/+/+
+topic read tasmotas/cmnd/tasmotas/#
+topic write tasmotas/stat/+/+
+topic write homeassistant/+/+/config
+
+topic readwrite #
