@@ -75,7 +75,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2021.10.2
+    image: homeassistant/home-assistant:2021.10.6
     expose:
       - "8123"
     volumes:
