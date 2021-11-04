@@ -10,10 +10,13 @@ trigger:
 action:
   service: python_script.shellies_discovery
   data_template:
+    fw_ver: '{{ trigger.payload_json.fw_ver }}'
+    host: '{{ trigger.payload_json.ip }}'
     id: '{{ trigger.payload_json.id }}'
     mac: '{{ trigger.payload_json.mac }}'
-    fw_ver: '{{ trigger.payload_json.fw_ver }}'
+    mode: '{{ trigger.payload_json.mode | default }}'
     model: '{{ trigger.payload_json.model }}'
+
     shellyht-E00685:
       force_update_sensors: true
     shellyht-E00557:
