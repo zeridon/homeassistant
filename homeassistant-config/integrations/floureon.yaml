@@ -4,4 +4,3 @@ climate:
   platform: floureon
   name: bathroom_floor
   host: !secret bathroom_floor_host
-  mac: !secret bathroom_floor_mac
