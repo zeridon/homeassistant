@@ -48,3 +48,56 @@ discovery:
 media_player:
   - platform: lg_soundbar
     host: !secret propaganda_bar_host
+
+### temp untill card is fixed
+vacuum:
+  - platform: template
+    vacuums:
+      robo_rooter_fix:
+        friendly_name: Robo Rooter (TMP)
+        value_template: >-
+          {{ states('vacuum.robo_rooter') }}
+        battery_level_template: >-
+          {{ state_attr('vacuum.robo_rooter', 'battery_level') }}
+        fan_speed_template: >-
+          {{ state_attr('vacuum.robo_rooter', 'fan_speed') }}
+        attribute_templates:
+          main_brush_left: >-
+            {{ int(states('sensor.robo_rooter_main_brush_left') | int / 3600) }}
+          side_brush_left: >-
+            {{ int(states('sensor.robo_rooter_side_brush_left') | int / 3600) }}
+          filter_left: >-
+            {{ int(states('sensor.robo_rooter_filter_left') | int / 3600) }}
+          sensor_dirty_left: >-
+            {{ int(states('sensor.robo_rooter_sensor_dirty_left') | int / 3600) }}
+          status: >-
+            {{ state_attr('vacuum.robo_rooter', 'status') }}
+        fan_speeds: ["Silent", "Standard", "Medium", "Turbo", "Gentle", "Auto"]
+        start:
+          - service: vacuum.start
+            target:
+              entity_id: vacuum.robo_rooter
+        pause:
+          - service: vacuum.pause
+            target:
+              entity_id: vacuum.robo_rooter
+        stop:
+          - service: vacuum.stop
+            target:
+              entity_id: vacuum.robo_rooter
+        return_to_base:
+          - service: vacuum.return_to_base
+            target:
+              entity_id: vacuum.robo_rooter
+        clean_spot:
+          - service: vacuum.clean_spot
+            target:
+              entity_id: vacuum.robo_rooter
+        locate:
+          - service: vacuum.locate
+            target:
+              entity_id: vacuum.robo_rooter
+        set_fan_speed:
+          - service: vacuum.set_fan_speed
+            target:
+              entity_id: vacuum.robo_rooter
