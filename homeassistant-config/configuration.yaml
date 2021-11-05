@@ -26,11 +26,11 @@ webostv:
   host: !secret propaganda_host
   name: propagandaTV
 
-vacuum:
-  - platform: xiaomi_miio
-    host: !secret s5_vacuum_host
-    token: !secret s5_vacuum_token
-    name: Robo Rooter
+  #vacuum:
+  #  - platform: xiaomi_miio
+  #    host: !secret s5_vacuum_host
+  #    token: !secret s5_vacuum_token
+  #    name: Robo Rooter
 
 python_script:
 
