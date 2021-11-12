@@ -1,0 +1,6 @@
+---
+# Configuration for ZHA
+zha:
+  device_config:
+    84:71:27:ff:fe:95:f2:ab-1:
+      type: switch
