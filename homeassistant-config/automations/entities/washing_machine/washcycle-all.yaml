@@ -45,6 +45,10 @@ action:
           - service: counter.decrement
             target:
               entity_id: counter.kapsuli_prane
+          - service: notify.notify
+            data:
+              message: Пералнята приключи. Прехвърли прането на простора
+              title: Прането
           - service: notify.propagandatv
             data:
               message: Пералнята приключи. Прехвърли прането на простора
