@@ -45,4 +45,10 @@ action:
           - service: input_boolean.turn_off
             target:
               entity_id: input_boolean.sushilnia_raboti
+          - service: notify.notify
+            data:
+              message: Сушилнята приключи. Дрехите трябва да се приберат.
+          - service: notify.propagandatv
+            data:
+              message: Сушилнята приключи. Дрехите трябва да се приберат.
     default: []
