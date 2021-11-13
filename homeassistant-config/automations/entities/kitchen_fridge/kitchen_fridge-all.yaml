@@ -1,0 +1,48 @@
+---
+id: '139471ba-ca9e-4166-b9a6-b1dfd14ab0be'
+alias: Kitchen Fridge - ON/OFF
+description: Handle Fridge states
+mode: single
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+    id: kitchenfridge_on
+    above: '5'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - platform: numeric_state
+    entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+    id: kitchenfridge_off
+    below: '2'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: kitchenfridge_on
+          - condition: state
+            entity_id: input_boolean.kitchen_fridge
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.kitchen_fridge
+      - conditions:
+          - condition: trigger
+            id: kitchenfridge_off
+          - condition: state
+            entity_id: input_boolean.kitchen_fridge
+            state: 'on'
+        sequence:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.kitchen_fridge
+    default: []
