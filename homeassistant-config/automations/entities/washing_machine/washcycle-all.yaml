@@ -1,0 +1,55 @@
+---
+id: '1ef70eab-d96d-4b25-a84d-7a0588f947e7'
+alias: Washing Machine - ON/OFF
+description: Handle washing machine states
+mode: single
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.washing_machine_power_0
+    id: washingmachine_on
+    above: '4'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+  - platform: numeric_state
+    entity_id: sensor.washing_machine_power_0
+    id: washingmachine_off
+    below: '10'
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+      milliseconds: 0
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: washingmachine_on
+          - condition: state
+            entity_id: input_boolean.peralnia
+            state: 'off'
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.peralnia
+      - conditions:
+          - condition: trigger
+            id: washingmachine_off
+          - condition: state
+            entity_id: input_boolean.peralnia
+            state: 'on'
+        sequence:
+          - service: counter.decrement
+            target:
+              entity_id: counter.kapsuli_prane
+          - service: notify.propagandatv
+            data:
+              message: Пералнята приключи. Прехвърли прането на простора
+              title: Прането
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.peralnia
+    default: []
