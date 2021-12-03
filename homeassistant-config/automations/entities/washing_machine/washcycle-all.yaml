@@ -42,9 +42,6 @@ action:
             entity_id: input_boolean.peralnia
             state: 'on'
         sequence:
-          - service: counter.decrement
-            target:
-              entity_id: counter.kapsuli_prane
           - service: notify.notify
             data:
               message: Пералнята приключи. Прехвърли прането на простора
