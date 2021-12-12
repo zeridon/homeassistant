@@ -1,0 +1,37 @@
+---
+# Template services/switches for climate
+switch:
+  - platform: template
+    switches:
+      climate_dnevna_on_off:
+        value_template: "{{ not is_state('climate.dnevna', 'off') }}"
+        turn_on:
+          - service: climate.turn_on
+            entity_id: climate.dnevna
+        turn_off:
+          - service: climate.turn_off
+            entity_id: climate.dnevna
+      climate_spalnia_on_off:
+        value_template: "{{ not is_state('climate.spalnia', 'off') }}"
+        turn_on:
+          - service: climate.turn_on
+            entity_id: climate.spalnia
+        turn_off:
+          - service: climate.turn_off
+            entity_id: climate.spalnia
+      climate_rozovo_on_off:
+        value_template: "{{ not is_state('climate.rozovo', 'off') }}"
+        turn_on:
+          - service: climate.turn_on
+            entity_id: climate.rozovo
+        turn_off:
+          - service: climate.turn_off
+            entity_id: climate.rozovo
+      vacuum_roborooter_on_off:
+        value_template: "{{ not is_state('vacuum.robo_rooter', 'docked') }}"
+        turn_on:
+          - service: vacuum.start
+            entity_id: vacuum.robo_rooter
+        turn_off:
+          - service: vacuum.return_to_base
+            entity_id: vacuum.robo_rooter
