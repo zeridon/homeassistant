@@ -146,7 +146,7 @@ services:
       context: https://github.com/alsmith/multicast-relay.git
     restart: unless-stopped
     network_mode: "host"
-    command: --allowNonEther --verbose --interfaces ${RELAY_INTERFACES}
+    command: --allowNonEther --interfaces ${RELAY_INTERFACES}
 
 ####  # InfluxDB - Database for sensor data
 ####  # Create influxdb.conf
