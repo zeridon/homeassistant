@@ -1,4 +1,0 @@
----
-# Configure hacs
-hacs:
-  token: !secret hacs_token
