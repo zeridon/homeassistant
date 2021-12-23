@@ -1,7 +1,7 @@
 ---
 id: '1609959023251'
-alias: 'Turn kitchen Light on'
-description: 'Turn the kitchen light on when family comes home'
+alias: 'Turn Light on'
+description: 'Turn some lights on when family comes home'
 trigger:
   - platform: state
     entity_id: group.family
@@ -10,5 +10,9 @@ action:
   - type: turn_on
     device_id: 62478055d3445ad0cf56fa09dcde5128
     entity_id: light.kukhnenska_lampa
+    domain: light
+  - type: turn_on
+    device_id: a09ebc49c7db65bd1247b0a4b0154e04
+    entity_id: light.koridor_1
     domain: light
 mode: single
