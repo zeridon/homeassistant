@@ -99,6 +99,8 @@ EXPIRE_AFTER_FOR_AC_POWERED = int(2.2 * 10 * 60)  # 2.2 * 10 min
 EXPIRE_AFTER_FOR_SHELLY_MOTION = int(1.2 * 60 * 60)  # 1.2 * 60 min
 EXPIRE_AFTER_FOR_SHELLY_VALVE = int(1.2 * 60 * 60)  # 1.2 * 60 min
 
+KEY_ACTION_TEMPLATE = "act_tpl"
+KEY_ACTION_TOPIC = "act_t"
 KEY_AUTOMATION_TYPE = "atype"
 KEY_AVAILABILITY_TOPIC = "avty_t"
 KEY_COMMAND_TOPIC = "cmd_t"
@@ -172,7 +174,7 @@ MIN_4PRO_FIRMWARE_DATE = 20200408
 # Firmware 1.1.0 release date
 MIN_MOTION_FIRMWARE_DATE = 20210226
 
-MIN_VALVE_FIRMWARE_DATE = 20211210
+MIN_VALVE_FIRMWARE_DATE = 20211215
 
 # Firmware 1.11.0 release date
 MIN_FIRMWARE_DATE = 20210720
@@ -186,7 +188,7 @@ MODEL_SHELLY3EM = f"{ATTR_SHELLY} 3EM"
 MODEL_SHELLY4PRO = f"{ATTR_SHELLY} 4Pro"
 MODEL_SHELLYAIR = f"{ATTR_SHELLY} Air"
 MODEL_SHELLYBULB = f"{ATTR_SHELLY} Bulb"
-MODEL_SHELLYBULBRGBW = f"{ATTR_SHELLY} Bulb RGBW"
+MODEL_SHELLYBULBRGBW = f"{ATTR_SHELLY} DUO RGBW"
 MODEL_SHELLYBUTTON1 = f"{ATTR_SHELLY} Button1"
 MODEL_SHELLYDIMMER = f"{ATTR_SHELLY} Dimmer"
 MODEL_SHELLYDIMMER2 = f"{ATTR_SHELLY} Dimmer 2"
@@ -236,7 +238,7 @@ MODEL_SHELLYAIR_PREFIX = "shellyair"
 MODEL_SHELLYBULB_ID = "SHBLB-1"  # Shelly Bulb
 MODEL_SHELLYBULB_PREFIX = "shellybulb"
 
-MODEL_SHELLYBULBRGBW_ID = "SHCB-1"  # Shelly Bulb RGBW
+MODEL_SHELLYBULBRGBW_ID = "SHCB-1"  # Shelly DUO RGBW
 MODEL_SHELLYBULBRGBW_PREFIX = "shellycolorbulb"
 
 MODEL_SHELLYBUTTON1_ID = "SHBTN-1"  # Shelly Button1
@@ -413,6 +415,7 @@ TOPIC_TEMPERATURE_STATUS = "temperature_status"
 TOPIC_UNMUTE = "sensor/unmute"
 TOPIC_VOLTAGE = "voltage"
 
+TPL_ACTION_TEMPLATE = "{{%if value_json.thermostats[0].target_t.value<={min_temp}%}}off{{%elif value_json.thermostats[0].pos==0%}}idle{{%else%}}heating{{%endif%}}"
 TPL_ADC = "{{value|float|round(2)}}"
 TPL_BATTERY = "{{value|float|round}}"
 TPL_BATTERY_FROM_JSON = "{{value_json.bat}}"
@@ -420,7 +423,7 @@ TPL_CHARGER = "{%if value_json.charger==true%}ON{%else%}OFF{%endif%}"
 TPL_CLOUD = "{%if value_json.cloud.connected==true%}ON{%else%}OFF{%endif%}"
 TPL_CONCENTRATION = "{%if 0<=value|int<=65535%}{{value}}{%endif%}"
 TPL_CURRENT = "{{value|float|round(2)}}"
-TPL_CURRENT_TEMPERATURE = "{{ value_json.tmp.value }}"
+TPL_CURRENT_TEMPERATURE = "{{value_json.thermostats[0].tmp.value}}"
 TPL_DOUBLE_SHORTPUSH = "{%if value_json.event==^SS^%}ON{%else%}OFF{%endif%}"
 TPL_ENERGY_WH = "{{(value|float/1000)|round(2)}}"
 TPL_ENERGY_WMIN = "{{(value|float/60/1000)|round(2)}}"
@@ -447,11 +450,11 @@ TPL_POSITION = "{%if value!=-1%}{{value}}{%endif%}"
 TPL_POWER = "{{value|float|round(1)}}"
 TPL_POWER_FACTOR = "{{value|float*100|round}}"
 TPL_RSSI = "{{value_json.wifi_sta.rssi}}"
-TPL_SET_TARGET_TEMPERATURE = "target_t={{value|int}}"
+TPL_SET_TARGET_TEMPERATURE = "{{value|int}}"
 TPL_SHORTPUSH = "{%if value_json.event==^S^%}ON{%else%}OFF{%endif%}"
 TPL_SHORTPUSH_LONGPUSH = "{%if value_json.event==^SL^%}ON{%else%}OFF{%endif%}"
 TPL_SSID = "{{value_json.wifi_sta.ssid}}"
-TPL_TARGET_TEMPERATURE = "{{ value_json.target_t.value }}"
+TPL_TARGET_TEMPERATURE = "{{ value_json.thermostats[0].target_t.value }}"
 TPL_TEMPERATURE = "{%if value!=999%}{{value|float|round(1)}}{%endif%}"
 TPL_TEMPERATURE_EXT = "{%if value!=999%}{{value|float|round(1)}}{%endif%}"
 TPL_TEMPERATURE_STATUS = "{{value|lower}}"
@@ -765,7 +768,7 @@ if model_id == MODEL_SHELLY1_ID or dev_id_prefix == MODEL_SHELLY1_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_SIGNAL_STRENGTH,
@@ -863,7 +866,13 @@ if model_id == MODEL_SHELLY1L_ID or dev_id_prefix == MODEL_SHELLY1L_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_TEMPERATURE,
@@ -937,7 +946,7 @@ if model_id == MODEL_SHELLY1PM_ID or dev_id_prefix == MODEL_SHELLY1PM_PREFIX:
     ]
     sensors_state_classes = [
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -1023,7 +1032,14 @@ if model_id == MODEL_SHELLYAIR_ID or dev_id_prefix == MODEL_SHELLYAIR_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        None,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_TEMPERATURE,
@@ -1100,7 +1116,13 @@ if model_id == MODEL_SHELLY2_ID or dev_id_prefix == MODEL_SHELLY2_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         None,
     ]
-    sensors_state_classes = [None, None, None, None, STATE_CLASS_MEASUREMENT]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+        STATE_CLASS_MEASUREMENT,
+    ]
     sensors_enabled = [False, False, False, False, True]
     sensors_units = [UNIT_DBM, None, None, None, UNIT_VOLT]
     sensors_device_classes = [
@@ -1166,7 +1188,7 @@ if model_id == MODEL_SHELLY25_ID or dev_id_prefix == MODEL_SHELLY25_PREFIX:
     ]
     sensors_state_classes = [
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -1265,7 +1287,13 @@ if model_id == MODEL_SHELLYUNI_ID or dev_id_prefix == MODEL_SHELLYUNI_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_VOLTAGE,
@@ -1327,7 +1355,7 @@ if (
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -1378,7 +1406,7 @@ if model_id == MODEL_SHELLYPLUG_US_ID or dev_id_prefix == MODEL_SHELLYPLUG_US_PR
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -1424,7 +1452,13 @@ if model_id == MODEL_SHELLYPLUG_S_ID or dev_id_prefix == MODEL_SHELLYPLUG_S_PREF
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_TEMPERATURE,
@@ -1523,7 +1557,7 @@ if model_id == MODEL_SHELLYHT_ID or dev_id_prefix == MODEL_SHELLYHT_PREFIX:
         STATE_CLASS_MEASUREMENT,
         STATE_CLASS_MEASUREMENT,
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -1603,7 +1637,7 @@ if model_id == MODEL_SHELLYMOTION_ID or dev_id_prefix == MODEL_SHELLYMOTION_PREF
     sensors_state_classes = [
         STATE_CLASS_MEASUREMENT,
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -1697,7 +1731,7 @@ if model_id == MODEL_SHELLYGAS_ID or dev_id_prefix == MODEL_SHELLYGAS_PREFIX:
         None,
         None,
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -1749,7 +1783,7 @@ if model_id == MODEL_SHELLYGAS_ID or dev_id_prefix == MODEL_SHELLYGAS_PREFIX:
             ATTR_TOPIC: TOPIC_SELF_TEST,
             ATTR_PAYLOAD: PL_SELF_TEST,
             ATTR_ENABLED: True,
-            ATTR_ENTITY_CATEGORY: ENTITY_CATEGORY_CONFIG,
+            ATTR_ENTITY_CATEGORY: ENTITY_CATEGORY_DIAGNOSTIC,
         },
         BUTTON_MUTE: {
             ATTR_TOPIC: TOPIC_MUTE,
@@ -1787,7 +1821,13 @@ if (
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_BATTERY,
@@ -2013,7 +2053,7 @@ if model_id == MODEL_SHELLYSENSE_ID or dev_id_prefix == MODEL_SHELLYSENSE_PREFIX
         STATE_CLASS_MEASUREMENT,
         STATE_CLASS_MEASUREMENT,
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -2125,7 +2165,7 @@ if model_id == MODEL_SHELLYRGBW2_ID or dev_id_prefix == MODEL_SHELLYRGBW2_PREFIX
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_SIGNAL_STRENGTH,
@@ -2159,7 +2199,13 @@ if model_id == MODEL_SHELLYDIMMER_ID or dev_id_prefix == MODEL_SHELLYDIMMER_PREF
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_TEMPERATURE,
@@ -2292,7 +2338,13 @@ if model_id == MODEL_SHELLYDIMMER2_ID or dev_id_prefix == MODEL_SHELLYDIMMER2_PR
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
+    sensors_state_classes = [
+        STATE_CLASS_MEASUREMENT,
+        STATE_CLASS_MEASUREMENT,
+        None,
+        None,
+        None,
+    ]
     sensors_enabled = [True, False, False, False, False]
     sensors_device_classes = [
         DEVICE_CLASS_TEMPERATURE,
@@ -2428,7 +2480,7 @@ if model_id == MODEL_SHELLYBULB_ID or dev_id_prefix == MODEL_SHELLYBULB_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2474,7 +2526,7 @@ if model_id == MODEL_SHELLYBULBRGBW_ID or dev_id_prefix == MODEL_SHELLYBULBRGBW_
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2520,7 +2572,7 @@ if model_id == MODEL_SHELLYDUO_ID or dev_id_prefix == MODEL_SHELLYDUO_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2566,7 +2618,7 @@ if model_id == MODEL_SHELLYVINTAGE_ID or dev_id_prefix == MODEL_SHELLYVINTAGE_PR
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2655,7 +2707,7 @@ if model_id == MODEL_SHELLYEM_ID or dev_id_prefix == MODEL_SHELLYEM_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2749,7 +2801,7 @@ if model_id == MODEL_SHELLY3EM_ID or dev_id_prefix == MODEL_SHELLY3EM_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None]
     sensors_enabled = [False, False, False, False]
     sensors_units = [UNIT_DBM, None, None, None]
     sensors_device_classes = [
@@ -2997,7 +3049,7 @@ if model_id == MODEL_SHELLYI3_ID or dev_id_prefix == MODEL_SHELLYI3_PREFIX:
         ENTITY_CATEGORY_DIAGNOSTIC,
         ENTITY_CATEGORY_DIAGNOSTIC,
     ]
-    sensors_state_classes = [None, None, None, None, None]
+    sensors_state_classes = [STATE_CLASS_MEASUREMENT, None, None, None, None]
     sensors_enabled = [False, False, False, False, True]
     sensors_units = [UNIT_DBM, None, None, None, None]
     sensors_device_classes = [
@@ -3039,7 +3091,7 @@ if model_id == MODEL_SHELLYVALVE_ID:
         KEY_MIN_TEMP: 4,
         KEY_MAX_TEMP: 31,
         KEY_MODES: ["heat"],
-        KEY_PRECISION: 1.0,
+        KEY_PRECISION: 0.1,
     }
     sensors = [
         SENSOR_BATTERY,
@@ -3057,7 +3109,7 @@ if model_id == MODEL_SHELLYVALVE_ID:
     ]
     sensors_state_classes = [
         STATE_CLASS_MEASUREMENT,
-        None,
+        STATE_CLASS_MEASUREMENT,
         None,
         None,
         None,
@@ -3175,7 +3227,7 @@ for button, button_options in buttons.items():
         payload = ""
     mqtt_publish(config_topic, payload, retain)
 
-# clmate entities
+# climate entities
 if climate_entity_option:
     device_config = get_device_config(dev_id)
     if ignore_device_model:
@@ -3183,8 +3235,8 @@ if climate_entity_option:
     else:
         device_name = f"{model} {dev_id.split('-')[-1]}"
     default_topic = f"shellies/{dev_id}/"
-    status_topic = "~status"
-    command_topic = "~command"
+    info_topic = "~info"
+    temperature_command_topic = "~thermostat/0/command/target_t"
     availability_topic = "~online"
     unique_id = f"{dev_id}".lower()
     config_topic = f"{disc_prefix}/climate/{dev_id}/config".encode(
@@ -3193,13 +3245,17 @@ if climate_entity_option:
     expire_after = device_config.get(CONF_EXPIRE_AFTER, EXPIRE_AFTER_FOR_SHELLY_VALVE)
     payload = {
         KEY_NAME: device_name,
-        KEY_CURRENT_TEMPERATURE_TOPIC: status_topic,
+        KEY_ACTION_TOPIC: info_topic,
+        KEY_ACTION_TEMPLATE: TPL_ACTION_TEMPLATE.format(
+            min_temp=climate_entity_option[KEY_MIN_TEMP]
+        ),
+        KEY_CURRENT_TEMPERATURE_TOPIC: info_topic,
         KEY_CURRENT_TEMPERATURE_TEMPLATE: TPL_CURRENT_TEMPERATURE,
-        KEY_TEMPERATURE_STATE_TOPIC: status_topic,
+        KEY_TEMPERATURE_STATE_TOPIC: info_topic,
         KEY_TEMPERATURE_STATE_TEMPLATE: TPL_TARGET_TEMPERATURE,
-        KEY_TEMPERATURE_COMMAND_TOPIC: command_topic,
+        KEY_TEMPERATURE_COMMAND_TOPIC: temperature_command_topic,
         KEY_TEMPERATURE_COMMAND_TEMPLATE: TPL_SET_TARGET_TEMPERATURE,
-        KEY_MODE_STATE_TOPIC: status_topic,
+        KEY_MODE_STATE_TOPIC: info_topic,
         KEY_MODE_STATE_TEMPLATE: "heat",
         KEY_EXPIRE_AFTER: expire_after,
         KEY_UNIQUE_ID: unique_id,
@@ -4031,7 +4087,8 @@ for light_id in range(rgbw_lights):
             '"fx_tpl":"{%if value_json.effect==1%}Meteor Shower{%elif value_json.effect==2%}Gradual Change{%elif value_json.effect==3%}Flash{%else%}Off{%endif%}",'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
@@ -4063,7 +4120,8 @@ for light_id in range(rgbw_lights):
             '"fx_tpl":"{%if value_json.effect==1%}Meteor Shower{%elif value_json.effect==2%}Gradual Change{%elif value_json.effect==3%}Breath{%elif value_json.effect==4%}Flash{%elif value_json.effect==5%}On/Off Gradual{%elif value_json.effect==6%}Red/Green Change{%else%}Off{%endif%}",'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
@@ -4239,7 +4297,8 @@ for light_id in range(white_lights):
             '"bri_tpl":"{{value_json.brightness|float|multiply(2.55)|round}}",'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
@@ -4265,7 +4324,8 @@ for light_id in range(white_lights):
             '"bri_tpl":"{{value_json.brightness|float|multiply(2.55)|round}}",'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
@@ -4294,7 +4354,8 @@ for light_id in range(white_lights):
             '"min_mireds":153,'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
@@ -4320,7 +4381,8 @@ for light_id in range(white_lights):
             '"bri_tpl":"{{value_json.brightness|float|multiply(2.55)|round}}",'
             '"uniq_id":"' + unique_id + '",'
             '"qos":"' + str(qos) + '",'
-            '"dev": {"ids": ["' + mac + '"],'
+            '"dev": {"ids":["' + mac + '"],'
+            '"cns":[["' + KEY_MAC + '","' + format_mac(mac) + '"]],'
             '"name":"' + device_name + '",'
             '"mdl":"' + model + '",'
             '"sw":"' + fw_ver + '",'
