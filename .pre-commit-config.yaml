@@ -15,7 +15,11 @@ repos:
         args: [--unsafe]
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: homeassistant-config/.HA_VERSION
+        exclude: |
+          (?x)^(
+              homeassistant-config/.HA_VERSION|
+              homeassistant-config/www/community
+          )$
       - id: mixed-line-ending
       - id: trailing-whitespace
 
