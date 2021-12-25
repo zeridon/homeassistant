@@ -4,3 +4,4 @@
 kids:
   name: 'The Irresponsible'
   entities:
+    - person.angel
