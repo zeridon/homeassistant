@@ -2,6 +2,12 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
+
+  - repo: meta
+    hooks:
+      - id: check-hooks-apply
+      - id: check-useless-excludes
+
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.1.0
     hooks:
@@ -10,16 +16,11 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-symlinks
-      - id: check-xml
       - id: check-yaml
         args: [--unsafe]
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: |
-          (?x)^(
-              homeassistant-config/.HA_VERSION|
-              homeassistant-config/www/community
-          )$
+        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community
       - id: mixed-line-ending
       - id: trailing-whitespace
 
