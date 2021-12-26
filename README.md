@@ -9,7 +9,9 @@ I regularly update my configuration files. If you like anything here, Be sure to
 * [Eclipse Mosquitto](https://mosquitto.org/)
 * [Traefik](https://traefik.io/) for reverse proxy, ssl certs and so on
 * [docker-socket-proxy](https://github.com/Tecnativa/docker-socket-proxy) for higher docker security
-* [docker-gc-cron](https://github.com/clockworksoul/docker-gc-cron) for cleanup of forgoten stuff
+* [Luftdaten2Mqtt](https://github.com/zeridon/luftdaten2mqtt) for local collection of air quality data
+* [Multicast Relay](https://github.com/zeridon/multicast-relay) for bridging the real world into docker
+* [Traefik CF Companion](https://github.com/tiredofit/docker-traefik-cloudflare-companion) for some DNS management
 
 ## Some of the devices and services that I use with HA
 * [Shelly1](https://shelly.cloud/products/shelly-1-smart-home-automation-relay/) Smart Relay in MQTT mode
