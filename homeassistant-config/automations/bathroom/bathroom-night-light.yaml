@@ -15,14 +15,15 @@ trigger:
     entity_id: binary_sensor.ewelink_ms01_1ace6722_ias_zone
     domain: binary_sensor
     id: banq_not_occupied
+condition:
+  - condition: time
+    after: '21:00:00'
+    before: '08:00:00'
 action:
   - choose:
     - conditions:
       - condition: trigger
         id: banq_occupied
-      - condition: time
-        after: '21:00:00'
-        before: '08:00:00'
       sequence:
       - type: turn_on
         device_id: fafd5d3476047a633dfe610030251bb9
@@ -36,4 +37,5 @@ action:
         device_id: fafd5d3476047a633dfe610030251bb9
         entity_id: switch.sonoff_01minizb_abf295fe_on_off
         domain: switch
-mode: single
+mode: restart
+max_exceeded: silent
