@@ -340,7 +340,7 @@ topic readwrite zigbee2mqtt/+
 topic read      zigbee2mqtt/+/set
 topic readwrite zigbee2mqtt/+/get
 # bridge related
-# # general state/info/operation
+# general state/info/operation
 topic write     zigbee2mqtt/bridge/info
 topic write     zigbee2mqtt/bridge/state
 topic write     zigbee2mqtt/bridge/logging
@@ -391,7 +391,7 @@ topic read      zigbee2mqtt/bridge/request/group/members/remove
 topic write     zigbee2mqtt/bridge/response/group/members/remove
 topic read      zigbee2mqtt/bridge/request/group/members/remove_all
 topic write     zigbee2mqtt/bridge/response/group/members/remove_all
-# ora updates management
+# ota updates management
 topic read      zigbee2mqtt/bridge/request/device/ota_update/check
 topic write     zigbee2mqtt/bridge/response/device/ota_update/check
 topic read      zigbee2mqtt/bridge/request/device/ota_update/update
