@@ -4,6 +4,9 @@ topic readwrite #
 
 # TODO: better segment where home-assistant can read/write
 user homeassistant
+topic readwrite shellies/#
+topic readwrite tasmotas/#
+topic readwrite homeassistant/#
 topic readwrite #
 
 #
@@ -329,3 +332,86 @@ topic write tasmotas/stat/+/+
 topic write homeassistant/+/+/config
 
 topic readwrite #
+
+# zigbee2mqtt
+user zigbee2mqtt
+# devices/groups operations
+topic readwrite zigbee2mqtt/+
+topic read      zigbee2mqtt/+/set
+topic readwrite zigbee2mqtt/+/get
+# bridge related
+# # general state/info/operation
+topic write     zigbee2mqtt/bridge/info
+topic write     zigbee2mqtt/bridge/state
+topic write     zigbee2mqtt/bridge/logging
+topic write     zigbee2mqtt/bridge/devices
+topic write     zigbee2mqtt/bridge/groups
+topic write     zigbee2mqtt/bridge/events
+# user extensions related
+topic readwrite zigbee2mqtt/bridge/extensions
+topic readwrite zigbee2mqtt/bridge/extensions/#
+topic read      zigbee2mqtt/bridge/request/extension/save
+topic write     zigbee2mqtt/bridge/response/extension/save
+topic read      zigbee2mqtt/bridge/request/extension/remove
+topic write     zigbee2mqtt/bridge/response/extension/remove
+# commands/other/management
+topic read      zigbee2mqtt/bridge/request/permit_join
+topic write     zigbee2mqtt/bridge/response/permit_join
+topic read      zigbee2mqtt/bridge/request/health_check
+topic write     zigbee2mqtt/bridge/response/health_check
+topic read      zigbee2mqtt/bridge/request/restart
+topic write     zigbee2mqtt/bridge/response/restart
+topic read      zigbee2mqtt/bridge/request/networkmap
+topic write     zigbee2mqtt/bridge/response/networkmap
+topic read      zigbee2mqtt/bridge/request/device/remove
+topic write     zigbee2mqtt/bridge/response/device/remove
+topic read      zigbee2mqtt/bridge/request/device/configure
+topic write     zigbee2mqtt/bridge/response/device/configure
+topic read      zigbee2mqtt/bridge/request/device/options
+topic write     zigbee2mqtt/bridge/response/device/options
+topic read      zigbee2mqtt/bridge/request/device/rename
+topic write     zigbee2mqtt/bridge/response/device/rename
+topic read      zigbee2mqtt/bridge/request/device/bind
+topic write     zigbee2mqtt/bridge/response/device/bind
+topic read      zigbee2mqtt/bridge/request/device/unbind
+topic write     zigbee2mqtt/bridge/response/device/unbind
+topic read      zigbee2mqtt/bridge/request/device/configure_reporting
+topic write     zigbee2mqtt/bridge/response/device/configure_reporting
+topic read      zigbee2mqtt/bridge/request/group/add
+topic write     zigbee2mqtt/bridge/response/group/add
+topic read      zigbee2mqtt/bridge/request/group/remove
+topic write     zigbee2mqtt/bridge/response/group/remove
+topic read      zigbee2mqtt/bridge/request/group/options
+topic write     zigbee2mqtt/bridge/response/group/options
+topic read      zigbee2mqtt/bridge/request/group/rename
+topic write     zigbee2mqtt/bridge/response/group/rename
+topic read      zigbee2mqtt/bridge/request/group/members/add
+topic write     zigbee2mqtt/bridge/response/group/members/add
+topic read      zigbee2mqtt/bridge/request/group/members/remove
+topic write     zigbee2mqtt/bridge/response/group/members/remove
+topic read      zigbee2mqtt/bridge/request/group/members/remove_all
+topic write     zigbee2mqtt/bridge/response/group/members/remove_all
+# ora updates management
+topic read      zigbee2mqtt/bridge/request/device/ota_update/check
+topic write     zigbee2mqtt/bridge/response/device/ota_update/check
+topic read      zigbee2mqtt/bridge/request/device/ota_update/update
+topic write     zigbee2mqtt/bridge/response/device/ota_update/update
+# config/options
+topic read      zigbee2mqtt/bridge/request/options
+topic write     zigbee2mqtt/bridge/response/options
+# config/options DEPRECATED
+topic read      zigbee2mqtt/bridge/request/config/last_seen
+topic write     zigbee2mqtt/bridge/response/config/last_seen
+topic read      zigbee2mqtt/bridge/request/config/elapsed
+topic write     zigbee2mqtt/bridge/response/config/elapsed
+topic read      zigbee2mqtt/bridge/request/config/log_level
+topic write     zigbee2mqtt/bridge/response/config/log_level
+topic read      zigbee2mqtt/bridge/request/config/homeassistant
+topic write     zigbee2mqtt/bridge/response/config/homeassistant
+# Touchlink
+topic read      zigbee2mqtt/bridge/request/touchlink/factory_reset
+topic write     zigbee2mqtt/bridge/response/touchlink/factory_reset
+topic read      zigbee2mqtt/bridge/request/touchlink/scan
+topic write     zigbee2mqtt/bridge/response/touchlink/scan
+topic read      zigbee2mqtt/bridge/request/touchlink/identify
+topic write     zigbee2mqtt/bridge/response/touchlink/identify
