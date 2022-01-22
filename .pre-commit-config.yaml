@@ -23,6 +23,7 @@ repos:
         exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community|homeassistant-config/custom_components
       - id: mixed-line-ending
       - id: trailing-whitespace
+        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community|homeassistant-config/custom_components
 
   - repo: https://github.com/IamTheFij/docker-pre-commit.git
     rev: v2.0.1
