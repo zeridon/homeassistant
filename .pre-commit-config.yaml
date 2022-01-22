@@ -20,7 +20,7 @@ repos:
         args: [--unsafe]
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community
+        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community|homeassistant-config/custom_components
       - id: mixed-line-ending
       - id: trailing-whitespace
 
