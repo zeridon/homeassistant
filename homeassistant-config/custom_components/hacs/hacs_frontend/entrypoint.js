@@ -7,3 +7,4 @@ try {
   el.type = 'module';
   document.body.appendChild(el);
 }
+  
