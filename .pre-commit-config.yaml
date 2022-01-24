@@ -20,10 +20,10 @@ repos:
         args: [--unsafe]
       - id: detect-private-key
       - id: end-of-file-fixer
-        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community|homeassistant-config/custom_components
+        exclude: homeassistant-config/(.HA_VERSION|www/community|custom_components)
       - id: mixed-line-ending
       - id: trailing-whitespace
-        exclude: homeassistant-config/.HA_VERSION|homeassistant-config/www/community|homeassistant-config/custom_components
+        exclude: homeassistant-config/(.HA_VERSION|www/community|custom_components)
 
   - repo: https://github.com/IamTheFij/docker-pre-commit.git
     rev: v2.0.1
