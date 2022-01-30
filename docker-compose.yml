@@ -111,9 +111,9 @@ services:
 
   luftdaten2mqtt:
     restart: unless-stopped
-    image: zeridon/luftdaten2mqtt:1.0.8
+    image: zeridon/luftdaten2mqtt:1.0.9
     build:
-      context: https://github.com/zeridon/luftdaten2mqtt.git#v1.0.8
+      context: https://github.com/zeridon/luftdaten2mqtt.git#v1.0.9
     depends_on:
       - mqtt
     networks:
