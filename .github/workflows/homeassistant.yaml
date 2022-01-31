@@ -43,7 +43,7 @@ jobs:
       - name: Generate secrets
         run: ./scripts/generate-ci-secrets.sh && mv homeassistant-config/ci-secrets.yaml homeassistant-config/secrets.yaml
       - name: Home Assistant Configuration check
-        uses: frenck/action-home-assistant@v1.0.0
+        uses: frenck/action-home-assistant@v1.3.0
         with:
           path: ./homeassistant-config
           version: "${{ matrix.version }}"
