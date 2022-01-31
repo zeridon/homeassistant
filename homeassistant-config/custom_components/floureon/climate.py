@@ -182,7 +182,7 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
                                    self.temperature_unit)
 
     @property
-    def device_state_attributes(self) -> dict:
+    def extra_state_attributes(self) -> dict:
         """Return the attribute(s) of the sensor"""
         return {
             'away_setpoint': self._away_setpoint,
@@ -265,7 +265,7 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
         await self.async_set_hvac_mode(HVAC_MODE_AUTO)
 
     async def async_update(self) -> None:
-        """Get thermostat info"""
+        """Get thermostat info"""        
         data = await self._hass.async_add_executor_job(self._thermostat.read_status)
 
         if not data:

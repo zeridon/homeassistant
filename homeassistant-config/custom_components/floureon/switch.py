@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 
 import voluptuous as vol
 
-from homeassistant.components.switch import SwitchDevice, PLATFORM_SCHEMA
+from homeassistant.components.switch import SwitchEntity, PLATFORM_SCHEMA
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.const import (
     CONF_NAME,
@@ -63,7 +63,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     async_add_entities([FloureonSwitch(hass, config)])
 
 
-class FloureonSwitch(SwitchDevice, RestoreEntity):
+class FloureonSwitch(SwitchEntity, RestoreEntity):
 
     def __init__(self, hass, config):
         if config.get(CONF_MAC) is not None:
@@ -142,3 +142,4 @@ class FloureonSwitch(SwitchDevice, RestoreEntity):
         self._max_temp = int(data['svh'])
         self._state = STATE_ON if data['power'] == BROADLINK_POWER_ON and data['active'] == BROADLINK_ACTIVE else STATE_OFF
         self._thermostat_current_temp = data['external_temp'] if self._use_external_temp else data['room_temp']
+

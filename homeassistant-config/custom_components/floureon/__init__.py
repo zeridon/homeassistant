@@ -32,7 +32,7 @@ class BroadlinkThermostat:
 
     def __init__(self, host):
         self._host = host
-
+        
     def device(self):
         max_attempt = 3
         for attempt in range(0, max_attempt):
@@ -43,7 +43,7 @@ class BroadlinkThermostat:
                 broadlink.timeout = 1
                 return broadlink.hello(self._host, timeout=3)
             except broadlink.exceptions.NetworkTimeoutError:
-                if attempt == max_attempt:
+                if attempt == max_attempt:                                    
                     raise
 
     def set_time(self):
@@ -55,7 +55,7 @@ class BroadlinkThermostat:
                 device.set_time(now.hour,
                                 now.minute,
                                 now.second,
-                                now.weekday() + 1)
+                                now.weekday() + 1)        
         except Exception as e:
             _LOGGER.error("Thermostat %s set_time error: %s", self._host, str(e))
 
