@@ -3,3 +3,7 @@
 rules:
   line-length:
     max: 120
+
+ignore: |
+  homeassistant-config/www/community
+  homeassistant-config/custom_components
