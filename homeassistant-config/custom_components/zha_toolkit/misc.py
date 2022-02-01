@@ -1,9 +1,12 @@
 # import asyncio
 import logging
+import asyncio
 
 import zigpy.types as t
+from zigpy.exceptions import DeliveryError
 
 from . import utils as u
+from .params import TRIES
 
 LOGGER = logging.getLogger(__name__)
 
@@ -116,25 +119,49 @@ async def rejoin(app, listener, ieee, cmd, data, service, params, event_data):
         await app.permit(node=t.EUI64.convert_ieee(data))
 
     method = 1
-    res = "Not executed, no valid 'method' defined in code"
+    res = None
+
     if method == 0:
         # Works on HA 2021.12.10 & ZNP - rejoin is 1:
-        res = await src.zdo.request(0x0034, src.ieee, 0x01)
+        res = await src.zdo.request(0x0034, src.ieee, 0x01, params[TRIES])
     elif method == 1:
         # Works on ZNP but apparently not on bellows:
-        res = await src.zdo.leave(remove_children=False, rejoin=True)
+        triesToGo = params[TRIES]
+        tryIdx = 0
+        event_data["success"] = False
+        while triesToGo >= 1:
+            triesToGo = triesToGo - 1
+            tryIdx += 1
+            try:
+                LOGGER.debug(f"Leave with rejoin - try {tryIdx}")
+                res = await src.zdo.leave(remove_children=False, rejoin=True)
+                event_data["success"] = True
+                triesToGo = 0  # Stop loop
+                # event_data["success"] = (
+                #     resf[0][0].status == f.Status.SUCCESS
+                # )
+            except (DeliveryError, asyncio.TimeoutError) as d:
+                event_data["errors"].append(repr(d))
+                continue
+            except Exception as e:  # Catch all others
+                triesToGo = 0  # Stop loop
+                LOGGER.debug("Leave with rejoin exception %s", e)
+                event_data["errors"].append(repr(e))
+
     elif method == 2:
         # Results in rejoin bit 0 on ZNP
         LOGGER.debug("Using Method 2 for Leave")
-        res = await src.zdo.request(0x0034, src.ieee, 0x80)
+        res = await src.zdo.request(0x0034, src.ieee, 0x80, params[TRIES])
     elif method == 3:
         # Results in rejoin and leave children bit set on ZNP
         LOGGER.debug("Using Method 3 for Leave")
-        res = await src.zdo.request(0x0034, src.ieee, 0xFF)
+        res = await src.zdo.request(0x0034, src.ieee, 0xFF, params[TRIES])
     elif method == 4:
         # Results in rejoin and leave children bit set on ZNP
         LOGGER.debug("Using Method 4 for Leave")
-        res = await src.zdo.request(0x0034, src.ieee, 0x83)
+        res = await src.zdo.request(0x0034, src.ieee, 0x83, params[TRIES])
+    else:
+        res = "Not executed, no valid 'method' defined in code"
 
     event_data["result"] = res
     LOGGER.debug("%s: leave and rejoin result: %s", src, ieee, res)
