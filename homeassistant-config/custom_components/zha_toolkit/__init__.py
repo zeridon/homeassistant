@@ -8,34 +8,297 @@ from homeassistant.util import dt as dt_util
 
 
 from . import utils as u
-from .params import EVT_DONE, EVT_FAIL, EVT_SUCCESS
+from .params import INTERNAL_PARAMS as p
+from .params import USER_PARAMS as P
+from .params import SERVICES as S
 
 DEPENDENCIES = ["zha"]
 
 DOMAIN = "zha_toolkit"
 
+
+# Legacy parameters
 ATTR_COMMAND = "command"
 ATTR_COMMAND_DATA = "command_data"
 ATTR_IEEE = "ieee"
+
 DATA_ZHATK = "zha_toolkit"
 
-SERVICE_TOOLKIT = "execute"
 
 LOGGER = logging.getLogger(__name__)
 
 SERVICE_SCHEMAS = {
-    SERVICE_TOOLKIT: vol.Schema(
+    # This service provides access to all other services
+    S.EXECUTE: vol.Schema(
         {
             vol.Optional(ATTR_IEEE): cv.string,
             vol.Optional(ATTR_COMMAND): cv.string,
             vol.Optional(ATTR_COMMAND_DATA): cv.string,
+            vol.Optional(P.CMD): cv.string,
+            vol.Optional(P.ENDPOINT): cv.byte,
+            vol.Optional(P.CLUSTER): vol.Range(0, 0xFFFF),
+            vol.Optional(P.ATTRIBUTE): vol.Any(
+                cv.string, vol.Range(0, 0xFFFF)
+            ),
+            vol.Optional(P.ATTR_TYPE): vol.Any(
+                cv.string, int
+            ),  # String is for later
+            vol.Optional(P.ATTR_VAL): vol.Any(cv.string, int, list),
+            vol.Optional(P.CODE): vol.Any(
+                cv.string, list
+            ),  # list is for later
+            vol.Optional(P.MIN_INTRVL): int,
+            vol.Optional(P.MAX_INTRVL): int,
+            vol.Optional(P.REPTBLE_CHG): int,
+            vol.Optional(P.DIR): cv.boolean,
+            vol.Optional(P.MANF): vol.Range(0, 0xFFFF),
+            vol.Optional(P.EXPECT_REPLY): cv.boolean,
+            vol.Optional(P.ARGS): vol.Any(
+                int, cv.string, list
+            ),  # Arguments to command
+            vol.Optional(P.STATE_ID): cv.string,
+            vol.Optional(P.STATE_ATTR): cv.string,
+            vol.Optional(P.ALLOW_CREATE): cv.boolean,
+            vol.Optional(P.READ_BEFORE_WRITE): cv.boolean,
+            vol.Optional(P.READ_AFTER_WRITE): cv.boolean,
+            vol.Optional(P.WRITE_IF_EQUAL): cv.boolean,
+            vol.Optional(P.OUTCSV): cv.string,
+            vol.Optional(P.CSVLABEL): cv.string,
         },
         extra=vol.ALLOW_EXTRA,
-    )
+    ),
+    # All services with their specific parameters (List being completed)
+    S.ADD_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ADD_TO_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ALL_ROUTES_AND_NEIGHBOURS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ATTR_READ: vol.Schema(
+        {
+            vol.Optional(P.ENDPOINT): vol.Range(0, 255),
+            vol.Required(P.CLUSTER): vol.Range(0, 0xFFFF),
+            vol.Required(P.ATTRIBUTE): vol.Any(
+                cv.string, vol.Range(0, 0xFFFF)
+            ),
+            vol.Optional(P.MANF): vol.Range(0, 0xFFFF),
+            vol.Optional(P.EXPECT_REPLY): cv.boolean,
+            vol.Optional(P.STATE_ID): cv.string,
+            vol.Optional(P.STATE_ATTR): cv.string,
+            vol.Optional(P.ALLOW_CREATE): cv.boolean,
+            vol.Optional(P.OUTCSV): cv.string,
+            vol.Optional(P.CSVLABEL): cv.string,
+        },
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ATTR_WRITE: vol.Schema(
+        {
+            vol.Optional(P.ENDPOINT): vol.Range(0, 255),
+            vol.Required(P.CLUSTER): vol.Range(0, 0xFFFF),
+            vol.Required(P.ATTRIBUTE): vol.Any(
+                cv.string, vol.Range(0, 0xFFFF)
+            ),
+            vol.Required(P.ATTR_TYPE): vol.Any(
+                cv.string, int
+            ),  # String is for later
+            vol.Required(P.ATTR_VAL): vol.Any(
+                cv.string, vol.Coerce(int), list
+            ),
+            vol.Optional(P.MANF): vol.Range(0, 0xFFFF),
+            vol.Optional(P.EXPECT_REPLY): cv.boolean,
+            vol.Optional(P.STATE_ID): cv.string,
+            vol.Optional(P.STATE_ATTR): cv.string,
+            vol.Optional(P.ALLOW_CREATE): cv.boolean,
+            vol.Optional(P.READ_BEFORE_WRITE): cv.boolean,
+            vol.Optional(P.READ_AFTER_WRITE): cv.boolean,
+            vol.Optional(P.WRITE_IF_EQUAL): cv.boolean,
+            vol.Optional(P.OUTCSV): cv.string,
+            vol.Optional(P.CSVLABEL): cv.string,
+        },
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.BACKUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.BIND_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.BIND_IEEE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.CONF_REPORT: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_ADD_KEY: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_BACKUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_CLEAR_KEYS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_CONFIG_VALUE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_IEEE_BY_NWK: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_KEYS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_POLICY: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_TOKEN: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_GET_VALUE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_SET_CHANNEL: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.EZSP_START_MFG: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.GET_GROUPS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.GET_ROUTES_AND_NEIGHBOURS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.GET_ZLL_GROUPS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.HANDLE_JOIN: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.IEEE_PING: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.LEAVE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.OTA_NOTIFY: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.REJOIN: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.REMOVE_ALL_GROUPS: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.REMOVE_FROM_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.REMOVE_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.SCAN_DEVICE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.SINOPE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.UNBIND_COORDINATOR: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.UNBIND_GROUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZCL_CMD: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZDO_FLOOD_PARENT_ANNCE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZDO_JOIN_WITH_CODE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZDO_SCAN_NOW: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZDO_UPDATE_NWK_ID: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZIGPY_DECONZ: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZNP_BACKUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZNP_NVRAM_BACKUP: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZNP_NVRAM_RESET: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZNP_NVRAM_RESTORE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
+    S.ZNP_RESTORE: vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+    ),
 }
 
 
-async def async_setup(hass, config):
+COMMON_SCHEMA = {
+    vol.Optional(P.TRIES): cv.positive_int,
+    vol.Optional(P.EVENT_SUCCESS): cv.string,
+    vol.Optional(P.EVENT_FAIL): cv.string,
+    vol.Optional(P.EVENT_DONE): cv.string,
+}
+
+
+async def async_setup(hass, config):  # noqa: C901
     """Set up ZHA from config."""
 
     if DOMAIN not in config:
@@ -55,13 +318,12 @@ async def async_setup(hass, config):
         cmd_data = service.data.get(ATTR_COMMAND_DATA)
 
         importlib.reload(u)
+        # Decode parameters
+        params = u.extractParams(service)
 
         app = zha_gw.application_controller
 
         ieee = await u.get_ieee(app, zha_gw, ieee_str)
-
-        # Decode parameters
-        params = u.extractParams(service)
 
         # Preload event_data
         event_data = {
@@ -88,31 +350,42 @@ async def async_setup(hass, config):
         importlib.reload(module)
         LOGGER.debug("module is %s", module)
 
+        service_cmd = service.service  # Lower case service name in domain
+
+        # This method can be called as the 'execute' service or
+        # with the specific service
+        if cmd is None:
+            cmd = service_cmd
+
+        handler = None
+        try:
+            # Check if existing local handler
+            handler = getattr(module, f"command_handler_{cmd}")
+        except AttributeError:
+            # Not an existing local handler, replace with the service command
+            if service_cmd != "execute":
+                # Actual service name (exists, defined in services.yaml)
+                cmd = service_cmd
+                handler = getattr(module, f"command_handler_{cmd}")
+
+        if handler is None:
+            LOGGER.debug(f"Default handler for {cmd}")
+            handler = module.command_handler_default
+
+        LOGGER.debug("Handler: %s", handler)
+
         handler_exception = None
         try:
-            if cmd:
-                handler = getattr(module, f"command_handler_{cmd}")
-                await handler(
-                    zha_gw.application_controller,
-                    zha_gw,
-                    ieee,
-                    cmd,
-                    cmd_data,
-                    service,
-                    params=params,
-                    event_data=event_data,
-                )
-            else:
-                await module.default_command(
-                    zha_gw.application_controller,
-                    zha_gw,
-                    ieee,
-                    cmd,
-                    cmd_data,
-                    service,
-                    params=params,
-                    event_data=event_data,
-                )
+            await handler(
+                zha_gw.application_controller,
+                zha_gw,
+                ieee,
+                cmd,
+                cmd_data,
+                service,
+                params=params,
+                event_data=event_data,
+            )
         except Exception as e:
             handler_exception = e
             event_data["errors"].append(repr(e))
@@ -124,34 +397,61 @@ async def async_setup(hass, config):
         LOGGER.debug("event_data %s", event_data)
         # Fire events
         if event_data["success"]:
-            if params[EVT_SUCCESS] is not None:
-                LOGGER.debug("Fire %s -> %s", params[EVT_SUCCESS], event_data)
-                zha_gw._hass.bus.fire(params[EVT_SUCCESS], event_data)
+            if params[p.EVT_SUCCESS] is not None:
+                LOGGER.debug(
+                    "Fire %s -> %s", params[p.EVT_SUCCESS], event_data
+                )
+                zha_gw._hass.bus.fire(params[p.EVT_SUCCESS], event_data)
         else:
-            if params[EVT_FAIL] is not None:
-                LOGGER.debug("Fire %s -> %s", params[EVT_FAIL], event_data)
-                zha_gw._hass.bus.fire(params[EVT_FAIL], event_data)
+            if params[p.EVT_FAIL] is not None:
+                LOGGER.debug("Fire %s -> %s", params[p.EVT_FAIL], event_data)
+                zha_gw._hass.bus.fire(params[p.EVT_FAIL], event_data)
 
-        if params[EVT_DONE] is not None:
-            LOGGER.debug("Fire %s -> %s", params[EVT_DONE], event_data)
-            zha_gw._hass.bus.fire(params[EVT_DONE], event_data)
+        if params[p.EVT_DONE] is not None:
+            LOGGER.debug("Fire %s -> %s", params[p.EVT_DONE], event_data)
+            zha_gw._hass.bus.fire(params[p.EVT_DONE], event_data)
 
         if handler_exception is not None:
             raise handler_exception
 
-    hass.services.async_register(
-        DOMAIN,
-        SERVICE_TOOLKIT,
-        toolkit_service,
-        schema=SERVICE_SCHEMAS[SERVICE_TOOLKIT],
-    )
+    # Set up all service schemas
+    for key, value in SERVICE_SCHEMAS.items():
+        value.extend(COMMON_SCHEMA)
+        hass.services.async_register(
+            DOMAIN,
+            key,
+            toolkit_service,
+            schema=value,
+        )
+
     return True
 
 
-async def default_command(
+async def command_handler_default(
     app, listener, ieee, cmd, data, service, params, event_data
 ):
     LOGGER.debug("running default command: %s", service)
+
+    if cmd.startswith("user_"):
+        # User library in 'local' directory (user.py)
+
+        LOGGER.debug("Import user path")
+        from .local import user
+
+        importlib.reload(user)
+
+        handler = getattr(user, cmd)
+        await handler(
+            app, listener, ieee, cmd, data, service, params, event_data
+        )
+    else:
+        from . import default
+
+        importlib.reload(default)
+
+        await default.default(
+            app, listener, ieee, cmd, data, service, params, event_data
+        )
 
 
 async def command_handler_handle_join(*args, **kwargs):
