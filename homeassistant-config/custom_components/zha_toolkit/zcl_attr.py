@@ -1,14 +1,17 @@
 import asyncio
 import logging
+import importlib
 
 from homeassistant.util import dt as dt_util
 
 from zigpy import types as t
 from zigpy.zcl import foundation as f
 from zigpy.exceptions import DeliveryError
+from zigpy.util import retryable
 
 from . import utils as u
 from .params import INTERNAL_PARAMS as p
+from .params import SERVICES as S
 
 
 LOGGER = logging.getLogger(__name__)
@@ -49,14 +52,14 @@ async def conf_report(
         triesToGo = triesToGo - 1
         try:
             LOGGER.debug(
-                "Try configure report(%s,%s,%s,%s,%s) Try %s/%s",
+                "Try %s/%s: configure report(%s,%s,%s,%s,%s)",
+                params[p.TRIES] - triesToGo,
+                params[p.TRIES],
                 params[p.ATTR_ID],
                 params[p.MIN_INTERVAL],
                 params[p.MAX_INTERVAL],
                 params[p.REPORTABLE_CHANGE],
                 params[p.MANF],
-                params[p.TRIES] - triesToGo,
-                params[p.TRIES],
             )
             result_conf = await cluster.configure_reporting(
                 params[p.ATTR_ID],
@@ -72,7 +75,7 @@ async def conf_report(
             event_data["success"] = (
                 result_conf[0][0].status == f.Status.SUCCESS
             )
-        except (DeliveryError, asyncio.TimeoutError):
+        except (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError):
             continue
         except Exception as e:
             triesToGo = 0  # Stop loop
@@ -87,7 +90,28 @@ async def conf_report(
             )
 
 
+# The zigpy library does not offer retryable on read_attributes.
+# Add it ourselves
+@retryable(
+    (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError), tries=1
+)
+async def cluster_read_attributes(cluster, attrs, manufacturer=None):
+    """Read attributes from cluster, retryable"""
+    return await cluster.read_attributes(attrs, manufacturer=manufacturer)
+
+
+# The zigpy library does not offer retryable on read_attributes.
+# Add it ourselves
+@retryable(
+    (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError), tries=1
+)
+async def cluster__write_attributes(cluster, attrs, manufacturer=None):
+    """Write cluster attributes from cluster, retryable"""
+    return await cluster._write_attributes(attrs, manufacturer=manufacturer)
+
+
 async def attr_read(*args, **kwargs):
+    # Delegate to attr_write which also handles the read command.
     await attr_write(*args, **kwargs)
 
 
@@ -105,17 +129,23 @@ async def attr_write(  # noqa: C901
         params[p.EP_ID] = u.find_endpoint(dev, params[p.CLUSTER_ID])
 
     if params[p.EP_ID] not in dev.endpoints:
-        LOGGER.error(
-            "Endpoint %s not found for '%s'", params[p.EP_ID], repr(ieee)
-        )
+        msg = f"Endpoint {params[p.EP_ID]} not found for '{ieee!r}"
+        LOGGER.error(msg)
+        raise Exception(msg)
 
     if params[p.CLUSTER_ID] not in dev.endpoints[params[p.EP_ID]].in_clusters:
-        LOGGER.error(
-            "Cluster 0x%04X not found for '%s', endpoint %s",
-            params[p.CLUSTER_ID],
-            repr(ieee),
-            params[p.EP_ID],
+        msg = "InCluster 0x{:04X} not found for '{}', endpoint {}".format(
+            params[p.CLUSTER_ID], repr(ieee), params[p.EP_ID]
         )
+        if params[p.CLUSTER_ID] in dev.endpoints[params[p.EP_ID]].out_clusters:
+            msg = f'{cmd}: "Using" OutCluster. {msg}'
+            LOGGER.warning(msg)
+            if "warnings" not in event_data:
+                event_data["warnings"] = []
+            event_data["warnings"].append(msg)
+        else:
+            LOGGER.error(msg)
+            raise Exception(msg)
 
     cluster = dev.endpoints[params[p.EP_ID]].in_clusters[params[p.CLUSTER_ID]]
 
@@ -158,6 +188,51 @@ async def attr_write(  # noqa: C901
             elif attr_type == 0x20:
                 compare_val = u.str2int(attr_val_str)
                 attr_val = f.TypeValue(attr_type, t.uint8_t(compare_val))
+            elif attr_type == 0x21:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint16_t(compare_val))
+            elif attr_type == 0x22:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint24_t(compare_val))
+            elif attr_type == 0x23:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint32_t(compare_val))
+            elif attr_type == 0x24:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint32_t(compare_val))
+            elif attr_type == 0x25:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint48_t(compare_val))
+            elif attr_type == 0x26:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint56_t(compare_val))
+            elif attr_type == 0x27:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.uint64_t(compare_val))
+            elif attr_type == 0x28:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int8_t(compare_val))
+            elif attr_type == 0x29:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int16_t(compare_val))
+            elif attr_type == 0x2A:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int24_t(compare_val))
+            elif attr_type == 0x2B:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int32_t(compare_val))
+            elif attr_type == 0x2C:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int32_t(compare_val))
+            elif attr_type == 0x2D:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int48_t(compare_val))
+            elif attr_type == 0x2E:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int56_t(compare_val))
+            elif attr_type == 0x2F:
+                compare_val = u.str2int(attr_val_str)
+                attr_val = f.TypeValue(attr_type, t.int64_t(compare_val))
             elif attr_type <= 0x31 and attr_type >= 0x08:
                 compare_val = u.str2int(attr_val_str)
                 # uint, int, bool, bitmap and enum
@@ -199,18 +274,26 @@ async def attr_write(  # noqa: C901
     if (
         params[p.READ_BEFORE_WRITE]
         or (len(attr_write_list) == 0)
-        or (cmd != "attr_write")
+        or (cmd != S.ATTR_WRITE)
     ):
         LOGGER.debug("Request attr read %s", attr_read_list)
-        result_read = await cluster.read_attributes(
-            attr_read_list, manufacturer=params[p.MANF]
+        result_read = await cluster_read_attributes(
+            cluster,
+            attr_read_list,
+            manufacturer=params[p.MANF],
+            tries=params[p.TRIES],
         )
         LOGGER.debug("Reading attr result (attrs, status): %s", result_read)
         success = (len(result_read[1]) == 0) and (len(result_read[0]) == 1)
 
     # True if value that should be written is the equal to the read one
-    write_is_equal = len(attr_write_list) != 0 and (
-        attr_id in result_read[0] and result_read[0][attr_id] == compare_val
+    write_is_equal = (
+        (params[p.READ_BEFORE_WRITE])
+        and (len(attr_write_list) != 0)
+        and (
+            (attr_id in result_read[0])
+            and (result_read[0][attr_id] == compare_val)
+        )
     )
 
     event_data["write_is_equal"] = write_is_equal
@@ -232,8 +315,11 @@ async def attr_write(  # noqa: C901
             result_read = None
 
         LOGGER.debug("Request attr write %s", attr_write_list)
-        result_write = await cluster._write_attributes(
-            attr_write_list, manufacturer=params[p.MANF]
+        result_write = await cluster__write_attributes(
+            cluster,
+            attr_write_list,
+            manufacturer=params[p.MANF],
+            tries=params[p.TRIES],
         )
         LOGGER.debug("Write attr status: %s", result_write)
         event_data["result_write"] = result_write
@@ -241,7 +327,7 @@ async def attr_write(  # noqa: C901
         try:
             # LOGGER.debug("Write attr status: %s", result_write[0][0].status)
             success = result_write[0][0].status == f.Status.SUCCESS
-            LOGGER.debug("Write success: %s", success)
+            LOGGER.debug(f"Write success: {success}")
         except Exception as e:
             event_data["errors"].append(repr(e))
             success = False
@@ -249,12 +335,15 @@ async def attr_write(  # noqa: C901
         # success = (len(result_write[1])==0)
 
         if params[p.READ_AFTER_WRITE]:
-            LOGGER.debug("Request attr read %s", attr_read_list)
-            result_read = await cluster.read_attributes(
-                attr_read_list, manufacturer=params[p.MANF]
+            LOGGER.debug(f"Request attr read {attr_read_list!r}")
+            result_read = await cluster_read_attributes(
+                cluster,
+                attr_read_list,
+                manufacturer=params[p.MANF],
+                tries=params[p.TRIES],
             )
             LOGGER.debug(
-                "Reading attr result (attrs, status): %s", result_read
+                f"Reading attr result (attrs, status): {result_read!r}"
             )
             # read_is_equal = (result_read[0][attr_id] == compare_val)
             success = (
@@ -265,7 +354,18 @@ async def attr_write(  # noqa: C901
 
     if result_read is not None:
         event_data["result_read"] = result_read
-        read_val = result_read[0][attr_id]
+        if len(result_read[1]) == 0:
+            read_val = result_read[0][attr_id]
+        else:
+            msg = (
+                f"Result: {result_read[1]}"
+                + f" - Attribute {attr_id} not in read {result_read!r}"
+            )
+            LOGGER.warning(msg)
+            if "warnings" not in event_data:
+                event_data["warnings"] = []
+            event_data["warnings"].append(msg)
+            success = False
     else:
         read_val = None
 
@@ -329,6 +429,12 @@ async def attr_write(  # noqa: C901
             f"{attr_name}={read_val}",
             listener=listener,
         )
+
+    importlib.reload(u)
+    if "result_read" in event_data and not u.isJsonable(
+        event_data["result_read"]
+    ):
+        event_data["result_read"] = repr(event_data["result_read"])
 
     # For internal use
     return result_read

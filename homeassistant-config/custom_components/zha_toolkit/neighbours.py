@@ -4,7 +4,6 @@ import logging
 import os
 from random import uniform
 
-# import zigpy.types as t
 import zigpy.zdo.types as zdo_t
 from zigpy.exceptions import DeliveryError
 from zigpy.util import retryable
@@ -14,7 +13,9 @@ from homeassistant.util.json import save_json
 LOGGER = logging.getLogger(__name__)
 
 
-@retryable((DeliveryError, asyncio.TimeoutError), tries=5)
+@retryable(
+    (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError), tries=5
+)
 def wrapper(cmd, *args, **kwargs):
     return cmd(*args, **kwargs)
 
