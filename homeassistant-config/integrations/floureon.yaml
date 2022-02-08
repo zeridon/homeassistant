@@ -4,3 +4,4 @@ climate:
   platform: floureon
   name: bathroom_floor
   host: !secret bathroom_floor_host
+  use_external_temp: false
