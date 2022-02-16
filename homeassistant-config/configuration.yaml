@@ -22,9 +22,9 @@ automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-webostv:
-  host: !secret propaganda_host
-  name: propagandaTV
+#webostv:
+#  host: !secret propaganda_host
+#  name: propagandaTV
 
   #vacuum:
   #  - platform: xiaomi_miio
