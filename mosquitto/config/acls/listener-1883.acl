@@ -317,11 +317,12 @@ topic write luftdaten/+/+
 
 # tasmota
 user tasmotas
-topic write tasmotas/tele/+/+
-topic readwrite tasmotas/cmnd/+/+
-topic readwrite tasmotas/cmnd/tasmotas/#
-topic write tasmotas/stat/+/+
+topic write tele/+/+
+topic readwrite cmnd/+/+
+topic readwrite cmnd/tasmotas/#
+topic write stat/+/+
 topic write homeassistant/+/+/config
+topic readwrite tasmota/discovery/+/+
 
 # sonoff zbbridge
 user zbbridge
@@ -330,6 +331,7 @@ topic read tasmotas/cmnd/+/+
 topic read tasmotas/cmnd/tasmotas/#
 topic write tasmotas/stat/+/+
 topic write homeassistant/+/+/config
+topic readwrite tasmota/discovery/+/+
 
 topic readwrite #
 
