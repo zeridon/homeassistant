@@ -4,6 +4,7 @@ switch:
   - platform: template
     switches:
       climate_dnevna_on_off:
+        unique_id: climate_dnevna_on_off
         value_template: "{{ not is_state('climate.dnevna', 'off') }}"
         turn_on:
           - service: climate.turn_on
@@ -12,6 +13,7 @@ switch:
           - service: climate.turn_off
             entity_id: climate.dnevna
       climate_spalnia_on_off:
+        unique_id: climate_spalnia_on_off
         value_template: "{{ not is_state('climate.spalnia', 'off') }}"
         turn_on:
           - service: climate.turn_on
@@ -20,6 +22,7 @@ switch:
           - service: climate.turn_off
             entity_id: climate.spalnia
       climate_rozovo_on_off:
+        unique_id: climate_rozovo_on_off
         value_template: "{{ not is_state('climate.rozovo', 'off') }}"
         turn_on:
           - service: climate.turn_on
@@ -28,6 +31,7 @@ switch:
           - service: climate.turn_off
             entity_id: climate.rozovo
       vacuum_roborooter_on_off:
+        unique_id: vacuum_roborooter_on_off
         value_template: "{{ not is_state('vacuum.robo_rooter', 'docked') }}"
         turn_on:
           - service: vacuum.start
@@ -37,6 +41,7 @@ switch:
             entity_id: vacuum.robo_rooter
 
       climate_bathroom_floor_on_off:
+        unique_id: climate_bathroom_floor_on_off
         value_template: "{{ not is_state('climate.bathroom_floor', off) }}"
         turn_on:
           - service: climate.turn_on
