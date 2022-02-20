@@ -1,6 +1,6 @@
 # import asyncio
-import logging
 import asyncio
+import logging
 
 import zigpy.types as t
 from zigpy.exceptions import DeliveryError
@@ -26,7 +26,7 @@ async def get_routes(
     LOGGER.debug("finished device get_routes")
 
 
-async def backup(app, listener, ieee, cmd, data, service, event_data, params):
+async def backup(app, listener, ieee, cmd, data, service, params, event_data):
     """Backup Coordinator Configuration."""
 
     radio_type = u.get_radiotype(app)

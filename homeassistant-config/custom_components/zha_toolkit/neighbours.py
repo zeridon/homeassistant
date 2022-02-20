@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import enum
 import logging
@@ -5,10 +7,9 @@ import os
 from random import uniform
 
 import zigpy.zdo.types as zdo_t
+from homeassistant.util.json import save_json
 from zigpy.exceptions import DeliveryError
 from zigpy.util import retryable
-
-from homeassistant.util.json import save_json
 
 LOGGER = logging.getLogger(__name__)
 
@@ -187,7 +188,7 @@ async def async_get_routes(device):
             Inactive = 0x3
             Validation_Underway = 0x4
 
-        res = {}
+        res: dict[str, str | bool | None | int] = {}
         res["destination"] = f"0x{route.DstNWK:04x}"
         res["next_hop"] = f"0x{route.NextHop:04x}"
         raw = route.RouteStatus & 0x07

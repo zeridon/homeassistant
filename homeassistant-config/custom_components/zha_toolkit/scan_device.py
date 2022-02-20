@@ -1,10 +1,12 @@
+from __future__ import annotations
+
 import asyncio
 import logging
 import re
 
+from zigpy import types as t
 from zigpy.exceptions import DeliveryError
 from zigpy.util import retryable
-from zigpy import types as t
 
 from . import utils as u
 from .params import INTERNAL_PARAMS as p
@@ -28,14 +30,21 @@ def wrapper(cmd, *args, **kwargs):
 
 async def scan_results(device, endpoints=None):
     """Construct scan results from information available in device"""
-    result = {"ieee": str(device.ieee), "nwk": f"0x{device.nwk:04x}"}
+    result: dict[str, str | list] = {
+        "ieee": str(device.ieee),
+        "nwk": f"0x{device.nwk:04x}",
+    }
 
     LOGGER.debug("Scanning device 0x{:04x}", device.nwk)
 
     if endpoints is not None and isinstance(endpoints, int):
         endpoints = [endpoints]
 
-    if endpoints is None or not isinstance(endpoints, list):
+    if (
+        endpoints is None
+        or not isinstance(endpoints, list)
+        or len(endpoints) == 0
+    ):
         endpoints = []
         for epid, _ep in device.endpoints.items():
             endpoints.append(epid)
@@ -99,6 +108,7 @@ async def scan_cluster(cluster, is_server=True):
         cmds_gen = "commands_received"
     return {
         "cluster_id": f"0x{cluster.cluster_id:04x}",
+        "title": cluster.name,
         "name": cluster.ep_attribute,
         "attributes": await discover_attributes_extended(cluster),
         cmds_rec: await discover_commands_received(cluster, is_server),
@@ -157,10 +167,16 @@ async def discover_attributes_extended(cluster, manufacturer=None):
                 access_acl & foundation.AttributeAccessControl.READ != 0
             ):
                 to_read.append(attr_id)
+
+            attr_type_hex = f"0x{attr_rec.datatype:02x}"
             if attr_type:
-                attr_type = [attr_type[1].__name__, attr_type[2].__name__]
+                attr_type = [
+                    attr_type_hex,
+                    attr_type[1].__name__,
+                    attr_type[2].__name__,
+                ]
             else:
-                attr_type = f"0x{attr_rec.datatype:02x}"
+                attr_type = attr_type_hex
             try:
                 access = re.sub(
                     "^.*\\.",
@@ -316,18 +332,39 @@ async def scan_device(
 
     device = app.get_device(ieee)
 
-    scan = await scan_results(device, params[p.EP_ID])
+    endpoints = params[p.EP_ID]
+
+    if endpoints is None:
+        endpoints = []
+    elif isinstance(endpoints, int):
+        endpoints = [endpoints]
+    elif not isinstance(endpoints, list):
+        raise ValueError("Endpoint must be int or list of int")
+
+    endpoints = sorted(set(endpoints))  # Uniqify and sort
+
+    scan = await scan_results(device, endpoints)
 
     event_data["scan"] = scan
 
     model = scan.get("model")
     manufacturer = scan.get("manufacturer")
-    if model is not None and manufacturer is not None:
-        ieee_tail = "".join([f"{o:02x}" for o in ieee[-4:]])
-        file_name = f"{model}_{manufacturer}_{ieee_tail}_scan_results.txt"
+
+    if len(endpoints) == 0:
+        ep_str = ""
     else:
-        ieee_tail = "".join([f"{o:02x}" for o in ieee])
-        file_name = f"{ieee_tail}_scan_results.txt"
+        ep_str = "_" + ("_".join([f"{e:02x}" for e in endpoints]))
+
+    postfix = f"{ep_str}_scan_results.txt"
+
+    # Set a unique filename for each device, using the manf name and
+    # the variable part of the device mac address
+    if model is not None and manufacturer is not None:
+        ieee_tail = "".join([f"{o:02x}" for o in ieee[4::-1]])
+        file_name = f"{model}_{manufacturer}_{ieee_tail}{postfix}"
+    else:
+        ieee_tail = "".join([f"{o:02x}" for o in ieee[::-1]])
+        file_name = f"{ieee_tail}{postfix}"
 
     u.write_json_to_file(
         scan,

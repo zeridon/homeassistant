@@ -11,7 +11,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 async def znp_backup(
-    app, listener, ieee, cmd, data, service, event_data, params
+    app, listener, ieee, cmd, data, service, params, event_data
 ):
     """Backup ZNP network information."""
 
@@ -23,9 +23,10 @@ async def znp_backup(
         raise Exception(msg)
 
     # Import stuff we need
-    from zigpy_znp.tools.network_backup import backup_network as backup_network
-    import os
     import json
+    import os
+
+    from zigpy_znp.tools.network_backup import backup_network as backup_network
 
     # Get backup information
     backup_obj = await backup_network(app._znp)
@@ -52,7 +53,7 @@ async def znp_backup(
 
 
 async def znp_restore(
-    app, listener, ieee, cmd, data, service, event_data, params
+    app, listener, ieee, cmd, data, service, params, event_data
 ):
     """Restore ZNP network information."""
 
@@ -78,13 +79,16 @@ async def znp_restore(
     current_datetime = datetime.now().strftime("_%Y%m%d_%H%M%S")
 
     # Safety: backup current configuration
-    await znp_backup(app, listener, ieee, cmd, current_datetime, service)
+    await znp_backup(
+        app, listener, ieee, cmd, current_datetime, service, params, event_data
+    )
 
     # Import stuff we need for restoring
-    from zigpy_znp.tools.network_restore import json_backup_to_zigpy_state
-    from zigpy_znp.tools.common import validate_backup_json
-    from os import path
     import json
+    from os import path
+
+    from zigpy_znp.tools.common import validate_backup_json
+    from zigpy_znp.tools.network_restore import json_backup_to_zigpy_state
 
     # Set name with regards to local path
     fname = path.dirname(__file__) + "/local/nwk_backup.json"
@@ -129,7 +133,7 @@ async def znp_restore(
 
 
 async def znp_nvram_backup(
-    app, listener, ieee, cmd, data, service, event_data, params
+    app, listener, ieee, cmd, data, service, params, event_data
 ):
     """Save ZNP NVRAM to file for backup"""
 
@@ -139,9 +143,10 @@ async def znp_nvram_backup(
         raise Exception(msg)
 
     # Store backup information to file
-    from zigpy_znp.tools.nvram_read import nvram_read
-    import os
     import json
+    import os
+
+    from zigpy_znp.tools.nvram_read import nvram_read
 
     # Set name with regards to local path
     out_dir = os.path.dirname(__file__) + "/local/"
@@ -165,7 +170,7 @@ async def znp_nvram_backup(
 
 
 async def znp_nvram_restore(
-    app, listener, ieee, cmd, data, service, event_data, params
+    app, listener, ieee, cmd, data, service, params, event_data
 ):
     """Restore ZNP NVRAM from file"""
 
@@ -178,12 +183,15 @@ async def znp_nvram_restore(
     from datetime import datetime
 
     current_datetime = datetime.now().strftime("_%Y%m%d_%H%M%S")
-    await znp_nvram_backup(app, listener, ieee, cmd, current_datetime, service)
+    await znp_nvram_backup(
+        app, listener, ieee, cmd, current_datetime, service, params, event_data
+    )
 
     # Restore NVRAM backup from file
-    from zigpy_znp.tools.nvram_write import nvram_write
-    import os
     import json
+    import os
+
+    from zigpy_znp.tools.nvram_write import nvram_write
 
     # Set name with regards to local path
     out_dir = os.path.dirname(__file__) + "/local/"
@@ -208,7 +216,7 @@ async def znp_nvram_restore(
 
 
 async def znp_nvram_reset(
-    app, listener, ieee, cmd, data, service, event_data, params
+    app, listener, ieee, cmd, data, service, params, event_data
 ):
     """Reset ZNP NVRAM"""
 
@@ -222,7 +230,9 @@ async def znp_nvram_reset(
     current_datetime = datetime.now().strftime("_%Y%m%d_%H%M%S")
 
     # Safety: backup current configuration
-    await znp_nvram_backup(app, listener, ieee, cmd, current_datetime, service)
+    await znp_nvram_backup(
+        app, listener, ieee, cmd, current_datetime, service, params, event_data
+    )
 
     # Import stuff we need for resetting
     from zigpy_znp.tools.nvram_reset import nvram_reset

@@ -1,10 +1,9 @@
-import logging
 import inspect
+import logging
 
 from . import utils as u
-from .params import USER_PARAMS as P
 from .params import INTERNAL_PARAMS as p
-
+from .params import USER_PARAMS as P
 
 LOGGER = logging.getLogger(__name__)
 
@@ -14,7 +13,7 @@ ERR004_NOT_IN_CLUSTER = "In cluster 0x%04X not found for '%s', endpoint %s"
 ERR005_NOT_OUT_CLUSTER = "Out cluster 0x%04X not found for '%s', endpoint %s"
 
 
-async def zcl_cmd(app, listener, ieee, cmd, data, service, event_data, params):
+async def zcl_cmd(app, listener, ieee, cmd, data, service, params, event_data):
     from zigpy import types as t
 
     # Verify parameter presence
@@ -25,23 +24,7 @@ async def zcl_cmd(app, listener, ieee, cmd, data, service, event_data, params):
         raise Exception(msg)
 
     dev = app.get_device(ieee=ieee)
-
-    # Decode endpoint
-    if params[p.EP_ID] is None or params[p.EP_ID] == "":
-        params[p.EP_ID] = u.find_endpoint(dev, params[p.CLUSTER_ID])
-
-    if params[p.EP_ID] not in dev.endpoints:
-        LOGGER.error(
-            "Endpoint %s not found for '%s'", params[p.EP_ID], repr(ieee)
-        )
-
-    if params[p.CLUSTER_ID] not in dev.endpoints[params[p.EP_ID]].in_clusters:
-        LOGGER.error(
-            "Cluster 0x%04X not found for '%s', endpoint %s",
-            params[p.CLUSTER_ID],
-            repr(ieee),
-            params[p.EP_ID],
-        )
+    cluster = u.get_cluster_from_params(dev, params, event_data)
 
     # Extract parameters
 

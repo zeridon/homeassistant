@@ -1,13 +1,16 @@
+from __future__ import annotations
+
+import json
 import logging
 import os
-import json
-
 from enum import Enum
-from zigpy import types as t
-from homeassistant.util.json import save_json
 
-from .params import USER_PARAMS as P
+from homeassistant.util.json import save_json
+from zigpy import types as t
+from zigpy.zcl import foundation as f
+
 from .params import INTERNAL_PARAMS as p
+from .params import USER_PARAMS as P
 
 LOGGER = logging.getLogger(__name__)
 
@@ -73,6 +76,19 @@ def get_radio(app):
         return app._ezsp
     LOGGER.debug("Type recognition for '%s' not implemented", type(app))
     return RadioType.UNKNOWN
+
+
+def get_radio_version(app):
+    if hasattr(app, "_znp"):
+        import zigpy_znp
+
+        return zigpy_znp.__version__
+    if hasattr(app, "_ezsp"):
+        import bellows
+
+        return bellows.__version__
+    LOGGER.debug("Type recognition for '%s' not implemented", type(app))
+    return None
 
 
 # Get zigbee IEEE address (EUI64) for the reference.
@@ -177,7 +193,21 @@ def find_endpoint(dev, cluster_id):
             cnt = cnt + 1
 
     if cnt == 0:
-        LOGGER.error("No Endpoint found for cluster '%s'", cluster_id)
+        for key, value in dev.endpoints.items():
+            if key == 0:
+                continue
+            if cluster_id in value.in_clusters:
+                endpoint_id = key
+                cnt = cnt + 1
+
+        if cnt == 0:
+            LOGGER.error("No Endpoint found for cluster '%s'", cluster_id)
+        else:
+            LOGGER.error(
+                "No Endpoint found for in_cluster, found out_cluster '%s'",
+                cluster_id,
+            )
+
     if cnt > 1:
         endpoint_id = None
         LOGGER.error(
@@ -189,6 +219,49 @@ def find_endpoint(dev, cluster_id):
         )
 
     return endpoint_id
+
+
+def get_cluster_from_params(
+    dev, params: dict[str, int | str | list[int | str]], event_data: dict
+):
+    """
+    Get in or outcluster (and endpoint) with best
+    correspondence to values provided in params
+    """
+
+    # Get best endpoint
+    if params[p.EP_ID] is None or params[p.EP_ID] == "":
+        params[p.EP_ID] = find_endpoint(dev, params[p.CLUSTER_ID])
+
+    if params[p.EP_ID] not in dev.endpoints:
+        msg = f"Endpoint {params[p.EP_ID]} not found for '{dev.ieee!r}"
+        LOGGER.error(msg)
+        raise Exception(msg)
+
+    cluster_id = params[p.CLUSTER_ID]
+    if not isinstance(cluster_id, int):
+        msg = f"Cluster must be numeric {cluster_id}"
+        raise Exception(msg)
+
+    cluster = None
+    if cluster_id not in dev.endpoints[params[p.EP_ID]].in_clusters:
+        msg = "InCluster 0x{:04X} not found for '{}', endpoint {}".format(
+            cluster_id, repr(dev.ieee), params[p.EP_ID]
+        )
+        if cluster_id in dev.enddev.points[params[p.EP_ID]].out_clusters:
+            msg = f'"Using" OutCluster. {msg}'
+            LOGGER.warning(msg)
+            if "warnings" not in event_data:
+                event_data["warnings"] = []
+            event_data["warnings"].append(msg)
+            cluster = dev.endpoints[params[p.EP_ID]].out_clusters[cluster_id]
+        else:
+            LOGGER.error(msg)
+            raise Exception(msg)
+    else:
+        cluster = dev.endpoints[params[p.EP_ID]].in_clusters[cluster_id]
+
+    return cluster
 
 
 def write_json_to_file(data, subdir, fname, desc, listener=None):
@@ -206,7 +279,9 @@ def write_json_to_file(data, subdir, fname, desc, listener=None):
     LOGGER.debug(f"Finished writing {desc} in '{file_name}'")
 
 
-def append_to_csvfile(fields, subdir, fname, desc, listener=None):
+def append_to_csvfile(
+    fields, subdir, fname, desc, listener=None, overwrite=False
+):
     if listener is None or subdir == "local":
         base_dir = os.path.dirname(__file__)
     else:
@@ -220,11 +295,126 @@ def append_to_csvfile(fields, subdir, fname, desc, listener=None):
 
     import csv
 
-    with open(file_name, "a") as f:
+    with open(file_name, "w" if overwrite else "a") as f:
         writer = csv.writer(f)
         writer.writerow(fields)
 
-    LOGGER.debug(f"Appended {desc} to '{file_name}'")
+    if overwrite:
+        LOGGER.debug(f"Wrote {desc} to '{file_name}'")
+    else:
+        LOGGER.debug(f"Appended {desc} to '{file_name}'")
+
+
+def get_attr_id(cluster, attribute):
+    # Try to get attribute id from cluster
+    try:
+        if isinstance(attribute, str):
+            return cluster.attributes_by_name(attribute)
+    except Exception:
+        return None
+
+    # By default, just try to convert it to an int
+    return str2int(attribute)
+
+
+def get_attr_type(cluster, attr_id):
+    """Get type for attribute in cluster, or None if not found"""
+    try:
+        return f.DATA_TYPES.pytype_to_datatype_id(
+            cluster.attributes.get(attr_id, (None, f.Unknown))[1]
+        )
+    except Exception:  # nosec
+        pass
+
+    return None
+
+
+def attr_encode(attr_val_in, attr_type):  # noqa C901
+    # Convert attribute value (provided as a string)
+    # to appropriate attribute value.
+    # If the attr_type is not set, only read the attribute.
+    attr_obj = None
+    if attr_type == 0x10:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.Bool(compare_val))
+    elif attr_type == 0x20:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint8_t(compare_val))
+    elif attr_type == 0x21:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint16_t(compare_val))
+    elif attr_type == 0x22:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint24_t(compare_val))
+    elif attr_type == 0x23:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint32_t(compare_val))
+    elif attr_type == 0x24:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint32_t(compare_val))
+    elif attr_type == 0x25:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint48_t(compare_val))
+    elif attr_type == 0x26:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint56_t(compare_val))
+    elif attr_type == 0x27:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.uint64_t(compare_val))
+    elif attr_type == 0x28:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int8s(compare_val))
+    elif attr_type == 0x29:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int16s(compare_val))
+    elif attr_type == 0x2A:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int24s(compare_val))
+    elif attr_type == 0x2B:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int32s(compare_val))
+    elif attr_type == 0x2C:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int32s(compare_val))
+    elif attr_type == 0x2D:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int48s(compare_val))
+    elif attr_type == 0x2E:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int56s(compare_val))
+    elif attr_type == 0x2F:
+        compare_val = str2int(attr_val_in)
+        attr_obj = f.TypeValue(attr_type, t.int64s(compare_val))
+    elif attr_type <= 0x31 and attr_type >= 0x08:
+        compare_val = str2int(attr_val_in)
+        # uint, int, bool, bitmap and enum
+        attr_obj = compare_val
+        # attr_obj = f.TypeValue(attr_type, t.FixedIntType(compare_val))
+    elif attr_type in [0x41, 0x42]:  # Octet string
+        # Octet string requires length -> LVBytes
+        compare_val = t.LVBytes(attr_val_in)
+
+        if type(attr_val_in) == str:
+            attr_val_in = bytes(attr_val_in, "utf-8")
+
+        if isinstance(attr_val_in, list):
+            # Convert list to List of uint8_t
+            attr_val_in = t.List[t.uint8_t](
+                [t.uint8_t(i) for i in attr_val_in]
+            )
+
+        attr_obj = f.TypeValue(attr_type, t.LVBytes(attr_val_in))
+
+    if attr_obj is None:
+        msg = (
+            "attr_type {} not supported, "
+            + "or incorrect parameters (attr_val={})"
+        ).format(attr_type, attr_val_in)
+        LOGGER.debug(msg)
+    else:
+        msg = None
+
+    return attr_obj, msg, compare_val
 
 
 # Common method to extract and convert parameters.
@@ -232,14 +422,16 @@ def append_to_csvfile(fields, subdir, fname, desc, listener=None):
 # Most parameters are similar, this avoids repeating
 # code.
 #
-def extractParams(service):  # noqa: C901
+def extractParams(  # noqa: C901
+    service,
+) -> dict[str, None | int | str | list[int | str]]:
     rawParams = service.data
 
     LOGGER.debug("Parameters '%s'", rawParams)
 
     # Potential parameters, initialized to None
     # TODO: Not all parameters are decoded in this function yet
-    params = {
+    params: dict[str, None | int | str | list[int | str]] = {
         p.CMD_ID: None,
         p.EP_ID: None,
         p.CLUSTER_ID: None,
@@ -261,6 +453,7 @@ def extractParams(service):  # noqa: C901
         p.EVT_SUCCESS: None,
         p.EVT_FAIL: None,
         p.EVT_DONE: None,
+        p.FAIL_EXCEPTION: False,
         p.READ_BEFORE_WRITE: True,
         p.READ_AFTER_WRITE: True,
         p.WRITE_IF_EQUAL: False,
@@ -313,6 +506,9 @@ def extractParams(service):  # noqa: C901
     # Get expect_reply
     if P.EXPECT_REPLY in rawParams:
         params[p.EXPECT_REPLY] = str2int(rawParams[P.EXPECT_REPLY]) == 0
+
+    if P.FAIL_EXCEPTION in rawParams:
+        params[p.FAIL_EXCEPTION] = str2int(rawParams[P.FAIL_EXCEPTION]) == 0
 
     if P.ARGS in rawParams:
         cmd_args = []
@@ -367,7 +563,7 @@ def extractParams(service):  # noqa: C901
 
     if P.EVENT_SUCCESS in rawParams:
         params[p.EVT_SUCCESS] = rawParams[P.EVENT_SUCCESS]
-    LOGGER.debug("OUT %s", P.OUTCSV)
+
     if P.OUTCSV in rawParams:
         params[p.CSV_FILE] = rawParams[P.OUTCSV]
 
