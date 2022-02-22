@@ -309,6 +309,21 @@ services:
       - "traefik.http.routers.tasmopiler-rtr.rule=Host(`tasmopiler.${BASE_DOMAIN}`)"
       - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
 
+  esphome:
+    image: esphome/esphome:2022.2.4
+    restart: unless-stopped
+    networks:
+      - svcs
+    volumes:
+      - "./esphome:/config"
+    expose:
+      - "6052"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.esphome-rtr.entrypoints=web-bad"
+      - "traefik.http.routers.esphome-rtr.rule=Host(`esphome.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.esphome-rtr.middlewares=internal-ips"
+
 ####  whoami:
 ####    # A container that exposes an API to show its IP address
 ####    image: traefik/whoami
