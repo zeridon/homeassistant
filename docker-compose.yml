@@ -296,6 +296,19 @@ services:
       - "traefik.http.routers.otaserver-rtr.rule=Host(`ota.${BASE_DOMAIN}`)"
       - "traefik.http.routers.otaserver-rtr.middlewares=internal-ips"
 
+  tasmopiler:
+    image: benzino77/tasmocompiler
+    restart: unless-stopped
+    networks:
+      - svcs
+    expose:
+      - "3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tasmopiler-rtr.entrypoints=web-bad"
+      - "traefik.http.routers.tasmopiler-rtr.rule=Host(`tasmopiler.${BASE_DOMAIN}`)"
+      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
+
 ####  whoami:
 ####    # A container that exposes an API to show its IP address
 ####    image: traefik/whoami
