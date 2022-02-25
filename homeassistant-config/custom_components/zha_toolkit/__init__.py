@@ -165,6 +165,14 @@ SERVICE_SCHEMAS = {
         },
         extra=vol.ALLOW_EXTRA,
     ),
+    S.BINDS_REMOVE_ALL: vol.Schema(
+        {
+            vol.Required(ATTR_IEEE): vol.Any(
+                cv.entity_id_or_uuid, t.EUI64.convert
+            ),
+        },
+        extra=vol.ALLOW_EXTRA,
+    ),
     S.CONF_REPORT: vol.Schema(
         {
             vol.Required(ATTR_IEEE): vol.Any(
@@ -495,8 +503,15 @@ def register_services(hass):  # noqa: C901
 
         ieee = await u.get_ieee(app, zha_gw, ieee_str)
 
+        slickParams = params.copy()
+        for k in params.keys():
+            LOGGER.debug(f"Key {p}")
+            if slickParams[k] is None or slickParams[k] is False:
+                del slickParams[k]
+
         # Preload event_data
         event_data = {
+            "zha_toolkit_version": u.getVersion(),
             "zigpy_version": zigpy.__version__,
             "zigpy_rf_version": u.get_radio_version(app),
             "ieee_org": ieee_str,
@@ -505,7 +520,7 @@ def register_services(hass):  # noqa: C901
             "command_data": cmd_data,
             "start_time": dt_util.utcnow().isoformat(),
             "errors": [],
-            "params": params,
+            "params": slickParams,  # stripped version of params
         }
 
         if ieee is not None:
