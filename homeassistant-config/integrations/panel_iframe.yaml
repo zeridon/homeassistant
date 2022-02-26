@@ -5,7 +5,9 @@ panel_iframe:
     title: "TasmoCompiler"
     url: !secret panel_iframe_tasmopiler
     icon: "mdi:home-roof"
+    require_admin: true
   esphome:
     title: "ESPHome"
     url: !secret panel_iframe_esphome
     icon: "mdi:chip"
+    require_admin: true
