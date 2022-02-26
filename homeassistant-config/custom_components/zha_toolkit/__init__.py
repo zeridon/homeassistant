@@ -13,7 +13,7 @@ from . import utils as u
 DEPENDENCIES = ["zha"]
 
 DOMAIN = "zha_toolkit"
-
+REGISTERED_VERSION = ""
 
 # Legacy parameters
 ATTR_COMMAND = "command"
@@ -350,7 +350,18 @@ SERVICE_SCHEMAS = {
         extra=vol.ALLOW_EXTRA,
     ),
     S.ZCL_CMD: vol.Schema(
-        {},
+        {
+            vol.Required(ATTR_IEEE): vol.Any(
+                cv.entity_id_or_uuid, t.EUI64.convert
+            ),
+            vol.Optional(P.CMD): cv.string,
+            vol.Optional(P.ENDPOINT): vol.Any(cv.byte, [cv.byte]),
+            vol.Optional(P.CLUSTER): vol.Range(0, 0xFFFF),
+            vol.Optional(P.MANF): vol.Range(0, 0xFFFF),
+            vol.Optional(P.ARGS): vol.Any(
+                int, list, cv.string
+            ),  # Arguments to command
+        },
         extra=vol.ALLOW_EXTRA,
     ),
     S.ZDO_FLOOD_PARENT_ANNCE: vol.Schema(
@@ -466,6 +477,7 @@ async def async_setup(hass, config):
         return True
 
     register_services(hass)
+
     return True
 
 
@@ -490,12 +502,24 @@ def register_services(hass):  # noqa: C901
         importlib.reload(module)
 
         LOGGER.debug("module is %s", module)
+        importlib.reload(u)
+
+        if u.getVersion() != REGISTERED_VERSION:
+            await command_handler_register_services(
+                zha_gw.application_controller,
+                zha_gw,
+                None,  # ieee,
+                None,  # cmd,
+                None,  # cmd_data,
+                None,  # Not needed
+                params={},  # params Not needed
+                event_data={},  # event_data Not needed
+            )
 
         ieee_str = service.data.get(ATTR_IEEE)
         cmd = service.data.get(ATTR_COMMAND)
         cmd_data = service.data.get(ATTR_COMMAND_DATA)
 
-        importlib.reload(u)
         # Decode parameters
         params = u.extractParams(service)
 
@@ -612,6 +636,8 @@ def register_services(hass):  # noqa: C901
             toolkit_service,
             schema=value,
         )
+
+    REGISTERED_VERSION = u.getVersion()
 
 
 async def command_handler_default(
