@@ -1,0 +1,11 @@
+---
+# add some custom panels
+panel_iframe:
+  tasmota:
+    title: "TasmoCompiler"
+    url: !secret panel_iframe_tasmopiler
+    icon: "mdi:home-roof"
+  esphome:
+    title: "ESPHome"
+    url: !secret panel_iframe_esphome
+    icon: "mdi:chip"
