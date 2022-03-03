@@ -3,11 +3,11 @@
 panel_iframe:
   tasmota:
     title: "TasmoCompiler"
-    url: !secret panel_iframe_tasmopiler
+    url: !secret panel_iframe_tasmopiler_url
     icon: "mdi:home-roof"
     require_admin: true
   esphome:
     title: "ESPHome"
-    url: !secret panel_iframe_esphome
+    url: !secret panel_iframe_esphome_url
     icon: "mdi:chip"
     require_admin: true
