@@ -150,7 +150,7 @@ TPL_ENERGY = "{{value_json.aenergy.total|round(2)}}"
 TPL_ETH_IP = "{{value_json.result.eth.ip}}"
 TPL_FIRMWARE_STABLE = "{%if value_json.result.sys.available_updates.stable is defined%}ON{%else%}OFF{%endif%}"
 TPL_FIRMWARE_STABLE_ATTRS = (
-    "{{value_json.result.sys.available_updates.get(^stable^, {})}}"
+    "{{value_json.result.sys.available_updates.get(^stable^, {})|to_json}}"
 )
 TPL_INPUT = "{%if value_json.state%}ON{%else%}OFF{%endif%}"
 TPL_MQTT_CONNECTED = (
@@ -511,7 +511,7 @@ SUPPORTED_MODELS = {
         ATTR_MIN_FIRMWARE_DATE: 20220205,
     },
     MODEL_PLUS_I4: {
-        ATTR_NAME: "Shelly Plus i4",
+        ATTR_NAME: "Shelly Plus I4",
         ATTR_BINARY_SENSORS: {
             SENSOR_CLOUD: DESCRIPTION_SENSOR_CLOUD,
             SENSOR_FIRMWARE: DESCRIPTION_SENSOR_FIRMWARE,
@@ -695,6 +695,16 @@ SUPPORTED_MODELS = {
         ATTR_MIN_FIRMWARE_DATE: 20220117,
     },
 }
+
+
+def get_consumption_type(consumption_list, relay_id):
+    """Return consumption type for relay."""
+    try:
+        consumption_type = consumption_list[relay_id]
+    except IndexError:
+        return ATTR_SWITCH
+
+    return ATTR_LIGHT if "light" in consumption_type else ATTR_SWITCH
 
 
 def mqtt_publish(topic, payload):
@@ -1025,9 +1035,9 @@ def configure_device():
     for relay_id in range(relays):
         consumption_types = [
             item.lower()
-            for item in device_config["sys"]["device"].get("consumption_types", [])
+            for item in device_config["sys"]["ui_data"].get("consumption_types", [])
         ]
-        relay_type = ATTR_LIGHT if ATTR_LIGHT in consumption_types else ATTR_SWITCH
+        relay_type = get_consumption_type(consumption_types, relay_id)
 
         topic, payload = get_switch(relay_id, relay_type, profile)
         config[topic] = payload
