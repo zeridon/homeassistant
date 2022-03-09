@@ -9,6 +9,8 @@ homeassistant:
   currency: BGN
   # load packages
   packages: !include_dir_named integrations
+  internal_url: !secret tts_base_url
+  external_url: !secret tts_base_url
 
 # def config ...
 default_config:
