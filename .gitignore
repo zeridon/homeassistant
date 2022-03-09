@@ -224,3 +224,6 @@ inspirations
 # data folders
 grafana
 influxdb
+
+# local overrides
+docker-compose-override.yml
