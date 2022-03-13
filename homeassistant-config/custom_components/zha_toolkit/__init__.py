@@ -182,6 +182,12 @@ SERVICE_SCHEMAS = {
             vol.Required(ATTR_IEEE): vol.Any(
                 cv.entity_id_or_uuid, t.EUI64.convert
             ),
+            vol.Optional(ATTR_COMMAND_DATA): vol.Any(
+                cv.entity_id_or_uuid, t.EUI64.convert
+            ),
+            vol.Optional(P.CLUSTER): vol.Any(
+                vol.Range(0, 0xFFFF), [vol.Range(0, 0xFFFF)]
+            ),
         },
         extra=vol.ALLOW_EXTRA,
     ),
@@ -384,7 +390,14 @@ SERVICE_SCHEMAS = {
         extra=vol.ALLOW_EXTRA,
     ),
     S.UNBIND_COORDINATOR: vol.Schema(
-        {},
+        {
+            vol.Required(ATTR_IEEE): vol.Any(
+                cv.entity_id_or_uuid, t.EUI64.convert
+            ),
+            vol.Optional(P.CLUSTER): vol.Any(
+                vol.Range(0, 0xFFFF), [vol.Range(0, 0xFFFF)]
+            ),
+        },
         extra=vol.ALLOW_EXTRA,
     ),
     S.UNBIND_GROUP: vol.Schema(
@@ -526,6 +539,7 @@ async def async_setup(hass, config):
     except KeyError:
         return True
 
+    LOGGER.debug("Setup services from async_setup")
     register_services(hass)
 
     return True
@@ -555,6 +569,11 @@ def register_services(hass):  # noqa: C901
         importlib.reload(u)
 
         if u.getVersion() != REGISTERED_VERSION:
+            LOGGER.debug(
+                "Reload services because version changed from %s to %s",
+                REGISTERED_VERSION,
+                u.getVersion(),
+            )
             await command_handler_register_services(
                 zha_gw.application_controller,
                 zha_gw,

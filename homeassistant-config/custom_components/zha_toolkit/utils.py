@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -7,6 +8,8 @@ from enum import Enum
 
 from homeassistant.util.json import save_json
 from zigpy import types as t
+from zigpy.exceptions import DeliveryError
+from zigpy.util import retryable
 from zigpy.zcl import foundation as f
 
 from .params import INTERNAL_PARAMS as p
@@ -96,6 +99,10 @@ class RadioType(Enum):
     ZNP = 1
     EZSP = 2
     BELLOWS = 2
+    DECONZ = 3
+    ZIGPY_CC = 4
+    XBEE = 5
+    ZIGATE = 6
 
 
 def isJsonable(x):
@@ -111,6 +118,38 @@ def get_radiotype(app):
         return RadioType.ZNP
     if hasattr(app, "_ezsp"):
         return RadioType.EZSP
+    if hasattr(app, "_api"):
+        try:
+            from zigpy_deconz.api import Deconz
+
+            if isinstance(app._api, Deconz):
+                return RadioType.DECONZ
+        except Exception:  # nosec
+            pass
+
+        try:
+            from zigpy_zigate.api import ZiGate
+
+            if isinstance(app._api, ZiGate):
+                return RadioType.ZIGATE
+        except Exception:  # nosec
+            pass
+
+        try:
+            import zigpy_xbee
+
+            if isinstance(app._api, zigpy_xbee.api.XBee):
+                return RadioType.XBEE
+        except Exception:  # nosec
+            pass
+
+        # try:
+        #    from zigpy_cc.api import API
+        #    if isinstance(app._api, API):
+        #        return RadioType.ZIGPY_CC
+        # except Exception:  # nosec
+        #    pass
+
     LOGGER.debug("Type recognition for '%s' not implemented", type(app))
     return RadioType.UNKNOWN
 
@@ -120,8 +159,10 @@ def get_radio(app):
         return app._znp
     if hasattr(app, "_ezsp"):
         return app._ezsp
+    if hasattr(app, "_api"):
+        return app._api
     LOGGER.debug("Type recognition for '%s' not implemented", type(app))
-    return RadioType.UNKNOWN
+    return None
 
 
 def get_radio_version(app):
@@ -133,6 +174,24 @@ def get_radio_version(app):
         import bellows
 
         return bellows.__version__
+    if hasattr(app, "_api"):
+        rt = get_radiotype(app)
+        if rt == RadioType.DECONZ:
+            import zigpy_deconz
+
+            return zigpy_deconz.__version__
+        if rt == RadioType.ZIGATE:
+            import zigpy_zigate
+
+            return zigpy_zigate.__version__
+        if rt == RadioType.XBEE:
+            import zigpy_xbee
+
+            return zigpy_xbee.__version__
+        # if rt == RadioType.ZIGPY_CC:
+        #     import zigpy_cc
+        #     return zigpy_cc.__version__
+
     LOGGER.debug("Type recognition for '%s' not implemented", type(app))
     return None
 
@@ -445,9 +504,14 @@ def attr_encode(attr_val_in, attr_type):  # noqa C901
             )
 
         attr_obj = f.TypeValue(attr_type, t.LVBytes(attr_val_in))
+    elif attr_type == 0xFF or attr_type is None:
+        compare_val = str2int(attr_val_in)
+        # This should not happen ideally
+        attr_obj = f.TypeValue(attr_type, t.LVBytes(compare_val))
     else:
         # Try to apply conversion using foundation DATA_TYPES table
         data_type = f.DATA_TYPES[attr_type][1]
+        LOGGER.debug(f"Data type '{data_type}' for attr type {attr_type}")
         compare_val = data_type(str2int(attr_val_in))
         attr_obj = f.TypeValue(attr_type, data_type(compare_val))
         LOGGER.debug(
@@ -626,3 +690,27 @@ def extractParams(  # noqa: C901
         params[p.CSV_LABEL] = rawParams[P.CSVLABEL]
 
     return params
+
+
+# zigpy wrappers
+
+# The zigpy library does not offer retryable on read_attributes.
+# Add it ourselves
+@retryable(
+    (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError), tries=1
+)
+async def cluster_read_attributes(
+    cluster, attrs, manufacturer=None
+) -> tuple[list, list]:
+    """Read attributes from cluster, retryable"""
+    return await cluster.read_attributes(attrs, manufacturer=manufacturer)
+
+
+# The zigpy library does not offer retryable on read_attributes.
+# Add it ourselves
+@retryable(
+    (DeliveryError, asyncio.CancelledError, asyncio.TimeoutError), tries=1
+)
+async def cluster__write_attributes(cluster, attrs, manufacturer=None):
+    """Write cluster attributes from cluster, retryable"""
+    return await cluster._write_attributes(attrs, manufacturer=manufacturer)
