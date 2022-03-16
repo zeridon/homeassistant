@@ -278,7 +278,9 @@ services:
       - DOCKER_HOST=tcp://socket-proxy:2375
       - REFRESH_ENTRIES=TRUE
       - CONTAINER_LOG_LEVEL=VERBOSE
-      - DEFAULT_TTL=120
+      #- DEFAULT_TTL=120
+      - ENABLE_TRAEFIK_POLL=TRUE
+      - TRAEFIK_POLL_URL=http://proxy:8080
     #labels:
       # Add hosts specified in rules here to force cf-companion to create the CNAMEs
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
