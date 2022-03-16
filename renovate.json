@@ -5,6 +5,11 @@
       "matchDatasources": [ "docker" ],
       "matchPackageNames": [ "homeassistant/home-assistant" ],
       "allowedVersions": "/^20[0-9]{2}\\.([1-9]|0[1-9]|1[012])\\.[1-9][0-9]?/"
+    },
+    {
+      "matchDatasources": [ "docker" ],
+      "matchPackageNames": [ "esphome/esphome" ],
+      "allowedVersions": "/^20[0-9]{2}\\.([1-9]|0[1-9]|1[012])\\.[1-9][0-9]?/"
     }
   ]
 }
