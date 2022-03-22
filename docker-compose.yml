@@ -97,6 +97,8 @@ services:
       - "traefik.http.services.hass-svc.loadbalancer.server.port=8123"
     networks:
       - svcs
+    environment:
+      - TZ=$TZ
 
   mqtt:
     restart: always
@@ -111,6 +113,8 @@ services:
     command: /usr/sbin/mosquitto -c /mosquitto/config/mosquitto.conf
     networks:
       - svcs
+    environment:
+      - TZ=$TZ
 
   luftdaten2mqtt:
     restart: unless-stopped
@@ -128,6 +132,7 @@ services:
       - MQTT_USER=${MQTT_LUFTDATEN_USER:-user}
       - MQTT_PASS=${MQTT_LUFTDATEN_PASS:-pass}
       - LOG_LEVEL=INFO
+      - TZ=$TZ
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.luftdaten2mqtt-rtr.entrypoints=luftdaten"
@@ -206,6 +211,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
+      - TZ=$TZ
       - LOG_LEVEL=warning # debug,info,notice,warning,err,crit,alert,emerg
       ## Variables match the URL prefix (i.e. AUTH blocks access to /auth/* parts of the API, etc.).
       # 0 to revoke access.
@@ -257,6 +263,7 @@ services:
       - svcs
     environment:
       # base container setup
+      - TZ=$TZ
       - TIMEZONE=$TZ
       - CONTAINER_COLORIZE_OUTPUT=FALSE
       - CONTAINER_ENABLE_SCHEDULING=FALSE
