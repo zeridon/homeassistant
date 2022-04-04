@@ -8,7 +8,7 @@ shellies_firmware:
     - binary_sensor.shelly_1pm_BA0AB9_firmware_update
     - binary_sensor.shelly_1pm_40F520008838_firmware_update
     # reenable the old shelly ...
-    - binary_sensor.shelly_1pm_40F520016B7E_firmware_update
+    - binary_sensor.shelly_1pm_40f52000ee7a_firmware_update
     # Washing machine/fridge overheats ...
     #- binary_sensor.shelly_2_5_694435_firmware_update
     - binary_sensor.shelly_1pm_40F52001721B_firmware_update

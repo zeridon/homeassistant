@@ -5,7 +5,7 @@ description: Handle Fridge states
 mode: single
 trigger:
   - platform: numeric_state
-    entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+    entity_id: sensor.shelly_1pm_40f52000ee7a_power_0
     id: kitchenfridge_on
     above: '5'
     for:
@@ -14,7 +14,7 @@ trigger:
       seconds: 0
       milliseconds: 0
   - platform: numeric_state
-    entity_id: sensor.shelly_1pm_40F520016B7E_power_0
+    entity_id: sensor.shelly_1pm_40f52000ee7a_power_0
     id: kitchenfridge_off
     below: '2'
     for:
