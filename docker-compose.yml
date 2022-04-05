@@ -293,21 +293,6 @@ services:
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
       #- "traefik.http.routers.cf-companion-rtr.rule=Host(`portainer.$DOMAIN`) || `synglances.$DOMAIN`)"
 
-  otaserver:
-    image: nginx:1.21.6-alpine
-    restart: unless-stopped
-    networks:
-      - svcs
-    expose:
-      - "80"
-    volumes:
-      - "./otaserver:/usr/share/nginx/html:ro"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.otaserver-rtr.entrypoints=web-bad"
-      - "traefik.http.routers.otaserver-rtr.rule=Host(`ota.${BASE_DOMAIN}`)"
-      - "traefik.http.routers.otaserver-rtr.middlewares=internal-ips"
-
   tasmopiler:
     image: benzino77/tasmocompiler
     restart: unless-stopped
