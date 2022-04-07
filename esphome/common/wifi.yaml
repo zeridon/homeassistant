@@ -1,0 +1,11 @@
+---
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  reboot_timeout: ${reboot_timeout}
+
+  ap:
+    ssid: ${device}
+    password: !secret wifi_fallback_password
+
+captive_portal:
