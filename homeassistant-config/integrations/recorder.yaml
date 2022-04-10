@@ -3,22 +3,42 @@
 # https://www.home-assistant.io/integrations/recorder
 recorder:
   auto_purge: True
-  purge_keep_days: 5
-  commit_interval: 10
+  purge_keep_days: 7
+  commit_interval: 60
   exclude:
     domains:
+      - alarm_control_panel
       - automation
+      - camera
       - updater
     entity_globs:
       # ignore unused/noisy
-      - binary_sensor.*firmware_update
       - binary_sensor.*_longpush_*
       - binary_sensor.*_shortpush_*
-      - sensor.*_ssid
+      - sensor.*_basic_lqi
+      - sensor.*_basic_rssi
+      - sensor.*_connect_count
       - sensor.*_rssi
+      - sensor.*_signal
+      - sensor.*_ssid
       # generally useless on shellies with power metering
       #- sensor.shelly*_temperature
       # so unreliable that they are almost useless
       - sensor.spalnia_*_energy_consumption
       - sensor.dnevna_*_energy_consumption
       - sensor.rozovo_*_energy_consumption
+      # ignore addressess
+      - sensor.*_ip
+      # termal breakers
+      - sensor.*_temperature_status
+      # restart buttons
+      - button.*_restart
+      # shellies diagnostics
+      - binary_sensor.shelly_*_overpower_*
+      - binary_sensor.shelly_*_overtemperature
+      # firmware related
+      - binary_sensor.*firmware_update
+      - sensor.*current_version
+      - sensor.*firmware_version
+      # largish
+      - sensor.*_geocoded_location
