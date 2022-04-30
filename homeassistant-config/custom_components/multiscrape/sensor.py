@@ -1,7 +1,8 @@
 """Support for Multiscrape sensors."""
+from __future__ import annotations
+
 import logging
 
-from homeassistant.components.sensor import DOMAIN as SENSOR_DOMAIN
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.const import CONF_DEVICE_CLASS
 from homeassistant.const import CONF_FORCE_UPDATE
@@ -10,8 +11,13 @@ from homeassistant.const import CONF_NAME
 from homeassistant.const import CONF_RESOURCE_TEMPLATE
 from homeassistant.const import CONF_UNIQUE_ID
 from homeassistant.const import CONF_UNIT_OF_MEASUREMENT
+from homeassistant.const import Platform
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import PlatformNotReady
 from homeassistant.helpers.entity import async_generate_entity_id
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.typing import DiscoveryInfoType
 from homeassistant.util import slugify
 
 from . import async_get_config_and_coordinator
@@ -26,16 +32,21 @@ from .entity import MultiscrapeEntity
 from .selector import Selector
 
 _LOGGER = logging.getLogger(__name__)
-ENTITY_ID_FORMAT = SENSOR_DOMAIN + ".{}"
+ENTITY_ID_FORMAT = Platform.SENSOR + ".{}"
 
 
-async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
+async def async_setup_platform(
+    hass: HomeAssistant,
+    config: ConfigType,
+    async_add_entities: AddEntitiesCallback,
+    discovery_info: DiscoveryInfoType | None = None,
+) -> None:
     """Set up the multiscrape sensor."""
     # Must update the sensor now (including fetching the scraper resource) to
     # ensure it's updating its state.
     if discovery_info is not None:
         conf, coordinator, scraper = await async_get_config_and_coordinator(
-            hass, SENSOR_DOMAIN, discovery_info
+            hass, Platform.SENSOR, discovery_info
         )
     else:
         _LOGGER.info("?? # Could not find sensor configuration")
