@@ -18,7 +18,6 @@ default_config:
 # Text to speech
 tts:
   - platform: google_translate
-    base_url: !secret tts_base_url
 
 automation: !include automations.yaml
 script: !include scripts.yaml
