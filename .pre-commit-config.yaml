@@ -12,17 +12,19 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.2.0
     hooks:
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+      - id: trailing-whitespace
+      - id: fix-byte-order-marker
       - id: check-added-large-files
       - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
       - id: check-json
       - id: check-merge-conflict
       - id: check-symlinks
       - id: check-yaml
         args: [--unsafe]
       - id: detect-private-key
-      - id: end-of-file-fixer
-      - id: mixed-line-ending
-      - id: trailing-whitespace
 
   - repo: https://github.com/IamTheFij/docker-pre-commit.git
     rev: v2.1.0
