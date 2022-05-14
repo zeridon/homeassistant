@@ -7,3 +7,4 @@ rules:
 ignore: |
   homeassistant-config/www/community
   homeassistant-config/custom_components
+  homeassistant-config/blueprints/automation/homeassistant/notify_leaving_zone.yaml
