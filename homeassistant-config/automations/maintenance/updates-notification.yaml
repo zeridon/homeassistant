@@ -8,11 +8,12 @@ use_blueprint:
   input:
     reminder_hours: '24'
     update_entities:
+    - update.hacs_update
+    - update.kiosk_mode_update
     - update.shellies_discovery_update
     - update.simple_thermostat_update
     - update.simple_vacuum_card_update
-    - update.hacs_update
-    - update.kiosk_mode_update
+    - update.watchman_update
     mobile_app_device: 3489ef11fa3402501e49cca4473d5e4f
     send_to_ha: true
     only_after: '10:00:00'
