@@ -293,35 +293,35 @@ services:
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
       #- "traefik.http.routers.cf-companion-rtr.rule=Host(`portainer.$DOMAIN`) || `synglances.$DOMAIN`)"
 
-  tasmopiler:
-    image: benzino77/tasmocompiler
-    restart: unless-stopped
-    networks:
-      - svcs
-    expose:
-      - "3000"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.tasmopiler-rtr.entrypoints=web-sec"
-      - "traefik.http.routers.tasmopiler-rtr.tls=true"
-      - "traefik.http.routers.tasmopiler-rtr.rule=Host(`tasmopiler.${BASE_DOMAIN}`)"
-      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
-
-  esphome:
-    image: esphome/esphome:2022.5.1
-    restart: unless-stopped
-    networks:
-      - svcs
-    volumes:
-      - "./esphome:/config"
-    expose:
-      - "6052"
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.esphome-rtr.entrypoints=web-sec"
-      - "traefik.http.routers.esphome-rtr.tls=true"
-      - "traefik.http.routers.esphome-rtr.rule=Host(`esphome.${BASE_DOMAIN}`)"
-      - "traefik.http.routers.esphome-rtr.middlewares=internal-ips"
+####  tasmopiler:
+####    image: benzino77/tasmocompiler
+####    restart: unless-stopped
+####    networks:
+####      - svcs
+####    expose:
+####      - "3000"
+####    labels:
+####      - "traefik.enable=true"
+####      - "traefik.http.routers.tasmopiler-rtr.entrypoints=web-sec"
+####      - "traefik.http.routers.tasmopiler-rtr.tls=true"
+####      - "traefik.http.routers.tasmopiler-rtr.rule=Host(`tasmopiler.${BASE_DOMAIN}`)"
+####      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
+####
+####  esphome:
+####    image: esphome/esphome:2022.5.1
+####    restart: unless-stopped
+####    networks:
+####      - svcs
+####    volumes:
+####      - "./esphome:/config"
+####    expose:
+####      - "6052"
+####    labels:
+####      - "traefik.enable=true"
+####      - "traefik.http.routers.esphome-rtr.entrypoints=web-sec"
+####      - "traefik.http.routers.esphome-rtr.tls=true"
+####      - "traefik.http.routers.esphome-rtr.rule=Host(`esphome.${BASE_DOMAIN}`)"
+####      - "traefik.http.routers.esphome-rtr.middlewares=internal-ips"
 
 ####  whoami:
 ####    # A container that exposes an API to show its IP address
