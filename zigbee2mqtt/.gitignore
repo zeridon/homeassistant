@@ -1,0 +1,6 @@
+# gitignore for zigbee2mqtt
+*
+!.gitignore
+!configuration.yaml
+!devices.yaml
+!groups.yaml
