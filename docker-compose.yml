@@ -66,6 +66,7 @@ services:
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
       # internal ip's middleware
       - "traefik.http.middlewares.internal-ips.ipwhitelist.sourcerange=127.0.0.0/8,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
     networks:
