@@ -79,7 +79,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2022.7.2
+    image: homeassistant/home-assistant:2022.7.3
     expose:
       - "8123"
     volumes:
