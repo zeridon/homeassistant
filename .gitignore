@@ -224,7 +224,11 @@ inspirations
 # data folders
 grafana
 influxdb
-traefik
+
+# traefik
+traefik/*
+!traefik/rules
+!traefik/rules/*
 
 # local overrides
 docker-compose.override.yml
