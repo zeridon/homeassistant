@@ -22,6 +22,8 @@ services:
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
       - --providers.docker.endpoint=tcp://socket-proxy:2375
+      - --providers.file.directory=/rules
+      - --providers.file.watch=true
       # be quiet please
       - --global.checkNewVersion=false
       - --global.sendAnonymousUsage=false
@@ -58,6 +60,7 @@ services:
     volumes:
       # So that Traefik can listen to the Docker events
       - ./traefik/acme/acme.json:/acme.json
+      - ./traefik/rules:/rules
     labels:
       - "traefik.enable=true"
       # HTTP-to-HTTPS Redirect
