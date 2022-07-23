@@ -15,7 +15,7 @@ action:
     id: '{{ trigger.payload_json.id }}'
     mac: '{{ trigger.payload_json.mac }}'
     mode: '{{ trigger.payload_json.mode | default }}'
-    model: '{{ trigger.payload_json.model }}'
+    model: '{{ trigger.payload_json.model | default }}'
 
     shellyht-E00685:
       force_update_sensors: true
