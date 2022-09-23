@@ -45,7 +45,3 @@ device_tracker:
 discovery:
   ignore:
     - google_cast
-
-media_player:
-  - platform: lg_soundbar
-    host: !secret propaganda_bar_host
