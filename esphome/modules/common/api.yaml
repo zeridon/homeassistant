@@ -1,0 +1,8 @@
+---
+substitutions:
+  api_timeout: 15min
+
+api:
+  reboot_timeout: $api_timeout
+  encryption:
+    key: !secret api_encryption_key

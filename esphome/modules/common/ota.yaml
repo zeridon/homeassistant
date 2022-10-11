@@ -1,0 +1,24 @@
+---
+# OTA related
+esphome:
+  on_boot:
+    - text_sensor.template.publish:
+        id: ota_status
+        state: "IDLE"
+
+ota:
+  safe_mode: true
+  on_begin:
+    - text_sensor.template.publish:
+        id: ota_status
+        state: "In Progress"
+
+  on_end:
+    - text_sensor.template.publish:
+        id: ota_status
+        state: "IDLE"
+
+text_sensor:
+  - platform: template
+    name: "${friendly_name} OTA Status"
+    id: ota_status

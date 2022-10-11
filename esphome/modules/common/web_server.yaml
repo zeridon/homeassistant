@@ -1,0 +1,4 @@
+---
+# bring a simple web server to control the device
+web_server:
+  port: 80

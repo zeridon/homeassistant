@@ -1,15 +1,7 @@
 ---
 substitutions:
-  device: minimal
-  reboot_timeout: 1d
+  name: minimal
+  friendly_name: Minimalistic example
 
-esphome:
-  name: ${device}
-  platform: ESP8266
-  board: esp01_1m
-
-<<: !include common/wifi.yaml
-<<: !include common/ota.yaml
-logger:
-  level: ERROR
-  baud_rate: 0
+packages:
+  common: !include modules/common-8266.yaml
