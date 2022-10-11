@@ -316,35 +316,38 @@ services:
 ####      - "traefik.http.routers.tasmopiler-rtr.tls=true"
 ####      - "traefik.http.routers.tasmopiler-rtr.rule=Host(`tasmopiler.${BASE_DOMAIN}`)"
 ####      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
-####
-####  esphome:
-####    image: esphome/esphome:2022.5.1
-####    restart: unless-stopped
-####    networks:
-####      - svcs
-####    volumes:
-####      - "./esphome:/config"
-####    expose:
-####      - "6052"
-####    labels:
-####      - "traefik.enable=true"
-####      - "traefik.http.routers.esphome-rtr.entrypoints=web-sec"
-####      - "traefik.http.routers.esphome-rtr.tls=true"
-####      - "traefik.http.routers.esphome-rtr.rule=Host(`esphome.${BASE_DOMAIN}`)"
-####      - "traefik.http.routers.esphome-rtr.middlewares=internal-ips"
 
-####  whoami:
-####    # A container that exposes an API to show its IP address
-####    image: traefik/whoami
-####    labels:
-####      # enable
-####      - "traefik.enable=true"
-####      # Routers
-####      - "traefik.http.routers.whoami-rtr.rule=Host(`whoami.${BASE_DOMAIN}`)"
-####      - "traefik.http.routers.whoami-rtr.entrypoints=web-sec"
-####      - "traefik.http.routers.whoami-rtr.tls=true"
-####      # and finaly the services
-####      - "traefik.http.routers.whoami-rtr.service=whoami-svc"
-####      - "traefik.http.services.whoami-svc.loadbalancer.server.port=80"
-####    networks:
-####      - svcs
+  esphome:
+    image: esphome/esphome:2022.9.4
+    restart: unless-stopped
+    networks:
+      - svcs
+    volumes:
+      - "./esphome:/config"
+    expose:
+      - "6052"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.esphome-rtr.entrypoints=web-sec"
+      - "traefik.http.routers.esphome-rtr.tls=true"
+      - "traefik.http.routers.esphome-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/esphome`)"
+      - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:1.28.0
+    restart: always
+    networks:
+      - svcs
+    volumes:
+      - "./zigbee2mqtt:/app/data"
+      - "/run/udev:/run/udev:ro"
+    environment:
+      - TZ=Europe/Sofia
+    expose:
+      - "9090"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.z2m-rtr.entrypoints=web-sec"
+      - "traefik.http.routers.z2m-rtr.tls=true"
+      - "traefik.http.routers.z2m-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/z2m`)"
+      - "traefik.http.routers.z2m-rtr.middlewares=internal-ips,strip-prefix"
