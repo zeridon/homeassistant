@@ -4,7 +4,8 @@
 recorder:
   auto_purge: True
   purge_keep_days: 7
-  commit_interval: 60
+  auto_repack: True
+  commit_interval: 120
   exclude:
     domains:
       - alarm_control_panel
