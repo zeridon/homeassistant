@@ -3,6 +3,6 @@
 # https://www.home-assistant.io/integrations/mqtt/
 mqtt:
   #broker: !secret mqtt_broker_host
-  client_id: homeassistant-server
+  #client_id: homeassistant-server
   #username: !secret mqtt_broker_user
   #password: !secret mqtt_broker_pass
