@@ -3,7 +3,7 @@
 # https://www.home-assistant.io/integrations/recorder
 recorder:
   auto_purge: True
-  purge_keep_days: 7
+  purge_keep_days: 15
   auto_repack: True
   commit_interval: 120
   exclude:
