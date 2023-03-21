@@ -264,7 +264,7 @@ services:
 
   # Cloudflare-Companion - Automatic CNAME DNS Creation
   cf-companion:
-    image: tiredofit/traefik-cloudflare-companion:7.0.3
+    image: tiredofit/traefik-cloudflare-companion:7.0.4
     security_opt:
       - no-new-privileges:true
     restart: unless-stopped
