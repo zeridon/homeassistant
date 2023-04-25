@@ -3,11 +3,6 @@ id: 'update-shelly-firmware'
 alias: Update Shellies
 mode: single
 description: Update shellies firmware if/when available. Wait for 5 min and trigger the annoucer (twice)
-trigger:
-  - platform: state
-    entity_id: group.shellies_firmware
-    from: 'off'
-    to: 'on'
 action:
   - service: mqtt.publish
     data:
