@@ -5,7 +5,7 @@ start_zen_radio:
     data:
       volume_level: 0.13
     target:
-      device_id: 3dacd6142f75d74d2b7f9bf5a0a3ef61
+      entity_id: media_player.dining_room_speaker
   - service: media_player.play_media
     data:
       media_content_id: http://stream.cdm-zen.com:8004/stream-mp3-Zen
@@ -24,7 +24,7 @@ start_zen_radio:
     data:
       volume_level: 0.13
     target:
-      device_id: 3dacd6142f75d74d2b7f9bf5a0a3ef61
+      entity_id: media_player.dining_room_speaker
   - service: media_player.play_media
     data:
       media_content_id: http://stream-uk1.radioparadise.com/aac-320
@@ -43,7 +43,7 @@ radio_3:
     data:
       volume_level: 0.13
     target:
-      device_id: 3dacd6142f75d74d2b7f9bf5a0a3ef61
+      entity_id: media_player.dining_room_speaker
   - service: media_player.play_media
     data:
       media_content_id: http://radio1.dl.uy:9950/?type=http&nocache=2780
