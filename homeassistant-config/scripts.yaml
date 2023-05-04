@@ -111,3 +111,22 @@ radio_3:
       entity_id: media_player.dining_room_speaker
   mode: single
   icon: mdi:magic-staff
+update_shelly_firmware:
+  alias: Update Shelly Firmware
+  sequence:
+  - service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: update_fw
+  - delay: 00:05:00
+  - service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: announce
+  - delay: 00:00:05
+  - service: mqtt.publish
+    data:
+      topic: shellies/command
+      payload: announce
+  mode: single
+  icon: mdi:update
