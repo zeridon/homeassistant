@@ -334,7 +334,7 @@ services:
       - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
 
   zigbee2mqtt:
-    image: koenkk/zigbee2mqtt:1.30.4
+    image: koenkk/zigbee2mqtt:1.31.0
     restart: always
     networks:
       - svcs
