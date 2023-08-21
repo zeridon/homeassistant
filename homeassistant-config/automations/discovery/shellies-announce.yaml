@@ -1,17 +1,37 @@
 ---
-id: shellies_announce
 alias: Shellies Announce
 description: >-
-  Send announce command on mqtt topic so shellies respond with their info
-  This will then be used to generate messages to autodiscover them in HA
+  Send announce command on mqtt topic so shellies respond with their info This
+  will then be used to generate messages to autodiscover them in HA
 trigger:
   - platform: homeassistant
     event: start
+    id: shellies_announce_ha_start
   - platform: time_pattern
     hours: /1
-
+    id: shellies_announce_timer
 action:
-  service: mqtt.publish
-  data:
-    topic: shellies/command
-    payload: announce
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - shellies_announce_ha_start
+        sequence:
+          - service: mqtt.publish
+            data:
+              topic: shellies/command
+              payload: announce
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 5
+              milliseconds: 0
+          - service: mqtt.publish
+            data:
+              topic: shellies/command
+              payload: announce
+    default:
+      - service: mqtt.publish
+        data:
+          topic: shellies/command
+          payload: announce
