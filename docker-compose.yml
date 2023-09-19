@@ -138,9 +138,9 @@ services:
 
   luftdaten2mqtt:
     restart: unless-stopped
-    image: zeridon/luftdaten2mqtt:1.1.8
+    image: zeridon/luftdaten2mqtt:1.2.0
     build:
-      context: https://github.com/zeridon/luftdaten2mqtt.git#v1.1.8
+      context: https://github.com/zeridon/luftdaten2mqtt.git#v1.2.0
     depends_on:
       - mqtt
     networks:
@@ -161,9 +161,6 @@ services:
       - "traefik.http.routers.luftdaten2mqtt-rtr.middlewares=internal-ips"
       - "traefik.http.services.luftdaten2mqtt-svc.loadbalancer.server.port=8080"
     healthcheck:
-      test: "curl -f -m6 http://localhost:8080/status | grep OK"
-      interval: 60s
-      timeout: 5s
       retries: 2
 
   # mDNS/Bonjour/SSDP repeater
