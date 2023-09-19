@@ -1,5 +1,5 @@
 """This script adds MQTT discovery support for Shellies devices."""
-VERSION = "4.5.0"
+VERSION = "4.5.3"
 
 ATTR_ICON = "icon"
 ATTR_MANUFACTURER = "Allterco Robotics"
@@ -544,7 +544,9 @@ TPL_COMMAND_PROFILES = "{{value.split(^ ^)[-1]}}"
 TPL_CONCENTRATION = "{%if is_number(value) and 0<=value|int<=65535%}{{value}}{%endif%}"
 TPL_CURRENT_TEMPERATURE = "{{value_json.thermostats.0.tmp.value}}"
 TPL_ENERGY_WMIN = "{{value|float/60}}"
-TPL_EVENT = "{{{^event_type^:value_json.event}|to_json}}"
+TPL_EVENT = (
+    "{%if value_json.event%}{{{^event_type^:value_json.event}|to_json}}{%endif%}"
+)
 TPL_GAS = "{%if value in [^mild^,^heavy^]%}ON{%else%}OFF{%endif%}"
 TPL_GAS_TO_JSON = "{{{^status^:value}|tojson}}"
 TPL_HUMIDITY = "{%if is_number(value) and 0<value|int<999%}{{value}}{%endif%}"
@@ -1796,7 +1798,7 @@ if model_id == MODEL_SHELLY25_ID or dev_id_prefix == MODEL_SHELLY25_PREFIX:
 if model_id == MODEL_SHELLYUNI_ID or dev_id_prefix == MODEL_SHELLYUNI_PREFIX:
     model = MODEL_SHELLYUNI
 
-    inputs = 1
+    inputs = 2
     relays = 2
     ext_humi_sensors = 1
     ext_temp_sensors = 3
@@ -1810,7 +1812,10 @@ if model_id == MODEL_SHELLYUNI_ID or dev_id_prefix == MODEL_SHELLYUNI_PREFIX:
         SENSOR_SSID: OPTIONS_SENSOR_SSID,
         SENSOR_UPTIME: OPTIONS_SENSOR_UPTIME,
     }
-    binary_sensors = {SENSOR_INPUT_0: OPTIONS_SENSOR_INPUT_0}
+    binary_sensors = {
+        SENSOR_INPUT_0: OPTIONS_SENSOR_INPUT_0,
+        SENSOR_INPUT_1: OPTIONS_SENSOR_INPUT_1,
+    }
     buttons = {BUTTON_RESTART: OPTIONS_BUTTON_RESTART}
     updates = {UPDATE_FIRMWARE: OPTIONS_UPDATE_FIRMWARE}
 
