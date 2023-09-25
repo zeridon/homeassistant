@@ -230,5 +230,8 @@ traefik/*
 !traefik/rules
 !traefik/rules/*
 
+# certdumper
+certdumper/*
+
 # local overrides
 docker-compose.override.yml
