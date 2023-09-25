@@ -373,6 +373,10 @@ services:
       - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
     depends_on:
       - proxy
+    healthcheck:
+          test: 'curl -f -m2 http://localhost:6052/ | grep ESPHome || exit 1'
+          timeout: 3s
+          retries: 2
 
   zigbee2mqtt:
     image: koenkk/zigbee2mqtt:1.33.0
@@ -394,3 +398,7 @@ services:
       - "traefik.http.routers.z2m-rtr.middlewares=internal-ips,strip-prefix"
     depends_on:
       - proxy
+    healthcheck:
+          test: 'wget -q -T2 -O- http://localhost:9090/ | grep Zigbee2MQTT || exit 1'
+          timeout: 3s
+          retries: 2
