@@ -6,6 +6,8 @@ networks:
   socket_proxy:
     internal: true
   svcs:
+  # no access to other services
+  nosvcs:
 
 services:
   proxy:
@@ -85,6 +87,28 @@ services:
       # secrets for cloudflare
       - CF_API_EMAIL=$CLOUDFLARE_EMAIL
       - CF_API_KEY=$CLOUDFLARE_API_TOKEN
+    depends_on:
+      - socket-proxy
+
+  traefik-certs-dumper:
+    image: ldez/traefik-certs-dumper:v2.8.1
+    entrypoint: sh -c '
+      apk add jq
+      ; while ! [ -e /data/acme.json ]
+      || ! [ `jq ".[] | .Certificates | length" /data/acme.json` != 0 ]; do
+      sleep 1
+      ; done
+      && traefik-certs-dumper file --version v2 --watch
+      --domain-subdir=true --crt-ext=.pem --key-ext=.pem
+      --crt-name=fullchain --key-name=privkey
+      --source /data/acme.json --dest /data/certs'
+    volumes:
+      - ./traefik/acme/acme.json:/data/acme.json:ro
+      - ./certdumper:/data/certs
+    networks:
+      - nosvcs
+    depends_on:
+      - proxy
 
   homeassistant:
     restart: always
@@ -310,6 +334,9 @@ services:
       #- DEFAULT_TTL=120
       - ENABLE_TRAEFIK_POLL=TRUE
       - TRAEFIK_POLL_URL=http://proxy:8080
+    depends_on:
+      - socket-proxy
+      - proxy
     #labels:
       # Add hosts specified in rules here to force cf-companion to create the CNAMEs
       # Since cf-companion creates CNAMEs based on host rules, this a workaround for non-docker/external apps
@@ -344,6 +371,8 @@ services:
       - "traefik.http.routers.esphome-rtr.tls=true"
       - "traefik.http.routers.esphome-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/esphome`)"
       - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
+    depends_on:
+      - proxy
 
   zigbee2mqtt:
     image: koenkk/zigbee2mqtt:1.33.0
@@ -363,3 +392,5 @@ services:
       - "traefik.http.routers.z2m-rtr.tls=true"
       - "traefik.http.routers.z2m-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/z2m`)"
       - "traefik.http.routers.z2m-rtr.middlewares=internal-ips,strip-prefix"
+    depends_on:
+      - proxy
