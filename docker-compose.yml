@@ -20,6 +20,8 @@ services:
       - --api=true
       - --api.insecure=true
       - --api.dashboard=true
+      # need healthcheck
+      - --ping=true
       # we run in docker so use it to provide info
       - --providers.docker=true
       - --providers.docker.exposedByDefault=false
@@ -89,6 +91,8 @@ services:
       - CF_API_KEY=$CLOUDFLARE_API_TOKEN
     depends_on:
       - socket-proxy
+    healthcheck:
+      test: 'traefik healthcheck --ping | grep OK || exit 1'
 
   traefik-certs-dumper:
     image: ldez/traefik-certs-dumper:v2.8.1
