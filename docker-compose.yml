@@ -116,7 +116,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2023.10.3
+    image: homeassistant/home-assistant:2023.10.5
     expose:
       - "8123"
     volumes:
@@ -361,7 +361,7 @@ services:
 ####      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
 
   esphome:
-    image: esphome/esphome:2023.9.3
+    image: esphome/esphome:2023.10.4
     restart: unless-stopped
     networks:
       - svcs
