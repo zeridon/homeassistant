@@ -102,7 +102,7 @@ radio_3:
       entity_id: media_player.dining_room_speaker
   - service: media_player.play_media
     data:
-      media_content_id: media-source://radio_browser/5ecd2cab-8138-4023-ba47-c8c2d8308d5f
+      media_content_id: https://bss1.neterra.tv/magicfm/magicfm.m3u8
       media_content_type: music
       extra:
         title: MagicFM
