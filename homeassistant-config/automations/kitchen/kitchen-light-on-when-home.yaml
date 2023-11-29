@@ -8,7 +8,6 @@ trigger:
     to: home
 action:
   - type: turn_on
-    device_id: 62478055d3445ad0cf56fa09dcde5128
-    entity_id: light.kukhnenska_lampa
-    domain: light
+    device_id: ad4c1d8bfb64f18fc463e8f6c33aa33c
+    entity_id: 95ee82417cede0b115cde0a2c21d2a9a
 mode: single
