@@ -251,7 +251,8 @@ services:
 
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
-    image: tecnativa/docker-socket-proxy:edge
+    #image: tecnativa/docker-socket-proxy:edge
+    image: tecnativa/docker-socket-proxy:edge@sha256:891cbbc6f293ee2655d727f9f33bb66a712894d1e253f297dc5785e4b282715c
     restart: always
     networks:
       - socket_proxy
@@ -377,6 +378,8 @@ services:
       - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
     depends_on:
       - proxy
+    environment:
+      - ESPHOME_DASHBOARD_USE_PING=true
     healthcheck:
           test: 'curl -f -m2 http://localhost:6052/ | grep ESPHome || exit 1'
           timeout: 3s
