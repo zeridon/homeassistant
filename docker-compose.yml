@@ -95,7 +95,7 @@ services:
       test: 'traefik healthcheck --ping | grep OK || exit 1'
 
   traefik-certs-dumper:
-    image: ldez/traefik-certs-dumper:v2.8.1
+    image: ldez/traefik-certs-dumper:v2.8.3
     entrypoint: sh -c '
       apk add jq
       ; while ! [ -e /data/acme.json ]
