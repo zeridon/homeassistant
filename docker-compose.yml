@@ -12,7 +12,7 @@ networks:
 services:
   proxy:
     # The official v2 Traefik docker image
-    image: traefik:2.10.7
+    image: traefik:v2.11.0
     restart: always
     # Enables the web UI and tells Traefik to listen to docker
     command:
