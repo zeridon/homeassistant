@@ -75,7 +75,7 @@ services:
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
       - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
       # internal ip's middleware
-      - "traefik.http.middlewares.internal-ips.ipwhitelist.sourcerange=127.0.0.0/8,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
+      - "traefik.http.middlewares.internal-ips.ipallowlist.sourcerange=127.0.0.0/8,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8"
       # prefix stripper middleware
       - "traefik.http.middlewares.strip-prefix-1.redirectregex.regex=^(https?://[^/]+/[a-z0-9_]+)$$"
       - "traefik.http.middlewares.strip-prefix-1.redirectregex.replacement=$${1}/"
