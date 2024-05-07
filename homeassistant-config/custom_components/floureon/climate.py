@@ -49,8 +49,9 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import (
     PRECISION_HALVES,
     PRECISION_WHOLE,
+    PRECISION_TENTHS,
     ATTR_TEMPERATURE,
-    TEMP_CELSIUS,
+    UnitOfTemperature,
     CONF_NAME
 )
 
@@ -66,7 +67,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_UNIQUE_ID): cv.string,
     vol.Optional(CONF_SCHEDULE, default=DEFAULT_SCHEDULE): vol.All(int, vol.Range(min=0, max=2)),
     vol.Optional(CONF_USE_EXTERNAL_TEMP, default=DEFAULT_USE_EXTERNAL_TEMP): cv.boolean,
-    vol.Optional(CONF_PRECISION, default=DEFAULT_PRECISION): vol.In([PRECISION_HALVES, PRECISION_WHOLE]),
+    vol.Optional(CONF_PRECISION, default=DEFAULT_PRECISION): vol.In([PRECISION_HALVES, PRECISION_WHOLE, PRECISION_TENTHS]),
     vol.Optional(CONF_USE_COOLING, default=DEFAULT_USE_COOLING): cv.boolean
 })
 
@@ -77,6 +78,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class FloureonClimate(ClimateEntity, RestoreEntity):
+    _enable_turn_on_off_backwards_compatibility = False
 
     def __init__(self, hass, config):
         self._hass = hass
@@ -124,7 +126,7 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
     @property
     def temperature_unit(self) -> str:
         """Return the unit of measurement."""
-        return TEMP_CELSIUS
+        return UnitOfTemperature.CELSIUS
 
     @property
     def hvac_mode(self) -> str:
@@ -177,7 +179,7 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
     @property
     def supported_features(self):
         """Return the list of supported features."""
-        return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
+        return ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE | ClimateEntityFeature.TURN_OFF | ClimateEntityFeature.TURN_ON
 
     # Backward compatibility until 2023.4
     def get_converter(self):
@@ -191,13 +193,13 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
     @property
     def min_temp(self) -> float:
         """Return the minimum temperature."""
-        return self.get_converter()(self._min_temp, TEMP_CELSIUS,
+        return self.get_converter()(self._min_temp, UnitOfTemperature.CELSIUS,
                                     self.temperature_unit)
 
     @property
     def max_temp(self) -> float:
         """Return the maximum temperature."""
-        return self.get_converter()(self._max_temp, TEMP_CELSIUS,
+        return self.get_converter()(self._max_temp, UnitOfTemperature.CELSIUS,
                                     self.temperature_unit)
 
     @property
@@ -208,6 +210,8 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
             'manual_set_point': self._manual_set_point,
             'external_temp': self._external_temp,
             'room_temp': self._room_temp,
+            'current_temp': self._thermostat_current_temp,
+            'target_temp': self._thermostat_target_temp,
             'loop_mode': self._thermostat_loop_mode
         }
 
@@ -294,12 +298,12 @@ class FloureonClimate(ClimateEntity, RestoreEntity):
         self._room_temp = data['room_temp']
         self._external_temp = data['external_temp']
 
-        self._thermostat_current_temp = data['external_temp'] if self._use_external_temp else data['room_temp']
-
         self._hysteresis = int(data['dif'])
         self._min_temp = int(data['svl'])
         self._max_temp = int(data['svh'])
+
         self._thermostat_target_temp = data['thermostat_temp']
+        self._thermostat_current_temp = data['external_temp'] if self._use_external_temp else data['room_temp']
 
         # Thermostat modes & status
         if data["power"] == BROADLINK_POWER_OFF:
