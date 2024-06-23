@@ -362,7 +362,7 @@ services:
 ####      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
 
   esphome:
-    image: esphome/esphome:2024.4.2
+    image: esphome/esphome:2024.6.1
     restart: unless-stopped
     networks:
       - svcs
