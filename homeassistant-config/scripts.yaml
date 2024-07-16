@@ -166,3 +166,22 @@ disney_audio_tales_random:
       entity_id: media_player.dining_room_speaker
   mode: single
   icon: mdi:teddy-bear
+101_smooth_jazz:
+  alias: 101 Smooth Jazz
+  sequence:
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.13
+    target:
+      entity_id: media_player.dining_room_speaker
+  - service: media_player.play_media
+    data:
+      media_content_id: http://www.101smoothjazz.com/101-smoothjazz.m3u
+      media_content_type: music
+      extra:
+        title: 101 Smooth Jazz
+        stream_type: LIVE
+    target:
+      entity_id: media_player.dining_room_speaker
+  mode: single
+  icon: mdi:saxophone
