@@ -7,7 +7,7 @@ esphome:
         state: "IDLE"
 
 ota:
-  safe_mode: true
+  platform: esphome
   on_begin:
     - text_sensor.template.publish:
         id: ota_status
@@ -22,3 +22,8 @@ text_sensor:
   - platform: template
     name: "${friendly_name} OTA Status"
     id: ota_status
+
+button:
+  - platform: safe_mode
+    id: button_safe_mode
+    name: Safe Mode Boot
