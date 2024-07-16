@@ -282,6 +282,7 @@ services:
       - COMMIT=0
       - CONFIGS=0
       - CONTAINERS=1 # Traefik, portainer, etc.
+      - DISABLE_IPV6=1 # no v6 here
       - DISTRIBUTION=0
       - EXEC=0
       - IMAGES=1 # Portainer, Watchtower
