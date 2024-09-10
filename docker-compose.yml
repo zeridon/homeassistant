@@ -252,7 +252,7 @@ services:
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
     #image: tecnativa/docker-socket-proxy:edge
-    image: tecnativa/docker-socket-proxy:edge@sha256:cbfc955a94f2dde19535bcc3823bb5562b8475b625da70b067096a54b5ffa3ff
+    image: tecnativa/docker-socket-proxy:edge@sha256:e41b8f0ab1625697c71de0d4ac326822972e96a331999fdbf56f68017d7efc31
     restart: always
     networks:
       - socket_proxy
