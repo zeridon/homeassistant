@@ -116,7 +116,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2024.8.2
+    image: homeassistant/home-assistant:2024.9.1
     expose:
       - "8123"
     volumes:
