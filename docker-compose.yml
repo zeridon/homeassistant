@@ -1,6 +1,4 @@
 ---
-version: "3.7"
-
 # networks for comm
 networks:
   socket_proxy:
