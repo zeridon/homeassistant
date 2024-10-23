@@ -1,4 +1,4 @@
 ---
 platform: uptime
-name: "${friendly_name} Uptime"
-id: uptime_sensor
+name: "${device_friendly_name} Uptime"
+id: sensor_uptime

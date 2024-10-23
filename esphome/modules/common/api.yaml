@@ -3,6 +3,16 @@ substitutions:
   api_timeout: 15min
 
 api:
+  id: api_id
   reboot_timeout: $api_timeout
   encryption:
     key: !secret api_encryption_key
+  on_client_connected:
+    - logger.log:
+        format: "API Client %s (%s) connected!"
+        args: ["client_info.c_str()", "client_address.c_str()"]
+
+  on_client_disconnected:
+    - logger.log:
+        format: "API client %s (%s) disconnected!"
+        args: ["client_info.c_str()", "client_address.c_str()"]

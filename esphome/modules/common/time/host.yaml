@@ -3,6 +3,6 @@ substitutions:
   device_time_zone: "Etc/UTC"
 
 time:
-  - platform: sntp
-    id: time_sntp
+  - platform: host
+    id: time_host
     timezone: ${device_time_zone}

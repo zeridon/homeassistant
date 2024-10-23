@@ -1,0 +1,4 @@
+---
+mdns:
+  disabled: false
+  services: []

@@ -1,3 +1,8 @@
 ---
-platform: homeassistant
-id: homeassistant_time
+substitutions:
+  device_time_zone: "Etc/UTC"
+
+time:
+  - platform: homeassistant
+    id: time_homeassistant
+    timezone: ${device_time_zone}

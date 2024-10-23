@@ -5,11 +5,42 @@ substitutions:
 
 wifi:
   # use_address: $ip
+  # domain: ".domain" # if using nonstandard
   networks:
     - ssid: !secret wifi_ssid
       password: !secret wifi_password
 
   reboot_timeout: $wifi_reboot_timeout
   power_save_mode: ${power_save_mode}
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
+    ssid: "${device_name}"
     password: !secret ap_password
+
+sensor:
+  - platform: wifi_signal
+    id: sensor_wifi_signal_db
+    name: "${device_friendly_name} WiFi Signal"
+    update_interval: 120s
+    icon: mdi:wifi
+    entity_category: "diagnostic"
+    disabled_by_default: true
+
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      id: sensor_wifi_ip_address
+      name: "${device_friendly_name} IP Address"
+      entity_category: "diagnostic"
+      disabled_by_default: true
+    ssid:
+      id: sensor_wifi_ssid
+      name: "${device_friendly_name} connected SSID"
+      entity_category: "diagnostic"
+      disabled_by_default: true
+    bssid:
+      id: sensor_wifi_bssid
+      name: "${device_friendly_name} connected BSSID"
+      entity_category: "diagnostic"
+      disabled_by_default: true

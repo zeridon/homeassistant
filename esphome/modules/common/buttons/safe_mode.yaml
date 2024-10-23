@@ -1,4 +1,4 @@
 ---
 platform: safe_mode
-name: "${friendly_name} Safe Mode"
-id: safe_mode_button
+name: "${device_friendly_name} Safe Mode"
+id: button_safe_mode

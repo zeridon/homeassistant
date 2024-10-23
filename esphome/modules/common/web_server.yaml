@@ -1,4 +1,7 @@
 ---
 # bring a simple web server to control the device
 web_server:
+  id: web_server_id
   port: 80
+  log: false
+  ota: true

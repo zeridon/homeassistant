@@ -1,0 +1,5 @@
+---
+platform: version
+name: "${device_friendly_name} version"
+id: sensor_version
+icon: mdi:cube-outline

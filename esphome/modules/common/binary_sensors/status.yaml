@@ -1,4 +1,6 @@
 ---
 platform: status
-name: "${friendly_name} Node Status"
-id: system_status
+name: "${device_friendly_name} Node Status"
+id: sensor_system_status
+disabled_by_default: true
+entity_category: diagnostic

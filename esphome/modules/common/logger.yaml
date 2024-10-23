@@ -1,2 +1,4 @@
 ---
 logger:
+  baud_rate: 0  # 0 Enables logging, but disables serial-port logging to free CPU and memory
+  level: WARN

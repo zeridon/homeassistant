@@ -1,4 +1,4 @@
 ---
 platform: factory_reset
-name: "${friendly_name} FACTORY RESET"
-id: factory_reset_button
+name: "${device_friendly_name} FACTORY RESET"
+id: button_factory_reset

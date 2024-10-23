@@ -3,27 +3,26 @@
 esphome:
   on_boot:
     - text_sensor.template.publish:
-        id: ota_status
+        id: sensor_ota_status
         state: "IDLE"
 
 ota:
-  platform: esphome
-  on_begin:
-    - text_sensor.template.publish:
-        id: ota_status
-        state: "In Progress"
+  - platform: esphome
+    password: !secret ota_password
+    id: ota_id
 
-  on_end:
-    - text_sensor.template.publish:
-        id: ota_status
-        state: "IDLE"
+    # OTA Automations
+    on_begin:
+      - text_sensor.template.publish:
+          id: sensor_ota_status
+          state: "In Progress"
+
+    on_end:
+      - text_sensor.template.publish:
+          id: sensor_ota_status
+          state: "IDLE"
 
 text_sensor:
   - platform: template
-    name: "${friendly_name} OTA Status"
-    id: ota_status
-
-button:
-  - platform: safe_mode
-    id: button_safe_mode
-    name: Safe Mode Boot
+    name: "${device_friendly_name} OTA Status"
+    id: sensor_ota_status
