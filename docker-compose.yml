@@ -10,7 +10,7 @@ networks:
 services:
   proxy:
     # The official v2 Traefik docker image
-    image: traefik:v2.11.16
+    image: traefik:v2.11.20
     restart: always
     # Enables the web UI and tells Traefik to listen to docker
     command:
@@ -114,7 +114,7 @@ services:
 
   homeassistant:
     restart: always
-    image: homeassistant/home-assistant:2025.1.0
+    image: homeassistant/home-assistant:2025.2.0
     expose:
       - "8123"
     volumes:
@@ -361,7 +361,7 @@ services:
 ####      - "traefik.http.routers.tasmopiler-rtr.middlewares=internal-ips"
 
   esphome:
-    image: esphome/esphome:2024.12.2
+    image: esphome/esphome:2024.12.4
     restart: unless-stopped
     networks:
       - svcs
