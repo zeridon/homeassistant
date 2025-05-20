@@ -385,7 +385,7 @@ services:
           retries: 2
 
   zigbee2mqtt:
-    image: koenkk/zigbee2mqtt:2.2.1
+    image: koenkk/zigbee2mqtt:2.3.0
     restart: always
     networks:
       - svcs
