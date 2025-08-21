@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Getting your configuration from GitHub
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Running YAMLlint
         uses: "docker://pipelinecomponents/yamllint:latest"
         with:
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Getting your configuration from GitHub
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Running Remark lint
         uses: "docker://pipelinecomponents/remark-lint:latest"
         continue-on-error: true
@@ -39,7 +39,7 @@ jobs:
         version: ["stable", "beta", "dev"]
     steps:
       - name: Getting your configuration from GitHub
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Generate secrets
         run: ./scripts/hass-gen-ci-secrets.sh && mv homeassistant-config/ci-secrets.yaml homeassistant-config/secrets.yaml
       - name: Home Assistant Configuration check
