@@ -152,30 +152,29 @@ bgradio:
 disney_audio_tales_random:
   alias: Disney Audio Tales - RANDOM
   sequence:
-  - service: media_player.volume_set
-    data:
-      volume_level: 0.22
+  - data:
+      volume_level: 0.24
     target:
       entity_id: media_player.dining_room_speaker
-  - service: media_player.play_media
-    data:
+    action: media_player.volume_set
+  - data:
       media_content_id: media-source://media_source/local/disney-audioprikazki/{{
         state_attr('input_select.disney_audio_tales', 'options') | random }}
       media_content_type: music
     target:
       entity_id: media_player.dining_room_speaker
+    action: media_player.play_media
   mode: single
   icon: mdi:teddy-bear
 101_smooth_jazz:
   alias: 101 Smooth Jazz
   sequence:
-  - service: media_player.volume_set
-    data:
-      volume_level: 0.13
+  - data:
+      volume_level: 0.16
     target:
       entity_id: media_player.dining_room_speaker
-  - service: media_player.play_media
-    data:
+    action: media_player.volume_set
+  - data:
       media_content_id: http://www.101smoothjazz.com/101-smoothjazz.m3u
       media_content_type: music
       extra:
@@ -183,5 +182,6 @@ disney_audio_tales_random:
         stream_type: LIVE
     target:
       entity_id: media_player.dining_room_speaker
+    action: media_player.play_media
   mode: single
   icon: mdi:saxophone
