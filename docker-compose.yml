@@ -203,50 +203,6 @@ services:
     network_mode: "host"
     command: --allowNonEther --wait --interfaces ${RELAY_INTERFACES}
 
-####  # InfluxDB - Database for sensor data
-####  # Create influxdb.conf
-####  influxdb:
-####    image: influxdb:latest
-####    restart: unless-stopped
-####    networks:
-####      - svcs
-####    security_opt:
-####      - no-new-privileges:true
-####    expose:
-####      - "8086"
-####    volumes:
-####      # - $DOCKERDIR/influxdb/influxdb.conf:/etc/influxdb/influxdb.conf:ro
-####      - ./influxdb/db:/var/lib/influxdb
-####
-####  # Grafana - Graphical data visualization for InfluxDB data
-####  grafana:
-####    image: grafana/grafana:latest
-####    restart: unless-stopped
-####    networks:
-####      - svcs
-####    security_opt:
-####      - no-new-privileges:true
-####    ports:
-####       - "3000:3000"
-####    user: "0"
-####    volumes:
-####      - ./grafana:/var/lib/grafana
-####    # environment:
-# yamllint disable-line rule:line-length
-####    #   GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource,grafana-worldmap-panel,grafana-piechart-panel"
-####    depends_on:
-####      - influxdb
-####    labels:
-####      # enable
-####      - "traefik.enable=true"
-####      # Routers
-####      - "traefik.http.routers.grafana-rtr.rule=Host(`grafana.${BASE_DOMAIN}`)"
-####      - "traefik.http.routers.grafana-rtr.entrypoints=web-sec"
-####      - "traefik.http.routers.grafana-rtr.tls=true"
-####      # and finaly the services
-####      - "traefik.http.routers.grafana-rtr.service=grafana-svc"
-####      - "traefik.http.services.grafana-svc.loadbalancer.server.port=3000"
-
   # Docker Socket Proxy - Security Enchanced Proxy for Docker Socket
   socket-proxy:
     #image: tecnativa/docker-socket-proxy:edge
