@@ -402,6 +402,8 @@ services:
       - "traefik.http.routers.z2m-rtr.tls=true"
       - "traefik.http.routers.z2m-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/z2m`)"
       - "traefik.http.routers.z2m-rtr.middlewares=internal-ips,strip-prefix"
+      - "traefik.http.routers.z2m-rtr.service=z2m-svc"
+      - "traefik.http.services.z2m-svc.loadbalancer.server.port=9090"
     depends_on:
       - proxy
     healthcheck:
