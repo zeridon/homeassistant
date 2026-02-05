@@ -375,6 +375,8 @@ services:
       - "traefik.http.routers.esphome-rtr.tls=true"
       - "traefik.http.routers.esphome-rtr.rule=Host(`home.${BASE_DOMAIN}`) && PathPrefix(`/esphome`)"
       - "traefik.http.routers.esphome-rtr.middlewares=internal-ips,strip-prefix"
+      - "traefik.http.routers.esphome-rtr.service=esphome-svc"
+      - "traefik.http.services.esphome-svc.loadbalancer.server.port=6052"
     depends_on:
       - proxy
     environment:
