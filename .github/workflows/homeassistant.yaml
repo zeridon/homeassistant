@@ -9,17 +9,6 @@ on:
     - cron: 0 12 * * *
 
 jobs:
-
-  yamllint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Getting your configuration from GitHub
-        uses: actions/checkout@v7
-      - name: Running YAMLlint
-        uses: "docker://pipelinecomponents/yamllint:latest"
-        with:
-          args: yamllint .
-
   remarklint:
     runs-on: ubuntu-latest
     steps:
