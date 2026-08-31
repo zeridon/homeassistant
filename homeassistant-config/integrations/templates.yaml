@@ -1,0 +1,71 @@
+---
+template:
+- switch:
+  - unique_id: climate_dnevna_on_off
+    turn_on:
+    - entity_id:
+      - climate.dnevna
+      action: climate.turn_on
+    turn_off:
+    - entity_id:
+      - climate.dnevna
+      action: climate.turn_off
+    default_entity_id: switch.climate_dnevna_on_off
+    state: '{{ not is_state(''climate.dnevna'', ''off'') }}'
+    name: climate_dnevna_on_off
+
+- switch:
+  - unique_id: climate_spalnia_on_off
+    turn_on:
+    - entity_id:
+      - climate.spalnia
+      action: climate.turn_on
+    turn_off:
+    - entity_id:
+      - climate.spalnia
+      action: climate.turn_off
+    default_entity_id: switch.climate_spalnia_on_off
+    state: '{{ not is_state(''climate.spalnia'', ''off'') }}'
+    name: climate_spalnia_on_off
+
+- switch:
+  - unique_id: climate_rozovo_on_off
+    turn_on:
+    - entity_id:
+      - climate.rozovo
+      action: climate.turn_on
+    turn_off:
+    - entity_id:
+      - climate.rozovo
+      action: climate.turn_off
+    default_entity_id: switch.climate_rozovo_on_off
+    state: '{{ not is_state(''climate.rozovo'', ''off'') }}'
+    name: climate_rozovo_on_off
+
+- switch:
+  - unique_id: climate_bathroom_floor_on_off
+    turn_on:
+    - entity_id:
+      - climate.bathroom_floor
+      action: climate.turn_on
+    turn_off:
+    - entity_id:
+      - climate.bathroom_floor
+      action: climate.turn_off
+    default_entity_id: switch.climate_bathroom_floor_on_off
+    state: '{{ not is_state(''climate.bathroom_floor'', off) }}'
+    name: climate_bathroom_floor_on_off
+
+- switch:
+  - unique_id: vacuum_roborooter_on_off
+    turn_on:
+    - entity_id:
+      - vacuum.robo_rooter
+      action: vacuum.start
+    turn_off:
+    - entity_id:
+      - vacuum.robo_rooter
+      action: vacuum.return_to_base
+    default_entity_id: switch.vacuum_roborooter_on_off
+    state: '{{ not is_state(''vacuum.robo_rooter'', ''docked'') }}'
+    name: vacuum_roborooter_on_off
