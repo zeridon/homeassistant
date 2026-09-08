@@ -1,0 +1,528 @@
+blueprint:
+  homeassistant:
+    min_version: 2024.10.0
+  author: damru
+  domain: automation
+  name: Ikea's Remotes ⚙️ Controls
+  description: "## ⚙️ Control anything with **IKEA's remotes** \nCurrently supported
+    are:\n  - Bilresa\n  - RODRET\n  - SOMRIG\n  - TRADFRI ON/OFF\n\nOnly for use
+    with [ZHA](https://www.home-assistant.io/integrations/zha/) or Zigbee2MQTT (cf
+    [MQTT](https://www.home-assistant.io/integrations/mqtt) + [Z2M addon](https://www.zigbee2mqtt.io/guide/installation/03_ha_addon.html)).\n\nAvailable
+    controls:\n  - Single press **on/off**\n  - Double press **on/off**\n  - Hold
+    **on/off**.\nActions will be executed every **Hold delay**, but maximum **Max
+    number of loops** times.\n"
+  input:
+    remote_devices:
+      name: Remotes
+      description: 'IKEA remote (Bilresa, Rodret, Somrig, Tradfri) to use.
+
+        '
+      default: []
+      selector:
+        device:
+          filter:
+          - integration: zha
+            manufacturer: IKEA of Sweden
+            model: 09B9
+          - integration: zha
+            manufacturer: IKEA of Sweden
+            model: RODRET Dimmer
+          - integration: zha
+            manufacturer: IKEA of Sweden
+            model: RODRET wireless dimmer
+          - integration: zha
+            manufacturer: IKEA of Sweden
+            model: SOMRIG shortcut button
+          - integration: zha
+            manufacturer: IKEA of Sweden
+            model: TRADFRI on/off switch
+          - integration: mqtt
+            manufacturer: IKEA
+            model: BILRESA remote control with buttons
+          - integration: mqtt
+            manufacturer: IKEA
+            model: RODRET wireless dimmer/power switch
+          - integration: mqtt
+            manufacturer: IKEA
+            model: SOMRIG shortcut button
+          - integration: mqtt
+            manufacturer: IKEA
+            model: TRADFRI on/off switch
+          - integration: mqtt
+            manufacturer: IKEA
+            model: RODRET wireless dimmer/power switch (E2201)
+          - integration: mqtt
+            manufacturer: IKEA
+            model: SOMRIG shortcut button (E2213)
+          - integration: mqtt
+            manufacturer: IKEA
+            model: TRADFRI on/off switch (E1743)
+          multiple: true
+    on_press_action:
+      name: Press "on" action
+      description: Choose action(s) to run when **on** button is **pressed**.
+      default: []
+      selector:
+        action: {}
+    off_press_action:
+      name: Press "off" action
+      description: Choose action(s) to run when **off** button is **pressed**.
+      default: []
+      selector:
+        action: {}
+    on_hold_action:
+      name: Hold "on" action
+      description: Choose action(s) to run when **on** button is **held**.
+      default: []
+      selector:
+        action: {}
+    off_hold_action:
+      name: Hold "off" action
+      description: Choose action(s) to run when **off** button is **held**.
+      default: []
+      selector:
+        action: {}
+    on_double_press_action:
+      name: Double press "on" action
+      description: 'Choose action(s) to run when the **on** button is **pressed twice**.
+
+        **_NB for Rodret, Tradfri only_**: **Double press event (on)** must be exposed
+        and **Double press delay** interval is used as a timeout.
+
+        '
+      default: []
+      selector:
+        action: {}
+    off_double_press_action:
+      name: Double press "off" action
+      description: 'Choose action(s) to run when the **off** button is **pressed twice**.
+        **_NB for Rodret, Tradfri only_**: **Double press event (off)** must be exposed
+        and **Double press delay** interval is used as a timeout.
+
+        '
+      default: []
+      selector:
+        action: {}
+    helper_section:
+      name: Helpers
+      icon: mdi:cog-outline
+      collapsed: true
+      input:
+        helper_hold_delay:
+          name: Hold delay
+          description: Delay between the execution of the **Hold** action(s).
+          default: 250
+          selector:
+            number:
+              unit_of_measurement: milliseconds
+              min: 100.0
+              max: 5000.0
+              step: 10.0
+              mode: slider
+        helper_max_loops:
+          name: Max number of loops
+          description: Maximum number of loops when holding down a button.
+          default: 20
+          selector:
+            number:
+              min: 1.0
+              max: 1000.0
+              step: 1.0
+              mode: slider
+    rodret_tradfri_options_section:
+      name: Rodret, Tradfri options
+      icon: mdi:remote
+      collapsed: true
+      input:
+        on_double_press_exposed:
+          name: Expose virtual double press "on" event
+          description: 'Choose whether or not to expose the virtual **double press**
+            event for the **on** button.  Turn this on if you are providing action(s)
+            for the **Double press action (on)**.
+
+            '
+          default: false
+          selector:
+            boolean: {}
+        off_double_press_exposed:
+          name: Expose virtual double press "off" event
+          description: 'Choose whether or not to expose the virtual **double press**
+            event for the **off** button.  Turn this on if you are providing an action
+            for the **Double press action (off)**.
+
+            '
+          default: false
+          selector:
+            boolean: {}
+        helper_double_press_delay:
+          name: Double press delay
+          description: 'Max delay between the first and the second button press for
+            the **Double press events**. Provide a value only if you are using a double
+            press action. Increase this value if you notice that the double press
+            action is not triggered properly.
+
+            '
+          default: 250
+          selector:
+            number:
+              unit_of_measurement: milliseconds
+              min: 100.0
+              max: 5000.0
+              step: 10.0
+              mode: slider
+  source_url: https://github.com/damru/ha-blueprints/blob/main/ikea_remotes_control-anything.yaml
+mode: single
+max_exceeded: silent
+trigger_variables:
+  mqtt_enabled: '{{ integration_entities(''mqtt'') != [] }}'
+  remote_devices: !input remote_devices
+  zha_enabled: '{{ integration_entities(''zha'') != [] }}'
+triggers:
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: 'on'
+    cluster_id: 6
+    endpoint_id: 1
+  id: press-on-zha
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 'on'
+  id: press-on-z2m
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: 'off'
+    cluster_id: 6
+    endpoint_id: 1
+  id: press-off-zha
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 'off'
+  id: press-off-z2m
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: short_release
+    endpoint_id: 1
+  id: press-on-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 1_short_release
+  id: press-on-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: short_release
+    endpoint_id: 2
+  id: press-off-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 2_short_release
+  id: press-off-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: on_double
+  id: double-press-on-z2m-bilresa
+  enabled: '{{ mqtt_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: off_double
+  id: double-press-off-z2m-bilresa
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: multi_press_complete
+    endpoint_id: 1
+  id: double-press-on-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 1_double_press
+  id: double-press-on-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: multi_press_complete
+    endpoint_id: 2
+  id: double-press-off-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 2_double_press
+  id: double-press-off-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: move_with_on_off
+    cluster_id: 8
+    endpoint_id: 1
+  id: hold-on-zha
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: brightness_move_up
+  id: hold-on-z2m
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: move
+    cluster_id: 8
+    endpoint_id: 1
+  id: hold-off-zha
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: brightness_move_down
+  id: hold-off-z2m
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    endpoint_id: 1
+    cluster_id: 8
+    command: stop_with_on_off
+  id: release-zha
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: brightness_stop
+  id: release-z2m
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: long_press
+    endpoint_id: 1
+  id: hold-on-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 1_long_press
+  id: hold-on-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: long_press
+    endpoint_id: 2
+  id: hold-off-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 2_long_press
+  id: hold-off-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: long_release
+    endpoint_id: 1
+  id: release-hold-on-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 1_long_release
+  id: release-hold-on-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+- trigger: event
+  event_type: zha_event
+  event_data:
+    command: long_release
+    endpoint_id: 2
+  id: release-hold-off-zha-somrig
+  enabled: '{{ zha_enabled }}'
+- trigger: mqtt
+  topic: +/+/action
+  payload: 2_long_release
+  id: release-hold-off-z2m-somrig
+  enabled: '{{ mqtt_enabled }}'
+variables:
+  is_mqtt: '{{ trigger.platform == ''mqtt'' }}'
+  is_zha: '{{ trigger.platform == ''event'' and trigger.event.event_type == ''zha_event''
+    }}'
+  mqtt_topic: '{{ trigger.topic }}'
+  on_double_press_exposed: !input on_double_press_exposed
+  off_double_press_exposed: !input off_double_press_exposed
+  remote_devices: !input remote_devices
+  remote_devices_names: '{{ remote_devices | map(''device_attr'', ''name'') | list
+    }}'
+  zha_device_id: '{{ trigger.event.data.device_id if is_zha }}'
+condition:
+- condition: template
+  value_template: "{{ \n  (trigger.event.data.device_id in remote_devices if is_zha)
+    or\n  (trigger.topic.split('/')[1] in remote_devices_names if is_mqtt) \n}}"
+actions:
+- choose:
+  - conditions:
+    - condition: trigger
+      id:
+      - press-on-zha
+      - press-on-z2m
+      - press-on-zha-somrig
+      - press-on-z2m-somrig
+    sequence:
+    - if:
+      - condition: template
+        value_template: '{{ on_double_press_exposed }}'
+      then:
+      - wait_for_trigger:
+        - trigger: event
+          event_type: zha_event
+          event_data:
+            device_id: '{{ zha_device_id }}'
+            command: 'on'
+            cluster_id: 6
+            endpoint_id: 1
+          enabled: '{{ is_zha }}'
+        - trigger: mqtt
+          topic: '{{ mqtt_topic }}'
+          payload: 'on'
+          enabled: '{{ is_mqtt }}'
+        timeout:
+          milliseconds: !input helper_double_press_delay
+        continue_on_timeout: true
+      - if:
+        - condition: template
+          value_template: '{{ wait.trigger.idx is defined }}'
+        then: !input on_double_press_action
+        else: !input on_press_action
+      else: !input on_press_action
+  - conditions:
+    - condition: trigger
+      id:
+      - press-off-zha
+      - press-off-z2m
+      - press-off-zha-somrig
+      - press-off-z2m-somrig
+    sequence:
+    - if:
+      - condition: template
+        value_template: '{{ off_double_press_exposed }}'
+      then:
+      - wait_for_trigger:
+        - trigger: event
+          event_type: zha_event
+          event_data:
+            device_id: '{{ zha_device_id }}'
+            command: 'off'
+            cluster_id: 6
+            endpoint_id: 1
+          enabled: '{{ is_zha }}'
+        - trigger: mqtt
+          topic: '{{ mqtt_topic }}'
+          payload: 'off'
+          enabled: '{{ is_mqtt }}'
+        timeout:
+          milliseconds: !input helper_double_press_delay
+        continue_on_timeout: true
+      - if:
+        - condition: template
+          value_template: '{{ wait.trigger.idx is defined }}'
+        then: !input off_double_press_action
+        else: !input off_press_action
+      else: !input off_press_action
+  - conditions:
+    - condition: trigger
+      id:
+      - double-press-on-zha-somrig
+      - double-press-on-z2m-somrig
+      - double-press-on-z2m-bilresa
+    sequence: !input on_double_press_action
+  - conditions:
+    - condition: trigger
+      id:
+      - double-press-off-zha-somrig
+      - double-press-off-z2m-somrig
+      - double-press-off-z2m-bilresa
+    sequence: !input off_double_press_action
+  - conditions:
+    - condition: trigger
+      id:
+      - hold-on-zha
+      - hold-on-z2m
+      - hold-on-zha-somrig
+      - hold-on-z2m-somrig
+    sequence:
+    - repeat:
+        count: !input helper_max_loops
+        sequence:
+        - parallel:
+          - sequence: !input on_hold_action
+          - sequence:
+            - wait_for_trigger:
+              - trigger: event
+                event_type: zha_event
+                event_data:
+                  device_id: '{{ zha_device_id }}'
+                  command: stop_with_on_off
+                  cluster_id: 8
+                  endpoint_id: 1
+                enabled: '{{ is_zha }}'
+              - trigger: mqtt
+                topic: '{{ mqtt_topic }}'
+                payload: brightness_stop
+                enabled: '{{ is_mqtt }}'
+              - trigger: mqtt
+                topic: '{{ mqtt_topic }}'
+                payload: 1_long_release
+                enabled: '{{ is_mqtt }}'
+              timeout:
+                milliseconds: !input helper_hold_delay
+              continue_on_timeout: true
+            - if:
+              - condition: template
+                value_template: '{{ wait.trigger.idx is defined }}'
+              then:
+              - stop: button released
+  - conditions:
+    - condition: trigger
+      id:
+      - hold-off-zha
+      - hold-off-z2m
+      - hold-off-zha-somrig
+      - hold-off-z2m-somrig
+    sequence:
+    - repeat:
+        count: !input helper_max_loops
+        sequence:
+        - parallel:
+          - sequence: !input off_hold_action
+          - sequence:
+            - wait_for_trigger:
+              - trigger: event
+                event_type: zha_event
+                event_data:
+                  device_id: '{{ zha_device_id }}'
+                  command: stop_with_on_off
+                  cluster_id: 8
+                  endpoint_id: 1
+                enabled: '{{ is_zha }}'
+              - trigger: mqtt
+                topic: '{{ mqtt_topic }}'
+                payload: brightness_stop
+                enabled: '{{ is_mqtt }}'
+              - trigger: mqtt
+                topic: '{{ mqtt_topic }}'
+                payload: 2_long_release
+                enabled: '{{ is_mqtt }}'
+              timeout:
+                milliseconds: !input helper_hold_delay
+              continue_on_timeout: true
+            - if:
+              - condition: template
+                value_template: '{{ wait.trigger.idx is defined }}'
+              then:
+              - stop: button released
