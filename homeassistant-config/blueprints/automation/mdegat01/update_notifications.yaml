@@ -11,8 +11,10 @@ blueprint:
         as soon as one is available.
       selector:
         entity:
-          domain: update
+          domain:
+          - update
           multiple: true
+          reorder: false
     mobile_app_device:
       name: Mobile app device
       description: (Optional) Android, iphone, mac. Anything with the companion app
@@ -52,8 +54,9 @@ blueprint:
           - '6'
           - '12'
           - '24'
-          multiple: false
           custom_value: false
+          sort: false
+          multiple: false
     take_backup:
       name: Take backup
       description: Do a partial backup before updating if able
@@ -80,7 +83,8 @@ blueprint:
         or `update.mariadb_update: https://github.com/home-assistant/addons/blob/master/mariadb/CHANGELOG.md`'
       default: none
       selector:
-        object: {}
+        object:
+          multiple: false
     only_after:
       name: Only after
       description: Only send notifications to mobile devices after this time
@@ -95,15 +99,17 @@ blueprint:
         time: {}
     notification_channel:
       name: Channel/Group
-      description: Sets the channel (android) and group (ios) for update notifications
-        (https://companion.home-assistant.io/docs/notifications/notifications-basic#notification-channels,
-        https://companion.home-assistant.io/docs/notifications/notifications-basic#grouping)
+      description: Sets the [channel](https://companion.home-assistant.io/docs/notifications/notifications-basic#notification-channels)
+        (android) and [group](https://companion.home-assistant.io/docs/notifications/notifications-basic#grouping)
+        (ios) for update notifications
       default: Updates
       selector:
-        text: {}
+        text:
+          multiline: false
+          multiple: false
     status_bar_icon:
       name: Status bar icon
-      description: '(Android only) Sets the status bar icon (https://companion.home-assistant.io/docs/notifications/notifications-basic/#notification-icon).
+      description: '(Android only) Sets the [status bar icon](https://companion.home-assistant.io/docs/notifications/notifications-basic/#notification-icon).
         NOTE: Different then the icon inside the notification, that is always set
         to the entity picture of the update entity (if it has one).'
       default: mdi:package-up
@@ -114,24 +120,24 @@ blueprint:
 mode: parallel
 max: 100
 trigger_variables:
-  _reminder_hours: !input 'reminder_hours'
+  _reminder_hours: !input reminder_hours
   reminder_hours: '{{ _reminder_hours | default(0) | int(0) }}'
-  run_config_check: !input 'run_config_check'
-  update_entities: !input 'update_entities'
+  run_config_check: !input run_config_check
+  update_entities: !input update_entities
 trigger:
 - id: new
   platform: state
-  entity_id: !input 'update_entities'
+  entity_id: !input update_entities
   to: 'on'
 - id: started
   platform: state
-  entity_id: !input 'update_entities'
+  entity_id: !input update_entities
   attribute: in_progress
   from: false
   to: true
 - id: done
   platform: state
-  entity_id: !input 'update_entities'
+  entity_id: !input update_entities
   from: 'on'
   to: 'off'
 - id: install
@@ -156,37 +162,42 @@ trigger:
     actionName: skip-update
 - id: core_check
   platform: template
-  value_template: "{% set ns = namespace(core=none) %} {% for u in integration_entities('hassio')\
-    \ | select('in', update_entities)\n        if (device_attr(u, 'identifiers') |\
-    \ first)[1] == 'core' %}\n    {% set ns.core = u %}\n{% endfor %} {% if run_config_check\
-    \ and ns.core is string and expand(ns.core) | first | attr('state') == 'on' %}\n\
-    \  {% for e in expand(integration_entities('hassio')) | selectattr('attributes.device_class',\
-    \ 'eq', 'running')\n        if (device_attr(e.entity_id, 'identifiers') | first)[1]\
-    \ == 'core_check_config' %}\n      {{ e.state == 'off' and e.last_changed > expand(ns.core)\
-    \ | first | attr('last_changed') }}\n  {% endfor %}\n{% else %}\n  {{ false }}\n\
-    {% endif %}"
+  value_template: "{% set ns = namespace(core=none) %} {% for u in integration_entities('hassio')
+    | select('in', update_entities)\n        if (device_attr(u, 'identifiers') | first)[1]
+    == 'core' %}\n    {% set ns.core = u %}\n{% endfor %} {% if run_config_check and
+    ns.core is string and expand(ns.core) | first | attr('state') == 'on' %}\n  {%
+    for e in expand(integration_entities('hassio')) | selectattr('attributes.device_class',
+    'eq', 'running')\n        if (device_attr(e.entity_id, 'identifiers') | first)[1]
+    == 'core_check_config' %}\n      {{ e.state == 'off' and e.last_changed > expand(ns.core)
+    | first | attr('last_changed') }}\n  {% endfor %}\n{% else %}\n  {{ false }}\n{%
+    endif %}"
 - id: ha_start
   platform: homeassistant
   event: start
 - platform: template
-  value_template: "{{ states.update | selectattr('state', 'eq', 'on') | list | count\
-    \ > 0\n  and reminder_hours > 0 and now().hour % reminder_hours == 0\n  and now().minute\
-    \ == 0 and now().second == 0 }}"
+  value_template: "{{ states.update | selectattr('state', 'eq', 'on') | list | count
+    > 0\n  and reminder_hours > 0 and now().hour % reminder_hours == 0\n  and now().minute
+    == 0 and now().second == 0 }}"
+- id: sticky_ios
+  platform: event
+  event_type: mobile_app_notification_action
+  event_data:
+    action: URI
 variables:
-  mobile_app_device: !input 'mobile_app_device'
-  _mobile_app_device_2: !input 'mobile_app_device_2'
+  mobile_app_device: !input mobile_app_device
+  _mobile_app_device_2: !input mobile_app_device_2
   mobile_app_device_2: '{{ _mobile_app_device_2 if _mobile_app_device_2 != mobile_app_device
     }}'
-  send_to_ha: !input 'send_to_ha'
-  _changelog_urls: !input 'changelog_urls'
+  send_to_ha: !input send_to_ha
+  _changelog_urls: !input changelog_urls
   changelog_urls: '{{ _changelog_urls if _changelog_urls is mapping else {} }}'
-  take_backup: !input 'take_backup'
-  core_update_entity: "{% for u in integration_entities('hassio') | select('search',\
-    \ '^update[.]')\n        if (device_attr(u, 'identifiers') | first)[1] == 'core'\
-    \ %}\n    {{ u }}\n{% endfor %}"
-  os_update_entity: "{% for u in integration_entities('hassio') | select('search',\
-    \ '^update[.]')\n        if (device_attr(u, 'identifiers') | first)[1] == 'OS'\
-    \ %}\n    {{ u }}\n{% endfor %}"
+  take_backup: !input take_backup
+  core_update_entity: "{% for u in integration_entities('hassio') | select('search',
+    '^update[.]')\n        if (device_attr(u, 'identifiers') | first)[1] == 'core'
+    %}\n    {{ u }}\n{% endfor %}"
+  os_update_entity: "{% for u in integration_entities('hassio') | select('search',
+    '^update[.]')\n        if (device_attr(u, 'identifiers') | first)[1] == 'OS' %}\n
+    \   {{ u }}\n{% endfor %}"
   skip_action:
     action: skip-update
     title: Skip
@@ -203,9 +214,9 @@ action:
     conditions: '{{ trigger.id in [''install'', ''install_ios''] }}'
     sequence:
     - variables:
-        entity_id: "update.{{ trigger.event.data.tag\n  if trigger.event.data.tag\
-          \ is string and trigger.event.data.tag != ''\n  else trigger.event.data.action_data.tag\
-          \ }}"
+        entity_id: "update.{{ trigger.event.data.tag\n  if trigger.event.data.tag
+          is string and trigger.event.data.tag != ''\n  else trigger.event.data.action_data.tag
+          }}"
     - service: update.install
       data:
         entity_id: '{{ entity_id }}'
@@ -217,9 +228,9 @@ action:
     sequence:
       service: update.skip
       data:
-        entity_id: "update.{{ trigger.event.data.tag\n  if trigger.event.data.tag\
-          \ is string and trigger.event.data.tag != ''\n  else trigger.event.data.action_data.tag\
-          \ }}"
+        entity_id: "update.{{ trigger.event.data.tag\n  if trigger.event.data.tag
+          is string and trigger.event.data.tag != ''\n  else trigger.event.data.action_data.tag
+          }}"
   - alias: Update completed
     conditions: '{{ trigger.id == ''done'' }}'
     sequence:
@@ -240,28 +251,28 @@ action:
           alias: Send to first mobile device if specified
           conditions: '{{ not not mobile_app_device }}'
           sequence:
-            device_id: !input 'mobile_app_device'
+            device_id: !input mobile_app_device
             domain: mobile_app
             type: notify
             title: '{{ title | default('''') }}'
-            message: "{{ message if device_attr(mobile_app_device, 'manufacturer')\
-              \ != 'Apple'\n    else message | replace('<br>', '\\n') }}"
-            data: "{{ data if\n      device_attr(mobile_app_device, 'manufacturer')\
-              \ != 'Apple' or data.icon_url is not string\n    else dict(data, image=data.icon_url)\
-              \ }}"
+            message: "{{ message if device_attr(mobile_app_device, 'manufacturer')
+              != 'Apple'\n    else message | replace('<br>', '\\n') }}"
+            data: "{{ data if\n      device_attr(mobile_app_device, 'manufacturer')
+              != 'Apple' or data.icon_url is not string\n    else dict(data, image=data.icon_url)
+              }}"
       - choose:
           alias: Send to second mobile device if specified
           conditions: '{{ not not mobile_app_device_2 }}'
           sequence:
-            device_id: !input 'mobile_app_device_2'
+            device_id: !input mobile_app_device_2
             domain: mobile_app
             type: notify
             title: '{{ title | default('''') }}'
-            message: "{{ message if device_attr(mobile_app_device_2, 'manufacturer')\
-              \ != 'Apple'\n    else message | replace('<br>', '\\n') }}"
-            data: "{{ data if\n      device_attr(mobile_app_device_2, 'manufacturer')\
-              \ != 'Apple' or data.icon_url is not string\n    else dict(data, image=data.icon_url)\
-              \ }}"
+            message: "{{ message if device_attr(mobile_app_device_2, 'manufacturer')
+              != 'Apple'\n    else message | replace('<br>', '\\n') }}"
+            data: "{{ data if\n      device_attr(mobile_app_device_2, 'manufacturer')
+              != 'Apple' or data.icon_url is not string\n    else dict(data, image=data.icon_url)
+              }}"
     - &id003
       alias: Dismiss from HA if replicating there
       choose:
@@ -303,56 +314,56 @@ action:
         changelog_action:
           action: URI
           title: Changelog
-          uri: "{% set version = state_attr(entity_id, 'latest_version') %} {{ state_attr(entity_id,\
-            \ 'release_url')\n    | default(changelog_urls[entity_id] | default(''),\
-            \ true)\n    | regex_replace('(/CHANGELOG.md)$', '\\\\1#' ~ version |\
-            \ regex_replace('[^-\\\\w]'))\n    | default(None, true) }}"
+          uri: "{% set version = state_attr(entity_id, 'latest_version') %} {{ state_attr(entity_id,
+            'release_url')\n    | default(changelog_urls[entity_id] | default(''),
+            true)\n    | regex_replace('(/CHANGELOG.md)$', '\\\\1#' ~ version | regex_replace('[^-\\\\w]'))\n
+            \   | default(None, true) }}"
         include_core_check: '{{ run_config_check and ids[0] == ''hassio'' and ids[1]
           == ''core'' }}'
-        core_check_complete: "{% set ns = namespace(core=none) %} {% for u in integration_entities('hassio')\
-          \ | select('in', update_entities)\n        if (device_attr(u, 'identifiers')\
-          \ | first)[1] == 'core' %}\n    {% set ns.core = u %}\n{% endfor %} {% if\
-          \ run_config_check and ns.core is string and expand(ns.core) | first | attr('state')\
-          \ == 'on' %}\n  {% for e in expand(integration_entities('hassio')) | selectattr('attributes.device_class',\
-          \ 'eq', 'running')\n        if (device_attr(e.entity_id, 'identifiers')\
-          \ | first)[1] == 'core_check_config' %}\n      {{ e.state == 'off' and e.last_changed\
-          \ > expand(ns.core) | first | attr('last_changed') }}\n  {% endfor %}\n\
-          {% else %}\n  {{ false }}\n{% endif %}"
+        core_check_complete: "{% set ns = namespace(core=none) %} {% for u in integration_entities('hassio')
+          | select('in', update_entities)\n        if (device_attr(u, 'identifiers')
+          | first)[1] == 'core' %}\n    {% set ns.core = u %}\n{% endfor %} {% if
+          run_config_check and ns.core is string and expand(ns.core) | first | attr('state')
+          == 'on' %}\n  {% for e in expand(integration_entities('hassio')) | selectattr('attributes.device_class',
+          'eq', 'running')\n        if (device_attr(e.entity_id, 'identifiers') |
+          first)[1] == 'core_check_config' %}\n      {{ e.state == 'off' and e.last_changed
+          > expand(ns.core) | first | attr('last_changed') }}\n  {% endfor %}\n{%
+          else %}\n  {{ false }}\n{% endif %}"
         title: '{{ state_attr(entity_id, ''friendly_name'') }}'
-        message: "{% set summary = state_attr(entity_id, 'release_summary') %} Newest\
-          \ version is {{ state_attr(entity_id, 'latest_version') }}<br> Installed\
-          \ version is {{ state_attr(entity_id, 'installed_version') }} {% if include_core_check\
-          \ %}\n  <br>Config check has {{ 'completed, check addon logs for status.'\n\
-          \    if core_check_complete else 'started, should be done soon.' }}\n{%\
-          \ endif %} {{ '<br>' ~ summary if summary is string }}"
-        url: "{% set url = device_attr(entity_id, 'configuration_url') %} {% set ids\
-          \ = device_attr(entity_id, 'identifiers') | first %} {% if url is string\
-          \ %}\n  {{ url | regex_replace('^homeassistant://') }}\n{% elif ids[0] ==\
-          \ 'hassio' and ids[1] in ['supervisor', 'OS'] %}\n  /hassio/system\n{% elif\
-          \ run_config_check and ids[0] == 'hassio' and ids[1] == 'core' %}\n  /hassio/addon/core_check_config/logs\n\
-          {% else %}\n  /config\n{% endif %}"
+        message: "{% set summary = state_attr(entity_id, 'release_summary') %} Newest
+          version is {{ state_attr(entity_id, 'latest_version') }}<br> Installed version
+          is {{ state_attr(entity_id, 'installed_version') }} {% if include_core_check
+          %}\n  <br>Config check has {{ 'completed, check addon logs for status.'\n
+          \   if core_check_complete else 'started, should be done soon.' }}\n{% endif
+          %} {{ '<br>' ~ summary if summary is string }}"
+        url: "{% set url = device_attr(entity_id, 'configuration_url') %} {% set ids
+          = device_attr(entity_id, 'identifiers') | first %} {% if url is string %}\n
+          \ {{ url | regex_replace('^homeassistant://') }}\n{% elif ids[0] == 'hassio'
+          and ids[1] in ['supervisor', 'OS'] %}\n  /hassio/system\n{% elif run_config_check
+          and ids[0] == 'hassio' and ids[1] == 'core' %}\n  /hassio/addon/core_check_config/logs\n{%
+          else %}\n  /config\n{% endif %}"
         data:
           tag: '{{ entity_id[7:] }}'
-          channel: !input 'notification_channel'
-          group: !input 'notification_channel'
-          notification_icon: !input 'status_bar_icon'
+          channel: !input notification_channel
+          group: !input notification_channel
+          notification_icon: !input status_bar_icon
           icon_url: '{{ state_attr(entity_id, ''entity_picture'') | default('''',
             true) }}'
           url: '{{ url }}'
           clickAction: '{{ url }}'
           sticky: 'true'
-          actions: "{{ ([changelog_action] if changelog_action.uri is string else\
-            \ []) + [update_action] +\n  ([] if ids[0] == 'hassio' and ids[1] == 'supervisor'\
-            \ else [skip_action]) }}"
-    - &id006
+          actions: "{{ ([changelog_action] if changelog_action.uri is string else
+            []) + [update_action] +\n  ([] if ids[0] == 'hassio' and ids[1] == 'supervisor'
+            else [skip_action]) }}"
+    - &id007
       choose:
         alias: Only send to mobile devices if within provided time range
         conditions:
           condition: time
-          after: !input 'only_after'
-          before: !input 'only_before'
+          after: !input only_after
+          before: !input only_before
         sequence: *id002
-    - &id007
+    - &id006
       alias: Send to HA if replicating there
       choose:
         conditions: '{{ send_to_ha }}'
@@ -361,23 +372,37 @@ action:
           data:
             notification_id: '{{ entity_id[7:] }}'
             title: '{{ title }}'
-            message: "{{ '%s\\n\\n### More info\\n- [Open](%s)' % (message | replace('<br>',\
-              \ '\\n'), data.url) ~\n  ('\\n- [Changelog](%s)' % changelog_action.uri\
-              \ if changelog_action.uri is string else '') }}"
+            message: "{{ '%s\\n\\n### More info\\n- [Open](%s)' % (message | replace('<br>',
+              '\\n'), data.url) ~\n  ('\\n- [Changelog](%s)' % changelog_action.uri
+              if changelog_action.uri is string else '') }}"
     - alias: Stop if this isn't core or we're not running a config check
       condition: '{{ include_core_check }}'
     - alias: Start config check addon
       service: hassio.addon_start
       data:
         addon: core_check_config
+  - alias: Emulate sticky on IOS by recreating the notification
+    conditions:
+    - '{{ trigger.id == ''sticky_ios'' }}'
+    - '{{ trigger.event.data.action_data is mapping and trigger.event.data.action_data.tag
+      is string }}'
+    - '{{ is_state(''update.'' ~ trigger.event.data.action_data.tag, ''on'') }}'
+    sequence:
+    - variables:
+        entity_id: "update.{{ trigger.event.data.tag\n  if trigger.event.data.tag
+          is string and trigger.event.data.tag != ''\n  else trigger.event.data.action_data.tag
+          }}"
+    - *id005
+    - *id002
+    - *id006
   - alias: Core check addon completed
     conditions: '{{ trigger.id == ''core_check'' }}'
     sequence:
     - variables:
         entity_id: '{{ core_update_entity }}'
     - *id005
-    - *id006
     - *id007
+    - *id006
   - alias: Update started
     conditions: '{{ trigger.id == ''started'' }}'
     sequence:
@@ -387,15 +412,15 @@ action:
         message: Updating...
         data: '{{ dict(data, actions=[changelog_action] if changelog_action.uri is
           string else []) }}'
-    - *id006
     - *id007
+    - *id006
   - alias: Send reminders if enabled
     conditions: '{{ reminder_hours > 0 }}'
     sequence:
     - alias: Get all pending, unstarted updates
       variables:
-        updates: "{{ states.update\n    | selectattr('state', 'eq', 'on')\n    | rejectattr('attributes.in_progress',\
-          \ 'true')\n    | map(attribute='entity_id') | list }}"
+        updates: "{{ states.update\n    | selectattr('state', 'eq', 'on')\n    | rejectattr('attributes.in_progress',
+          'true')\n    | map(attribute='entity_id') | list }}"
     - alias: Loop over updates and send reminder
       repeat:
         count: '{{ updates | count }}'
@@ -403,5 +428,5 @@ action:
         - variables:
             entity_id: '{{ updates[repeat.index - 1] }}'
         - *id005
-        - *id006
         - *id007
+        - *id006
