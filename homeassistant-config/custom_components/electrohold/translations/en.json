@@ -1,0 +1,11 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Electrohold Bulgaria",
+        "description": "Add Electrohold Bulgaria electricity prices."
+      }
+    }
+  }
+}
+
