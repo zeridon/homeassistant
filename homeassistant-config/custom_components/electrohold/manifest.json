@@ -9,7 +9,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/zeridon/hacs-electrohold",
   "requirements": [
-	  "beautifulsoup4==4.14.2"
+	  "beautifulsoup4==4.15.0"
   ],
   "version": "1.0.0"
 }
