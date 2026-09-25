@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorEntity,
     SensorStateClass,
 )
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import callback
 from homeassistant.helpers.event import async_track_time_change
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -34,6 +34,7 @@ from .coordinator import ElectroholdCoordinator
 
 if TYPE_CHECKING:
     from homeassistant.config_entries import ConfigEntry
+    from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 
@@ -96,7 +97,7 @@ class ElectroholdBaseSensor(
 class ElectroholdDayPriceSensor(ElectroholdBaseSensor):
     """Day price excluding VAT."""
 
-    _attr_name = "Day Price"
+    _attr_translation_key = "day_price"
     _attr_unique_id = "electrohold_day_price"
     _attr_icon = "mdi:weather-sunny"
 
@@ -109,7 +110,7 @@ class ElectroholdDayPriceSensor(ElectroholdBaseSensor):
 class ElectroholdDayPriceVatSensor(ElectroholdBaseSensor):
     """Day price including VAT."""
 
-    _attr_name = "Day Price incl VAT"
+    _attr_translation_key = "day_price_incl_vat"
     _attr_unique_id = "electrohold_day_price_incl_vat"
     _attr_icon = "mdi:weather-sunny"
 
@@ -122,7 +123,7 @@ class ElectroholdDayPriceVatSensor(ElectroholdBaseSensor):
 class ElectroholdNightPriceSensor(ElectroholdBaseSensor):
     """Night price excluding VAT."""
 
-    _attr_name = "Night Price"
+    _attr_translation_key = "night_price"
     _attr_unique_id = "electrohold_night_price"
     _attr_icon = "mdi:weather-night"
 
@@ -135,7 +136,7 @@ class ElectroholdNightPriceSensor(ElectroholdBaseSensor):
 class ElectroholdNightPriceVatSensor(ElectroholdBaseSensor):
     """Night price including VAT."""
 
-    _attr_name = "Night Price incl VAT"
+    _attr_translation_key = "night_price_incl_vat"
     _attr_unique_id = "electrohold_night_price_incl_vat"
     _attr_icon = "mdi:weather-night"
 
@@ -148,7 +149,7 @@ class ElectroholdNightPriceVatSensor(ElectroholdBaseSensor):
 class ElectroholdCurrentTariffSensor(ElectroholdBaseSensor):
     """Current tariff."""
 
-    _attr_name = "Current Tariff"
+    _attr_translation_key = "current_tariff"
     _attr_unique_id = "electrohold_current_tariff"
     _attr_native_unit_of_measurement = None
     _attr_state_class = None
@@ -163,7 +164,7 @@ class ElectroholdCurrentTariffSensor(ElectroholdBaseSensor):
                 self.hass,
                 self._handle_time_change,
                 hour="*",
-                minute="*",
+                minute="0",
                 second=0,
             )
         )
@@ -182,7 +183,7 @@ class ElectroholdCurrentTariffSensor(ElectroholdBaseSensor):
 class ElectroholdCurrentPriceSensor(ElectroholdBaseSensor):
     """Current price excluding VAT."""
 
-    _attr_name = "Current Price"
+    _attr_translation_key = "current_price"
     _attr_unique_id = "electrohold_current_price"
     _attr_icon = "mdi:flash"
 
@@ -195,14 +196,14 @@ class ElectroholdCurrentPriceSensor(ElectroholdBaseSensor):
                 self.hass,
                 self._handle_time_change,
                 hour="*",
-                minute="*",
+                minute="0",
                 second=0,
             )
         )
 
     @callback
     def _handle_time_change(self, _now: datetime) -> None:
-        """Update when the tariff changes."""
+        """Update when the clock changes."""
         self.async_write_ha_state()
 
     @property
@@ -217,7 +218,7 @@ class ElectroholdCurrentPriceSensor(ElectroholdBaseSensor):
 class ElectroholdCurrentPriceVatSensor(ElectroholdBaseSensor):
     """Current price including VAT."""
 
-    _attr_name = "Current Price incl VAT"
+    _attr_translation_key = "current_price_incl_vat"
     _attr_unique_id = "electrohold_current_price_incl_vat"
     _attr_icon = "mdi:flash-outline"
 
@@ -230,14 +231,14 @@ class ElectroholdCurrentPriceVatSensor(ElectroholdBaseSensor):
                 self.hass,
                 self._handle_time_change,
                 hour="*",
-                minute="*",
+                minute="0",
                 second=0,
             )
         )
 
     @callback
     def _handle_time_change(self, _now: datetime) -> None:
-        """Update when the tariff changes."""
+        """Update when the clock changes."""
         self.async_write_ha_state()
 
     @property

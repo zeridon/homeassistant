@@ -20,7 +20,6 @@ if TYPE_CHECKING:
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 
-
 class ElectroholdRefreshButton(
     CoordinatorEntity[ElectroholdCoordinator],
     ButtonEntity,
@@ -28,8 +27,8 @@ class ElectroholdRefreshButton(
     """Button to manually refresh Electrohold prices."""
 
     _attr_has_entity_name = True
-    _attr_name = "Refresh prices"
-    _attr_icon = "mdi:refresh"
+    _attr_translation_key = "refresh_prices"
+    _attr_icon = "mdi:web-refresh"
     _attr_entity_category = EntityCategory.CONFIG
     _attr_unique_id = "electrohold_refresh_prices"
 
@@ -48,6 +47,33 @@ class ElectroholdRefreshButton(
         await self.coordinator.async_request_refresh()
 
 
+class ElectroholdRecalculateTariffButton(
+    CoordinatorEntity[ElectroholdCoordinator],
+    ButtonEntity,
+):
+    """Button to manually recalculate the current tariff."""
+
+    _attr_has_entity_name = True
+    _attr_translation_key = "recalculate_tariff"
+    _attr_icon = "mdi:timer-refresh-outline"
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_unique_id = "electrohold_recalculate_tariff"
+
+    def __init__(self, coordinator: ElectroholdCoordinator) -> None:
+        """Initialize the button."""
+        super().__init__(coordinator)
+
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, "electrohold")},
+            "name": "Electrohold Bulgaria",
+            "manufacturer": "Electrohold",
+        }
+
+    async def async_press(self) -> None:
+        """Recalculate the current tariff."""
+        self.coordinator.async_recalculate_tariff()
+
+
 async def async_setup_entry(
     _hass: HomeAssistant,
     entry: ConfigEntry,
@@ -59,5 +85,6 @@ async def async_setup_entry(
     async_add_entities(
         [
             ElectroholdRefreshButton(coordinator),
+            ElectroholdRecalculateTariffButton(coordinator),
         ]
     )

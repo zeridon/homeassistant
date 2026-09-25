@@ -12,6 +12,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from bs4 import BeautifulSoup
+from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -68,6 +69,11 @@ class ElectroholdCoordinator(DataUpdateCoordinator[ElectroholdData]):
             update_interval=UPDATE_INTERVAL,
             always_update=False,
         )
+
+    @callback
+    def async_recalculate_tariff(self) -> None:
+        """Recalculate time-dependent tariff entities."""
+        self.async_update_listeners()
 
     async def _async_update_data(self) -> ElectroholdData:
         """Fetch and parse Electrohold prices."""

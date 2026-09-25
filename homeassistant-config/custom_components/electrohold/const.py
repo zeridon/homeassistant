@@ -7,7 +7,7 @@ from datetime import timedelta
 
 DOMAIN = "electrohold"
 
-NAME = "Electrohold Bulgaria Regulated Prices)"
+NAME = "Electrohold Bulgaria (Regulated Prices)"
 
 SOURCE_URL = (
     "https://electrohold.bg/bg/sales/domakinstva/snabdyavane-po-regulirani-ceni/"

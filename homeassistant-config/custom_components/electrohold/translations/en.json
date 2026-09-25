@@ -6,6 +6,38 @@
         "description": "Add Electrohold Bulgaria electricity prices."
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "day_price": {
+        "name": "Day price"
+      },
+      "day_price_incl_vat": {
+        "name": "Day price incl. VAT"
+      },
+      "night_price": {
+        "name": "Night price"
+      },
+      "night_price_incl_vat": {
+        "name": "Night price incl. VAT"
+      },
+      "current_price": {
+        "name": "Current price"
+      },
+      "current_price_incl_vat": {
+        "name": "Current price incl. VAT"
+      },
+      "current_tariff": {
+        "name": "Current tariff"
+      }
+    },
+    "button": {
+      "refresh_prices": {
+        "name": "Refresh prices"
+      },
+      "recalculate_tariff": {
+        "name": "Recalculate tariff"
+      }
+    }
   }
 }
-

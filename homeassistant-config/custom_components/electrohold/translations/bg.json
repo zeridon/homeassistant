@@ -6,6 +6,38 @@
         "description": "Добавете цените на електроенергията от Електрохолд България."
       }
     }
+  },
+  "entity": {
+    "sensor": {
+      "day_price": {
+        "name": "Дневна цена"
+      },
+      "day_price_incl_vat": {
+        "name": "Дневна цена с ДДС"
+      },
+      "night_price": {
+        "name": "Нощна цена"
+      },
+      "night_price_incl_vat": {
+        "name": "Нощна цена с ДДС"
+      },
+      "current_price": {
+        "name": "Текуща цена"
+      },
+      "current_price_incl_vat": {
+        "name": "Текуща цена с ДДС"
+      },
+      "current_tariff": {
+        "name": "Текуща тарифа"
+      }
+    },
+    "button": {
+      "refresh_prices": {
+        "name": "Обнови цените"
+      },
+      "recalculate_tariff": {
+        "name": "Преизчисли тарифата"
+      }
+    }
   }
 }
-
