@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData sąranka",
+        "description": "Sukonfigūruokite skalbimo mašiną ar kitą prietaisą.\n\nReikalingas galios jutiklis.\n\nBaigę sąranką, atidarykite WashData skydelį iš šoninės juostos (arba eikite į [/ha-washdata](/ha-washdata)), kad peržiūrėtumėte ciklus, sureguliuotumėte aptikimą ir tvarkytumėte profilius.",
+        "data": {
+          "name": "Įrenginio pavadinimas",
+          "device_type": "Įrenginio tipas",
+          "power_sensor": "Galios jutiklis",
+          "min_power": "Minimalios galios slenkstis (W)"
+        },
+        "data_description": {
+          "name": "Patogus šio įrenginio pavadinimas (pvz., 'Skalbimo mašina', 'Indaplovė').",
+          "device_type": "Kokio tipo tai prietaisas? Padeda pritaikyti aptikimą ir ženklinimą.",
+          "power_sensor": "Jutiklio objektas, kuris realiuoju laiku praneša energijos suvartojimą (vatais) iš jūsų išmaniojo kištuko.",
+          "min_power": "Galios rodmenys, viršijantys šią ribą (vatais), rodo, kad prietaisas veikia. Pradėkite nuo 2 W daugeliui įrenginių."
+        }
+      },
+      "reconfigure": {
+        "title": "WashData rekonfigūracija",
+        "description": "Atnaujinkite įrenginio pavadinimą, prietaiso tipą arba galios jutiklį.\n\nWashData skydelyje (šoninė juosta arba [/ha-washdata](/ha-washdata)) tvarkomas aptikimas, ciklai, profiliai ir pranešimai.",
+        "data": {
+          "name": "Įrenginio pavadinimas",
+          "device_type": "Įrenginio tipas",
+          "power_sensor": "Galios jutiklis",
+          "min_power": "Minimalios galios slenkstis (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nepavyko prisijungti",
+      "invalid_auth": "Neteisingas autentifikavimas",
+      "unknown": "Netikėta klaida",
+      "invalid_power": "Galios slenkstis turi būti didesnis nei 0"
+    },
+    "abort": {
+      "already_configured": "Įrenginys jau sukonfigūruotas",
+      "reconfigure_successful": "Rekonfigūracija sėkminga"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData nustatymai",
+        "description": "Pervadinkite įrenginį arba pakeiskite pagrindinius aparatinės įrangos nustatymus. Visi aptikimo, atitikimo ir pranešimų nustatymai yra [WashData skydelyje](/ha-washdata) (taip pat pasiekiami iš šoninės juostos).",
+        "data": {
+          "name": "Įrenginio pavadinimas",
+          "device_type": "Įrenginio tipas",
+          "power_sensor": "Galios jutiklis",
+          "min_power": "Minimalios galios slenkstis (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} min. laikmatis",
+      "timer_pause_action_title": "Tęsti ciklą",
+      "timer_pause_body_suffix": "Ciklas pristabdytas. Atidarykite WashData skydelį, kad tęstumėte.",
+      "unload_dismiss_action_title": "Nustoti priminti",
+      "notify_live_waiting_message": "{device}: Kol kas neatpažintas joks profilis.",
+      "vs_typical_longer": "{pct}% ilgiau nei įprastai",
+      "vs_typical_shorter": "{pct}% trumpiau nei įprastai",
+      "invalid_power": "Galios slenkstis turi būti didesnis nei 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Skalbimo mašina",
+        "dryer": "Džiovintuvas",
+        "washer_dryer": "Skalbimo-džiovinimo kombinacija",
+        "dishwasher": "Indaplovė",
+        "air_fryer": "Oro gruzdintuvė",
+        "bread_maker": "Duonkepė",
+        "pump": "Siurblys / Drenažinis siurblys",
+        "generic": "Kita (išplėstinė)",
+        "other": "Slenksčio įtaisas"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Pažymėti ciklą",
+      "description": "Priskirti esamą profilį praėjusiam ciklui arba pašalinti etiketę.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys žymėjimui."
+        },
+        "cycle_id": {
+          "name": "Ciklo ID",
+          "description": "Ciklo, kurį reikia pažymėti, ID."
+        },
+        "profile_name": {
+          "name": "Profilio pavadinimas",
+          "description": "Esamo profilio pavadinimas (sukurkite profilius meniu Tvarkyti profilius). Palikite tuščią, kad pašalintumėte etiketę."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Sukurti profilį",
+      "description": "Sukurti naują profilį (atskirą arba pagal etaloninį ciklą).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys."
+        },
+        "profile_name": {
+          "name": "Profilio pavadinimas",
+          "description": "Naujojo profilio pavadinimas (pvz., „Intensyvus skalbimas”, „Smulkūs audiniai”)."
+        },
+        "reference_cycle_id": {
+          "name": "Etaloninio ciklo ID",
+          "description": "Pasirenkamas ciklo ID, kuriuo remiantis bus sukurtas šis profilis."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Ištrinti profilį",
+      "description": "Ištrinti profilį ir pasirinktinai pašalinti etiketes iš ciklų, naudojančių jį.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys."
+        },
+        "profile_name": {
+          "name": "Profilio pavadinimas",
+          "description": "Profilis, kurį norite ištrinti."
+        },
+        "unlabel_cycles": {
+          "name": "Pašalinti ciklų etiketes",
+          "description": "Pašalinti profilio etiketę nuo ciklų, naudojančių šį profilį."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Automatinis senų ciklų žymėjimas",
+      "description": "Atgaline data pažymėti nepažymėtus ciklus naudojant profilio atitikimą.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys."
+        },
+        "confidence_threshold": {
+          "name": "Patikimumo slenkstis",
+          "description": "Minimalus atitikties patikimumas (0,50–0,95) etiketėms taikyti."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Eksportuoti konfigūraciją",
+      "description": "Eksportuoti šio įrenginio profilius, ciklus ir nustatymus į JSON failą (kiekvienam įrenginiui).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys eksportavimui."
+        },
+        "path": {
+          "name": "Kelias",
+          "description": "Pasirenkamas absoliutus failo kelias įrašymui (numatytasis: /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importuoti konfigūraciją",
+      "description": "Importuoti šio įrenginio profilius, ciklus ir nustatymus iš JSON eksporto failo (nustatymai gali būti perrašyti).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys importavimui."
+        },
+        "path": {
+          "name": "Kelias",
+          "description": "Absoliutus kelias į eksporto JSON failą importavimui."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Pateikti ciklo atsiliepimą",
+      "description": "Patvirtinti arba pataisyti automatiškai aptiktą programą po baigto ciklo. Pateikite `entry_id` (išplėstinis) arba `device_id` (rekomenduojama).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys (rekomenduojamas vietoj entry_id)."
+        },
+        "entry_id": {
+          "name": "Įrašo ID",
+          "description": "Įrenginio konfigūracijos įrašo ID (alternatyva device_id)."
+        },
+        "cycle_id": {
+          "name": "Ciklo ID",
+          "description": "Ciklo ID, rodomas atsiliepimo pranešime / žurnaluose."
+        },
+        "user_confirmed": {
+          "name": "Patvirtinti aptiktą programą",
+          "description": "Nustatykite teisingą, jei aptikta programa yra teisinga."
+        },
+        "corrected_profile": {
+          "name": "Pataisytas profilis",
+          "description": "Jei nepatvirtinta, pateikite teisingą profilio / programos pavadinimą."
+        },
+        "corrected_duration": {
+          "name": "Pataisyta trukmė (sekundėmis)",
+          "description": "Pasirenkama pataisyta trukmė sekundėmis."
+        },
+        "notes": {
+          "name": "Pastabos",
+          "description": "Pasirenkamos pastabos apie šį ciklą."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Pradėti ciklo įrašymą",
+      "description": "Rankiniu būdu pradėti švaraus ciklo įrašymą (apeina visą atitikimo logiką).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys įrašymui."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Sustabdyti ciklo įrašymą",
+      "description": "Sustabdyti rankinį įrašymą.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys įrašymo stabdymui."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Apkarpyti ciklą",
+      "description": "Apkarpyti praėjusio ciklo galios duomenis iki konkretaus laiko lango.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys."
+        },
+        "cycle_id": {
+          "name": "Ciklo ID",
+          "description": "Ciklo, kurį reikia apkarpyti, ID."
+        },
+        "trim_start_s": {
+          "name": "Apkarpymo pradžia (sekundėmis)",
+          "description": "Išsaugoti duomenis nuo šio poslinkio sekundėmis. Numatytasis: 0."
+        },
+        "trim_end_s": {
+          "name": "Apkarpymo pabaiga (sekundėmis)",
+          "description": "Išsaugoti duomenis iki šio poslinkio sekundėmis. Numatytasis = visa trukmė."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pristabdyti ciklą",
+      "description": "Pristabdykite aktyvų WashData įrenginio ciklą.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "„WashData“ įrenginį pristabdyti."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Tęsti ciklą",
+      "description": "Tęsti pristabdytą WashData įrenginio ciklą.",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "„WashData“ įrenginys, kad būtų atnaujintas."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Paleisti ML mokymą",
+      "description": "Rankiniu būdu iš naujo apmokyti įrenginyje esančius ML modelius naudojant šio įrenginio pažymėtus ciklus (eksperimentinis).",
+      "fields": {
+        "device_id": {
+          "name": "Įrenginys",
+          "description": "WashData įrenginys, kurio modelius reikia iš naujo apmokyti."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Veikia"
+      },
+      "match_ambiguity": {
+        "name": "Atitikties dviprasmiškumas"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Būsena",
+        "state": {
+          "off": "Išjungta",
+          "idle": "Tuščia eiga",
+          "starting": "Pradedama",
+          "running": "Veikia",
+          "paused": "Pristabdyta",
+          "user_paused": "Vartotojo pristabdyta",
+          "ending": "Baigiama",
+          "finished": "Baigta",
+          "anti_wrinkle": "Apsauga nuo raukšlių",
+          "interrupted": "Nutraukta",
+          "force_stopped": "Priverstinai sustabdyta",
+          "rinse": "Skalavimas",
+          "unknown": "Nežinoma",
+          "clean": "Švarus",
+          "delay_wait": "Laukiama pradžios"
+        }
+      },
+      "washer_program": {
+        "name": "Programa"
+      },
+      "time_remaining": {
+        "name": "Likęs laikas"
+      },
+      "total_duration": {
+        "name": "Bendra trukmė"
+      },
+      "cycle_progress": {
+        "name": "Eiga"
+      },
+      "current_power": {
+        "name": "Dabartinė galia"
+      },
+      "elapsed_time": {
+        "name": "Praėjęs laikas"
+      },
+      "debug_info": {
+        "name": "Derinimo informacija"
+      },
+      "match_confidence": {
+        "name": "Atitikties patikimumas"
+      },
+      "top_candidates": {
+        "name": "Geriausi kandidatai",
+        "state": {
+          "none": "Nėra"
+        }
+      },
+      "ambiguity": {
+        "name": "Dviprasmiškumo balas"
+      },
+      "current_phase": {
+        "name": "Dabartinė fazė"
+      },
+      "profile_cycle_count": {
+        "name": "Profilio {profile_name} ciklų skaičius",
+        "unit_of_measurement": "ciklai"
+      },
+      "suggestions": {
+        "name": "Prieinami siūlomi nustatymai"
+      },
+      "pump_runs_today": {
+        "name": "Siurblys veikia (paskutines 24 val.)"
+      },
+      "cycle_count": {
+        "name": "Ciklų skaičius"
+      },
+      "energy_total": {
+        "name": "Bendra energija"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Ciklo programa",
+        "state": {
+          "auto_detect": "Automatinis aptikimas"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Priverstinai baigti ciklą"
+      },
+      "pause_cycle": {
+        "name": "Pristabdyti ciklą"
+      },
+      "resume_cycle": {
+        "name": "Tęsti ciklą"
+      },
+      "record_start": {
+        "name": "Pradėti ciklo įrašymą"
+      },
+      "record_stop": {
+        "name": "Sustabdyti ciklo įrašymą"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Būtinas galiojantis įrenginio_id."
+    },
+    "cycle_id_required": {
+      "message": "Būtinas galiojantis ciklo_id."
+    },
+    "profile_name_required": {
+      "message": "Reikalingas galiojantis profile_name."
+    },
+    "device_not_found": {
+      "message": "Įrenginys nerastas."
+    },
+    "no_config_entry": {
+      "message": "Įrenginio konfigūracijos įrašas nerastas."
+    },
+    "integration_not_loaded": {
+      "message": "Šio įrenginio integracija neįkelta."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Ciklas nerastas arba neturi galios duomenų."
+    },
+    "trim_failed_empty_window": {
+      "message": "Apkarpyti nepavyko – ciklas nerastas, nėra galios duomenų arba gautas langas tuščias."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s turi būti didesnis nei trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Nėra aktyvaus ciklo pristabdyti ar tęsti."
+    },
+    "path_not_allowed": {
+      "message": "Kelias neleidžiamas: {path}. Pridėkite jo katalogą prie 'allowlist_external_dirs' faile configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Nepavyko sukurti profilio: {error}"
+    },
+    "export_path_exists": {
+      "message": "Eksporto paskirties vieta jau egzistuoja: {path}. Pasirinkite kitą kelią arba pirmiausia pašalinkite esamą failą."
+    },
+    "export_write_failed": {
+      "message": "Nepavyko įrašyti eksporto į {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Nepavyko priskirti profilio: {error}"
+    }
+  }
+}

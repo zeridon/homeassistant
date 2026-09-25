@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ρύθμιση WashData",
+        "description": "Ρυθμίστε το πλυντήριο ρούχων ή άλλη συσκευή σας.\n\nΑπαιτείται αισθητήρας ισχύος.\n\nΜετά τη ρύθμιση, ανοίξτε τον πίνακα WashData από την πλευρική γραμμή (ή μεταβείτε στο [/ha-washdata](/ha-washdata)) για να δείτε κύκλους, να ρυθμίσετε την ανίχνευση και να διαχειριστείτε προφίλ.",
+        "data": {
+          "name": "Όνομα συσκευής",
+          "device_type": "Τύπος συσκευής",
+          "power_sensor": "Αισθητήρας ισχύος",
+          "min_power": "Ελάχιστο όριο ισχύος (W)"
+        },
+        "data_description": {
+          "name": "Ένα φιλικό όνομα για αυτή τη συσκευή (π.χ. «Πλυντήριο ρούχων», «Πλυντήριο πιάτων»).",
+          "device_type": "Τι είδους συσκευή είναι αυτή; Βοηθά στην προσαρμογή της ανίχνευσης και της επισήμανσης.",
+          "power_sensor": "Η οντότητα αισθητήρα που αναφέρει σε πραγματικό χρόνο την κατανάλωση ισχύος (σε watt) από το έξυπνο βύσμα σας.",
+          "min_power": "Μετρήσεις ισχύος πάνω από αυτό το όριο (σε watt) υποδεικνύουν ότι η συσκευή λειτουργεί. Ξεκινήστε με 2 W για τις περισσότερες συσκευές."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Ενημερώστε το όνομα της συσκευής, τον τύπο συσκευής ή τον αισθητήρα ισχύος.\n\nΟ πίνακας WashData (πλευρική γραμμή ή [/ha-washdata](/ha-washdata)) είναι το μέρος όπου διαχειρίζεται η ανίχνευση, οι κύκλοι, τα προφίλ και οι ειδοποιήσεις.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Αποτυχία σύνδεσης",
+      "invalid_auth": "Μη έγκυρη αυθεντικοποίηση",
+      "unknown": "Απρόσμενο σφάλμα",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Η συσκευή έχει ήδη διαμορφωθεί",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Μετονομάστε τη συσκευή ή αλλάξτε τις βασικές ρυθμίσεις υλικού. Όλες οι ρυθμίσεις ανίχνευσης, αντιστοίχισης και ειδοποιήσεων βρίσκονται στον [πίνακα WashData](/ha-washdata) (επίσης προσβάσιμος από την πλευρική γραμμή).",
+        "data": {
+          "name": "Όνομα συσκευής",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: χρονόμετρο {minutes} λεπτών",
+      "timer_pause_action_title": "Συνέχιση κύκλου",
+      "timer_pause_body_suffix": "Ο κύκλος είναι σε παύση. Ανοίξτε τον πίνακα WashData για να συνεχίσετε.",
+      "unload_dismiss_action_title": "Διακοπή υπενθυμίσεων",
+      "notify_live_waiting_message": "{device}: Δεν έχει αναγνωριστεί ακόμη κανένα προφίλ.",
+      "vs_typical_longer": "{pct}% περισσότερο από το συνηθισμένο",
+      "vs_typical_shorter": "{pct}% λιγότερο από το συνηθισμένο",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Πλυντήριο",
+        "dryer": "Στεγνωτήριο",
+        "washer_dryer": "Συνδυασμός πλυντηρίου-στεγνωτηρίου",
+        "dishwasher": "Πλυντήριο πιάτων",
+        "air_fryer": "Φριτέζα αέρα",
+        "bread_maker": "Αρτοπαρασκευαστής",
+        "pump": "Αντλία / Αντλία κάρτερ",
+        "generic": "Άλλο (Για προχωρημένους)",
+        "other": "Συσκευή κατωφλίου"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Επισήμανση κύκλου",
+      "description": "Εκχωρήστε ένα υπάρχον προφίλ σε έναν παλαιότερο κύκλο ή αφαιρέστε την ετικέτα.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για επισήμανση."
+        },
+        "cycle_id": {
+          "name": "Αναγνωριστικό κύκλου",
+          "description": "Το αναγνωριστικό του κύκλου προς επισήμανση."
+        },
+        "profile_name": {
+          "name": "Όνομα προφίλ",
+          "description": "Το όνομα ενός υπάρχοντος προφίλ (δημιουργήστε προφίλ από το μενού Διαχείριση προφίλ). Αφήστε κενό για αφαίρεση ετικέτας."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Δημιουργία προφίλ",
+      "description": "Δημιουργήστε ένα νέο προφίλ (αυτόνομο ή βασισμένο σε κύκλο αναφοράς).",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData."
+        },
+        "profile_name": {
+          "name": "Όνομα προφίλ",
+          "description": "Όνομα για το νέο προφίλ (π.χ. «Βαρύ πλύσιμο», «Ευαίσθητα»)."
+        },
+        "reference_cycle_id": {
+          "name": "Αναγνωριστικό κύκλου αναφοράς",
+          "description": "Προαιρετικό αναγνωριστικό κύκλου στον οποίο να βασιστεί αυτό το προφίλ."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Διαγραφή προφίλ",
+      "description": "Διαγράψτε ένα προφίλ και προαιρετικά αφαιρέστε ετικέτες από κύκλους που το χρησιμοποιούν.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData."
+        },
+        "profile_name": {
+          "name": "Όνομα προφίλ",
+          "description": "Το προφίλ προς διαγραφή."
+        },
+        "unlabel_cycles": {
+          "name": "Αφαίρεση ετικετών κύκλων",
+          "description": "Αφαιρέστε την ετικέτα προφίλ από κύκλους που χρησιμοποιούν αυτό το προφίλ."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Αυτόματη επισήμανση παλαιών κύκλων",
+      "description": "Αναδρομική επισήμανση κύκλων χωρίς ετικέτα χρησιμοποιώντας αντιστοίχιση προφίλ.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData."
+        },
+        "confidence_threshold": {
+          "name": "Κατώφλι εμπιστοσύνης",
+          "description": "Ελάχιστη εμπιστοσύνη αντιστοίχισης (0,50-0,95) για εφαρμογή ετικετών."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Εξαγωγή διαμόρφωσης",
+      "description": "Εξαγωγή προφίλ, κύκλων και ρυθμίσεων αυτής της συσκευής σε αρχείο JSON (ανά συσκευή).",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για εξαγωγή."
+        },
+        "path": {
+          "name": "Διαδρομή",
+          "description": "Προαιρετική απόλυτη διαδρομή αρχείου για εγγραφή (προεπιλογή: /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Εισαγωγή διαμόρφωσης",
+      "description": "Εισαγωγή προφίλ, κύκλων και ρυθμίσεων για αυτή τη συσκευή από αρχείο JSON εξαγωγής (οι ρυθμίσεις ενδέχεται να αντικατασταθούν).",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για εισαγωγή."
+        },
+        "path": {
+          "name": "Διαδρομή",
+          "description": "Απόλυτη διαδρομή προς το αρχείο JSON εξαγωγής για εισαγωγή."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Υποβολή ανατροφοδότησης κύκλου",
+      "description": "Επιβεβαιώστε ή διορθώστε ένα αυτόματα εντοπισμένο πρόγραμμα μετά από ολοκληρωμένο κύκλο. Δώστε είτε `entry_id` (σύνθετο) ή `device_id` (συνιστάται).",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData (συνιστάται αντί για entry_id)."
+        },
+        "entry_id": {
+          "name": "Αναγνωριστικό καταχώρισης",
+          "description": "Το αναγνωριστικό καταχώρισης διαμόρφωσης για τη συσκευή (εναλλακτικό του device_id)."
+        },
+        "cycle_id": {
+          "name": "Αναγνωριστικό κύκλου",
+          "description": "Το αναγνωριστικό κύκλου που εμφανίζεται στην ειδοποίηση ανατροφοδότησης / αρχεία καταγραφής."
+        },
+        "user_confirmed": {
+          "name": "Επιβεβαίωση εντοπισμένου προγράμματος",
+          "description": "Ορίστε true αν το εντοπισμένο πρόγραμμα είναι σωστό."
+        },
+        "corrected_profile": {
+          "name": "Διορθωμένο προφίλ",
+          "description": "Αν δεν επιβεβαιωθεί, δώστε το σωστό όνομα προφίλ/προγράμματος."
+        },
+        "corrected_duration": {
+          "name": "Διορθωμένη διάρκεια (δευτερόλεπτα)",
+          "description": "Προαιρετική διορθωμένη διάρκεια σε δευτερόλεπτα."
+        },
+        "notes": {
+          "name": "Σημειώσεις",
+          "description": "Προαιρετικές σημειώσεις για αυτόν τον κύκλο."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Έναρξη εγγραφής κύκλου",
+      "description": "Ξεκινήστε χειροκίνητη εγγραφή ενός καθαρού κύκλου (παρακάμπτει όλη τη λογική αντιστοίχισης).",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για εγγραφή."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Διακοπή εγγραφής κύκλου",
+      "description": "Διακοπή χειροκίνητης εγγραφής.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για διακοπή εγγραφής."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Περικοπή κύκλου",
+      "description": "Περικοπή των δεδομένων ισχύος ενός παλαιότερου κύκλου σε συγκεκριμένο χρονικό παράθυρο.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData."
+        },
+        "cycle_id": {
+          "name": "Αναγνωριστικό κύκλου",
+          "description": "Το αναγνωριστικό του κύκλου προς περικοπή."
+        },
+        "trim_start_s": {
+          "name": "Έναρξη περικοπής (δευτερόλεπτα)",
+          "description": "Διατήρηση δεδομένων από αυτή τη μετατόπιση σε δευτερόλεπτα. Προεπιλογή 0."
+        },
+        "trim_end_s": {
+          "name": "Λήξη περικοπής (δευτερόλεπτα)",
+          "description": "Διατήρηση δεδομένων έως αυτή τη μετατόπιση σε δευτερόλεπτα. Προεπιλογή = πλήρης διάρκεια."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Παύση κύκλου",
+      "description": "Παύση του ενεργού κύκλου για μια συσκευή WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για παύση."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Συνέχιση κύκλου",
+      "description": "Συνέχιση ενός κύκλου σε παύση για μια συσκευή WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Συσκευή",
+          "description": "Η συσκευή WashData για συνέχιση."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Χειροκίνητα επανεκπαιδεύστε τα μοντέλα on-device ML από τους χαρακτηρισμένους κύκλους αυτής της συσκευής (πειραματικό).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Σε λειτουργία"
+      },
+      "match_ambiguity": {
+        "name": "Αμφισημία αντιστοίχισης"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Κατάσταση",
+        "state": {
+          "off": "Ανενεργό",
+          "idle": "Σε αναμονή",
+          "starting": "Εκκίνηση",
+          "running": "Σε λειτουργία",
+          "paused": "Σε παύση",
+          "user_paused": "Σε παύση από τον χρήστη",
+          "ending": "Ολοκλήρωση",
+          "finished": "Ολοκληρώθηκε",
+          "anti_wrinkle": "Κατά ρυτίδων",
+          "interrupted": "Διακόπηκε",
+          "force_stopped": "Αναγκαστική διακοπή",
+          "rinse": "Ξέπλυμα",
+          "unknown": "Άγνωστο",
+          "clean": "Καθαρός",
+          "delay_wait": "Αναμονή για την έναρξη"
+        }
+      },
+      "washer_program": {
+        "name": "Πρόγραμμα"
+      },
+      "time_remaining": {
+        "name": "Υπολειπόμενος χρόνος"
+      },
+      "total_duration": {
+        "name": "Συνολική διάρκεια"
+      },
+      "cycle_progress": {
+        "name": "Πρόοδος"
+      },
+      "current_power": {
+        "name": "Τρέχουσα ισχύς"
+      },
+      "elapsed_time": {
+        "name": "Χρόνος που πέρασε"
+      },
+      "debug_info": {
+        "name": "Πληροφορίες εντοπισμού σφαλμάτων"
+      },
+      "match_confidence": {
+        "name": "Εμπιστοσύνη αντιστοίχισης"
+      },
+      "top_candidates": {
+        "name": "Κορυφαίοι υποψήφιοι",
+        "state": {
+          "none": "Κανένας"
+        }
+      },
+      "ambiguity": {
+        "name": "Βαθμολογία ασάφειας"
+      },
+      "current_phase": {
+        "name": "Τρέχουσα φάση"
+      },
+      "profile_cycle_count": {
+        "name": "Πλήθος κύκλων προφίλ {profile_name}",
+        "unit_of_measurement": "κύκλοι"
+      },
+      "suggestions": {
+        "name": "Διαθέσιμες προτεινόμενες ρυθμίσεις"
+      },
+      "pump_runs_today": {
+        "name": "Λειτουργίες αντλίας (Τελευταίες 24 ώρες)"
+      },
+      "cycle_count": {
+        "name": "Αριθμός Κύκλων"
+      },
+      "energy_total": {
+        "name": "Συνολική ενέργεια"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Πρόγραμμα κύκλου",
+        "state": {
+          "auto_detect": "Αυτόματη ανίχνευση"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Αναγκαστική λήξη κύκλου"
+      },
+      "pause_cycle": {
+        "name": "Παύση κύκλου"
+      },
+      "resume_cycle": {
+        "name": "Συνέχιση κύκλου"
+      },
+      "record_start": {
+        "name": "Έναρξη εγγραφής κύκλου"
+      },
+      "record_stop": {
+        "name": "Διακοπή εγγραφής κύκλου"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Απαιτείται έγκυρο αναγνωριστικό συσκευής."
+    },
+    "cycle_id_required": {
+      "message": "Απαιτείται έγκυρο cycle_id."
+    },
+    "profile_name_required": {
+      "message": "Απαιτείται έγκυρο profile_name."
+    },
+    "device_not_found": {
+      "message": "Η συσκευή δεν βρέθηκε."
+    },
+    "no_config_entry": {
+      "message": "Δεν βρέθηκε καταχώριση διαμόρφωσης για τη συσκευή."
+    },
+    "integration_not_loaded": {
+      "message": "Η ενσωμάτωση δεν έχει φορτωθεί για αυτή τη συσκευή."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Ο κύκλος δεν βρέθηκε ή δεν έχει δεδομένα ισχύος."
+    },
+    "trim_failed_empty_window": {
+      "message": "Η περικοπή απέτυχε - δεν βρέθηκε κύκλος, δεν υπάρχουν δεδομένα ισχύος ή το προκύπτον παράθυρο είναι κενό."
+    },
+    "trim_invalid_range": {
+      "message": "Το trim_end_s πρέπει να είναι μεγαλύτερο από το trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Δεν υπάρχει ενεργός κύκλος για παύση ή συνέχιση."
+    },
+    "path_not_allowed": {
+      "message": "Η διαδρομή δεν επιτρέπεται: {path}. Προσθέστε τον κατάλογό της στο 'allowlist_external_dirs' στο configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Δεν ήταν δυνατή η δημιουργία προφίλ: {error}"
+    },
+    "export_path_exists": {
+      "message": "Ο προορισμός εξαγωγής υπάρχει ήδη: {path}. Επιλέξτε διαφορετική διαδρομή ή αφαιρέστε πρώτα το υπάρχον αρχείο."
+    },
+    "export_write_failed": {
+      "message": "Δεν ήταν δυνατή η εγγραφή της εξαγωγής στο {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Δεν ήταν δυνατή η ανάθεση προφίλ: {error}"
+    }
+  }
+}

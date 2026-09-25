@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData beállítása",
+        "description": "Állítsa be a mosógépet vagy más készüléket.\n\nTeljesítményérzékelő szükséges.\n\nA beállítás után nyissa meg a WashData panelt az oldalsávból (vagy lépjen ide: [/ha-washdata](/ha-washdata)), ahol megtekintheti a ciklusokat, finomhangolhatja a felismerést és kezelheti a profilokat.",
+        "data": {
+          "name": "Eszköz neve",
+          "device_type": "Eszköz típusa",
+          "power_sensor": "Teljesítmény érzékelő",
+          "min_power": "Minimális teljesítmény küszöb (W)"
+        },
+        "data_description": {
+          "name": "Barátságos név ennek az eszköznek (pl. „Mosógép”, „Mosogatógép”).",
+          "device_type": "Milyen típusú készülék ez? Segít személyre szabni az észlelést és a címkézést.",
+          "power_sensor": "Az érzékelő entitás, amely valós idejű energiafogyasztást jelent (wattban) az okosdugóról.",
+          "min_power": "Az e küszöbérték feletti teljesítményértékek (wattban) azt jelzik, hogy a készülék működik. Kezdje 2 W-tal a legtöbb eszköz esetében."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Frissítse az eszköz nevét, a készülék típusát vagy a teljesítményérzékelőt.\n\nA WashData panel (oldalsáv vagy [/ha-washdata](/ha-washdata)) a felismerés, ciklusok, profilok és értesítések kezelésére szolgál.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nem sikerült csatlakozni",
+      "invalid_auth": "Érvénytelen hitelesítés",
+      "unknown": "Váratlan hiba",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Az eszköz már konfigurálva van",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Nevezze át az eszközt, vagy módosítsa az alap hardverbeállításait. Az összes felismerési, egyeztetési és értesítési beállítás a [WashData panelen](/ha-washdata) található (az oldalsávból is elérhető).",
+        "data": {
+          "name": "Eszköz neve",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} perces időzítő",
+      "timer_pause_action_title": "Ciklus folytatása",
+      "timer_pause_body_suffix": "A ciklus szünetel. A folytatáshoz nyissa meg a WashData-panelt.",
+      "unload_dismiss_action_title": "Emlékeztetés leállítása",
+      "notify_live_waiting_message": "{device}: Még nincs illeszkedő profil.",
+      "vs_typical_longer": "{pct}%-kal hosszabb a szokásosnál",
+      "vs_typical_shorter": "{pct}%-kal rövidebb a szokásosnál",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Mosógép",
+        "dryer": "Szárítógép",
+        "washer_dryer": "Mosó-szárító kombó",
+        "dishwasher": "Mosogatógép",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Kenyérsütő",
+        "pump": "Szivattyú / búvárszivattyú",
+        "generic": "Egyéb (haladó)",
+        "other": "Küszöb eszköz"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Címkeciklus",
+      "description": "Rendeljen hozzá egy meglévő profilt egy elmúlt ciklushoz, vagy távolítsa el a címkét.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép készüléket címkézni."
+        },
+        "cycle_id": {
+          "name": "Ciklusazonosító",
+          "description": "A címkézendő ciklus azonosítója."
+        },
+        "profile_name": {
+          "name": "Profil neve",
+          "description": "Egy meglévő profil neve (profilok létrehozása a Profilok kezelése menüben). Hagyja üresen a címke eltávolításához."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Profil létrehozása",
+      "description": "Hozzon létre egy új profilt (önálló vagy referenciacikluson alapuló).",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép készülék."
+        },
+        "profile_name": {
+          "name": "Profil neve",
+          "description": "Az új profil neve (pl. „Heavy Duty”, „Delicates”)."
+        },
+        "reference_cycle_id": {
+          "name": "Referencia ciklusazonosító",
+          "description": "Opcionális ciklusazonosító a profil alapjául."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Profil törlése",
+      "description": "Töröljön egy profilt, és opcionálisan törölje a ciklusok címkéit a használatával.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép készülék."
+        },
+        "profile_name": {
+          "name": "Profil neve",
+          "description": "A törölni kívánt profil."
+        },
+        "unlabel_cycles": {
+          "name": "Ciklusok jelölésének törlése",
+          "description": "Távolítsa el a profilcímkét a ciklusokból ezzel a profillal."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Régi ciklusok automatikus címkézése",
+      "description": "A címkézetlen ciklusok visszamenőleges címkézése profilillesztéssel.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép készülék."
+        },
+        "confidence_threshold": {
+          "name": "Magabiztossági küszöb",
+          "description": "Minimális egyezési megbízhatóság (0,50–0,95) a címkék alkalmazásához."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Konfiguráció exportálása",
+      "description": "Exportálja az eszköz profiljait, ciklusait és beállításait JSON-fájlba (eszközönként).",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép eszközt exportálni."
+        },
+        "path": {
+          "name": "Útvonal",
+          "description": "Opcionális abszolút fájl elérési útja az íráshoz (alapértelmezett a /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Konfiguráció importálása",
+      "description": "Importálja az eszköz profiljait, ciklusait és beállításait egy JSON exportfájlból (a beállítások felülírhatók).",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "Az importálandó mosógép eszköz."
+        },
+        "path": {
+          "name": "Útvonal",
+          "description": "Az exportálandó JSON-fájl abszolút elérési útja."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Ciklus visszajelzés küldése",
+      "description": "Erősítse meg vagy javítsa ki az automatikusan észlelt programot a ciklus befejezése után. Adja meg az „entry_id” (speciális) vagy az „device_id” (ajánlott) értéket.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A WashData eszköz (ajánlott az entry_id helyett)."
+        },
+        "entry_id": {
+          "name": "Belépési azonosító",
+          "description": "Az eszköz konfigurációs bejegyzés azonosítója (a device_id alternatívája)."
+        },
+        "cycle_id": {
+          "name": "Ciklusazonosító",
+          "description": "A visszajelzési értesítésben/naplókban látható ciklusazonosító."
+        },
+        "user_confirmed": {
+          "name": "Erősítse meg az észlelt programot",
+          "description": "Állítsa igazat, ha az észlelt program helyes."
+        },
+        "corrected_profile": {
+          "name": "Javított profil",
+          "description": "Ha nem erősíti meg, adja meg a megfelelő profil-/programnevet."
+        },
+        "corrected_duration": {
+          "name": "Javított időtartam (másodperc)",
+          "description": "Opcionális korrigált időtartam másodpercben."
+        },
+        "notes": {
+          "name": "Megjegyzések",
+          "description": "Választható megjegyzések erről a ciklusról."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Felvételi ciklus indítása",
+      "description": "Kezdje el manuálisan rögzíteni a tiszta ciklust (megkerül minden egyező logikát).",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép rögzítésére szolgáló eszköz."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Felvételi ciklus leállítása",
+      "description": "Állítsa le a kézi felvételt.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A mosógép eszköz a felvétel leállításához."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Vágási ciklus",
+      "description": "Vágja le az elmúlt ciklus teljesítményadatait egy adott időablakra.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A WashData eszköz."
+        },
+        "cycle_id": {
+          "name": "Ciklusazonosító",
+          "description": "A vágni kívánt ciklus azonosítója."
+        },
+        "trim_start_s": {
+          "name": "Vágás kezdete (másodperc)",
+          "description": "Az ebből az eltolásból származó adatokat másodpercben tárolja. Alapértelmezett 0."
+        },
+        "trim_end_s": {
+          "name": "Vágás vége (másodperc)",
+          "description": "Tartsa az adatokat másodpercek alatt ezen eltolásig. Alapértelmezett = teljes időtartam."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Ciklus szüneteltetése",
+      "description": "A WashData eszköz aktív ciklusának szüneteltetése.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A WashData eszköz szüneteltetése."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Ciklus folytatása",
+      "description": "Szünetelt ciklus folytatása egy WashData eszköznél.",
+      "fields": {
+        "device_id": {
+          "name": "Eszköz",
+          "description": "A WashData eszköz a folytatáshoz."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Futás"
+      },
+      "match_ambiguity": {
+        "name": "Találat kétértelműsége"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Állapot",
+        "state": {
+          "off": "Kikapcsolva",
+          "idle": "Tétlen",
+          "starting": "Indulás",
+          "running": "Futás",
+          "paused": "Szüneteltetve",
+          "user_paused": "Felhasználó által szüneteltetve",
+          "ending": "Befejező",
+          "finished": "Befejezett",
+          "anti_wrinkle": "Ránctalanító",
+          "interrupted": "Megszakított",
+          "force_stopped": "Kényszer leállított",
+          "rinse": "Öblítés",
+          "unknown": "Ismeretlen",
+          "clean": "Tiszta",
+          "delay_wait": "Várakozás a kezdésre"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Hátralévő idő"
+      },
+      "total_duration": {
+        "name": "Teljes időtartam"
+      },
+      "cycle_progress": {
+        "name": "Előrehaladás"
+      },
+      "current_power": {
+        "name": "Jelenlegi teljesítmény"
+      },
+      "elapsed_time": {
+        "name": "Eltelt idő"
+      },
+      "debug_info": {
+        "name": "Hibakeresési információ"
+      },
+      "match_confidence": {
+        "name": "Egyezési megbízhatóság"
+      },
+      "top_candidates": {
+        "name": "Legjobb jelöltek",
+        "state": {
+          "none": "Egyik sem"
+        }
+      },
+      "ambiguity": {
+        "name": "Kétértelműségi pontszám"
+      },
+      "current_phase": {
+        "name": "Jelenlegi fázis"
+      },
+      "profile_cycle_count": {
+        "name": "Profil {profile_name} Szám",
+        "unit_of_measurement": "ciklusok"
+      },
+      "suggestions": {
+        "name": "Javasolt beállítások"
+      },
+      "pump_runs_today": {
+        "name": "A szivattyú üzemel (az elmúlt 24 órában)"
+      },
+      "cycle_count": {
+        "name": "Ciklusszám"
+      },
+      "energy_total": {
+        "name": "Összes energia"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Ciklus program",
+        "state": {
+          "auto_detect": "Automatikus észlelés"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Ciklus kényszeres befejezése"
+      },
+      "pause_cycle": {
+        "name": "Ciklus szüneteltetése"
+      },
+      "resume_cycle": {
+        "name": "Ciklus folytatása"
+      },
+      "record_start": {
+        "name": "Ciklusrögzítés indítása"
+      },
+      "record_stop": {
+        "name": "Ciklusrögzítés leállítása"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Érvényes device_id megadása kötelező."
+    },
+    "cycle_id_required": {
+      "message": "Érvényes ciklusazonosító szükséges."
+    },
+    "profile_name_required": {
+      "message": "Érvényes profile_name megadása kötelező."
+    },
+    "device_not_found": {
+      "message": "Az eszköz nem található."
+    },
+    "no_config_entry": {
+      "message": "Nem található az eszköz konfigurációs bejegyzése."
+    },
+    "integration_not_loaded": {
+      "message": "Az integráció nincs betöltve ehhez az eszközhöz."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "A ciklus nem található, vagy nincsenek tápellátási adatai."
+    },
+    "trim_failed_empty_window": {
+      "message": "A vágás sikertelen – a ciklus nem található, nincsenek tápellátási adatok, vagy a kapott ablak üres."
+    },
+    "trim_invalid_range": {
+      "message": "A trim_end_s nagyobbnak kell lennie, mint a trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Nincs aktív ciklus szüneteltetésre vagy folytatásra."
+    },
+    "path_not_allowed": {
+      "message": "Az elérési út nem engedélyezett: {path}. Adja hozzá a könyvtárát az 'allowlist_external_dirs' beállításhoz a configuration.yaml fájlban."
+    },
+    "create_profile_failed": {
+      "message": "A profil létrehozása nem sikerült: {error}"
+    },
+    "export_path_exists": {
+      "message": "Az exportálási cél már létezik: {path}. Válasszon másik elérési utat, vagy először távolítsa el a meglévő fájlt."
+    },
+    "export_write_failed": {
+      "message": "Az exportálás {path} helyre írása nem sikerült: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "A profil hozzárendelése nem sikerült: {error}"
+    }
+  }
+}

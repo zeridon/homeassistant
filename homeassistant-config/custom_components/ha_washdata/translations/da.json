@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData opsætning",
+        "description": "Konfigurer din vaskemaskine eller andet apparat.\n\nStrømsensor er påkrævet.\n\nEfter opsætning skal du åbne WashData-panelet fra sidebjælken (eller gå til [/ha-washdata](/ha-washdata)) for at se cyklusser, justere registrering og administrere profiler.",
+        "data": {
+          "name": "Enhedens navn",
+          "device_type": "Enhedstype",
+          "power_sensor": "Strømsensor",
+          "min_power": "Minimum effekttærskel (W)"
+        },
+        "data_description": {
+          "name": "Et venligt navn for denne enhed (f.eks. \"Vaskemaskine\", \"Opvaskemaskine\").",
+          "device_type": "Hvilken type apparat er dette? Hjælper med at skræddersy detektering og mærkning.",
+          "power_sensor": "Sensorenheden, der rapporterer strømforbrug i realtid (i watt) fra dit smartstik.",
+          "min_power": "Effektaflæsninger over denne tærskel (i watt) indikerer, at apparatet kører. Start med 2W for de fleste enheder."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Opdater enhedsnavnet, apparattypen eller strømsensoren.\n\nWashData-panelet (sidebjælken eller [/ha-washdata](/ha-washdata)) er, hvor registrering, cyklusser, profiler og notifikationer administreres.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Kunne ikke oprette forbindelse",
+      "invalid_auth": "Ugyldig godkendelse",
+      "unknown": "Uventet fejl",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Enheden er allerede konfigureret",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Omdøb enheden eller skift dens grundlæggende hardwareindstillinger. Alle indstillinger for registrering, matching og notifikationer findes i [WashData-panelet](/ha-washdata) (også tilgængeligt fra sidebjælken).",
+        "data": {
+          "name": "Enhedsnavn",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} min timer",
+      "timer_pause_action_title": "Genoptag cyklus",
+      "timer_pause_body_suffix": "Cyklussen er sat på pause. Åbn WashData-panelet for at genoptage.",
+      "unload_dismiss_action_title": "Stop påmindelser",
+      "notify_live_waiting_message": "{device}: Ingen profil genkendt endnu.",
+      "vs_typical_longer": "{pct}% længere end normalt",
+      "vs_typical_shorter": "{pct}% kortere end normalt",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Vaskemaskine",
+        "dryer": "Tørretumbler",
+        "washer_dryer": "Vaske-tørretumbler kombi",
+        "dishwasher": "Opvaskemaskine",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Brødmaskine",
+        "pump": "Pumpe / Sump Pumpe",
+        "generic": "Andet (avanceret)",
+        "other": "Tærskelenhed"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Etiket cyklus",
+      "description": "Tildel en eksisterende profil til en tidligere cyklus, eller fjern etiketten.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinen enhed til at mærke."
+        },
+        "cycle_id": {
+          "name": "Cyklus ID",
+          "description": "ID'et for den cyklus, der skal mærkes."
+        },
+        "profile_name": {
+          "name": "Profilnavn",
+          "description": "Navnet på en eksisterende profil (opret profiler i menuen Administrer profiler). Lad være tomt for at fjerne etiketten."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Opret profil",
+      "description": "Opret en ny profil (standalone eller baseret på en referencecyklus).",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinenheden."
+        },
+        "profile_name": {
+          "name": "Profilnavn",
+          "description": "Navn på den nye profil (f.eks. 'Heavy Duty', 'Delicates')."
+        },
+        "reference_cycle_id": {
+          "name": "Referencecyklus-id",
+          "description": "Valgfrit cyklus-id at basere denne profil på."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Slet profil",
+      "description": "Slet en profil og fjern eventuelt etiketter for cyklusser ved hjælp af den.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinenheden."
+        },
+        "profile_name": {
+          "name": "Profilnavn",
+          "description": "Profilen, der skal slettes."
+        },
+        "unlabel_cycles": {
+          "name": "Fjern etiketter på cyklusser",
+          "description": "Fjern profiletiketten fra cyklusser ved hjælp af denne profil."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Auto-mærke gamle cyklusser",
+      "description": "Mærk umærkede cyklusser med tilbagevirkende kraft ved hjælp af profilmatchning.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinenheden."
+        },
+        "confidence_threshold": {
+          "name": "Tillidsgrænse",
+          "description": "Mindste matchkonfidens (0,50-0,95) for at anvende etiketter."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Eksporter Konfig",
+      "description": "Eksporter denne enheds profiler, cyklusser og indstillinger til en JSON-fil (pr. enhed).",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinen enhed til at eksportere."
+        },
+        "path": {
+          "name": "Sti",
+          "description": "Valgfri absolut filsti at skrive (standard til /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importer konfiguration",
+      "description": "Importer profiler, cyklusser og indstillinger for denne enhed fra en JSON-eksportfil (indstillinger kan blive overskrevet).",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinen, der skal importeres til."
+        },
+        "path": {
+          "name": "Sti",
+          "description": "Absolut sti til eksport-JSON-filen, der skal importeres."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Indsend cyklusfeedback",
+      "description": "Bekræft eller ret et auto-detekteret program efter en afsluttet cyklus. Angiv enten \"entry_id\" (avanceret) eller \"device_id\" (anbefales).",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "WashData-enheden (anbefales i stedet for entry_id)."
+        },
+        "entry_id": {
+          "name": "Indgangs-id",
+          "description": "Konfigurationsindgangs-id'et for enheden (alternativ til device_id)."
+        },
+        "cycle_id": {
+          "name": "Cyklus ID",
+          "description": "Cyklus-id'et vist i feedbackmeddelelsen/logfilerne."
+        },
+        "user_confirmed": {
+          "name": "Bekræft fundet program",
+          "description": "Indstil sand, hvis det detekterede program er korrekt."
+        },
+        "corrected_profile": {
+          "name": "Korrigeret profil",
+          "description": "Hvis det ikke bekræftes, skal du angive det korrekte profil-/programnavn."
+        },
+        "corrected_duration": {
+          "name": "Korrigeret varighed (sekunder)",
+          "description": "Valgfri korrigeret varighed i sekunder."
+        },
+        "notes": {
+          "name": "Noter",
+          "description": "Valgfrie bemærkninger om denne cyklus."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Optag cyklus start",
+      "description": "Start manuelt at optage en ren cyklus (omgår al matchende logik).",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinen enhed til at optage."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Optag cyklus stop",
+      "description": "Stop manuel optagelse.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "Vaskemaskinen enheden til at stoppe optagelsen."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Trim cyklus",
+      "description": "Trim effektdataene for en tidligere cyklus til et bestemt tidsvindue.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "WashData-enheden."
+        },
+        "cycle_id": {
+          "name": "Cyklus ID",
+          "description": "ID'et for den cyklus, der skal trimmes."
+        },
+        "trim_start_s": {
+          "name": "Trimstart (sekunder)",
+          "description": "Gem data fra denne offset i sekunder. Standard 0."
+        },
+        "trim_end_s": {
+          "name": "Trim slut (sekunder)",
+          "description": "Hold data op til denne offset i sekunder. Standard = fuld varighed."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pause cyklus",
+      "description": "Sæt den aktive cyklus på pause for en WashData-enhed.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "WashData-enheden til pause."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Genoptag cyklus",
+      "description": "Genoptag en afbrudt cyklus for en WashData-enhed.",
+      "fields": {
+        "device_id": {
+          "name": "Enhed",
+          "description": "WashData-enheden skal genoptages."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Kører"
+      },
+      "match_ambiguity": {
+        "name": "Matchtvetydighed"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Tilstand",
+        "state": {
+          "off": "Slukket",
+          "idle": "Ledig",
+          "starting": "Starter",
+          "running": "Kører",
+          "paused": "Pause",
+          "user_paused": "Sat på pause af brugeren",
+          "ending": "Slutning",
+          "finished": "Færdig",
+          "anti_wrinkle": "Anti-Rynke",
+          "interrupted": "Afbrudt",
+          "force_stopped": "Tving stoppet",
+          "rinse": "Skylle",
+          "unknown": "Ukendt",
+          "clean": "Ren",
+          "delay_wait": "Venter på at starte"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Tid tilbage"
+      },
+      "total_duration": {
+        "name": "Samlet varighed"
+      },
+      "cycle_progress": {
+        "name": "Fremskridt"
+      },
+      "current_power": {
+        "name": "Nuværende strøm"
+      },
+      "elapsed_time": {
+        "name": "Forløbet tid"
+      },
+      "debug_info": {
+        "name": "Fejlretningsinfo"
+      },
+      "match_confidence": {
+        "name": "Matchsikkerhed"
+      },
+      "top_candidates": {
+        "name": "Topkandidater",
+        "state": {
+          "none": "Ingen"
+        }
+      },
+      "ambiguity": {
+        "name": "Tvetydighedsscore"
+      },
+      "current_phase": {
+        "name": "Nuværende fase"
+      },
+      "profile_cycle_count": {
+        "name": "Antal profil {profile_name}",
+        "unit_of_measurement": "cyklusser"
+      },
+      "suggestions": {
+        "name": "Foreslåede indstillinger"
+      },
+      "pump_runs_today": {
+        "name": "Pumpen kører (sidste 24 timer)"
+      },
+      "cycle_count": {
+        "name": "Cyklustælling"
+      },
+      "energy_total": {
+        "name": "Energi i alt"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Cyklus program",
+        "state": {
+          "auto_detect": "Automatisk registrering"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Tving afslutningscyklus"
+      },
+      "pause_cycle": {
+        "name": "Pause cyklus"
+      },
+      "resume_cycle": {
+        "name": "Genoptag cyklus"
+      },
+      "record_start": {
+        "name": "Start cyklusoptagelse"
+      },
+      "record_stop": {
+        "name": "Stop cyklusoptagelse"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Et gyldigt device_id er påkrævet."
+    },
+    "cycle_id_required": {
+      "message": "Et gyldigt cycle_id er påkrævet."
+    },
+    "profile_name_required": {
+      "message": "Et gyldigt profilnavn er påkrævet."
+    },
+    "device_not_found": {
+      "message": "Enheden blev ikke fundet."
+    },
+    "no_config_entry": {
+      "message": "Ingen konfigurationsindgang fundet for enheden."
+    },
+    "integration_not_loaded": {
+      "message": "Integration ikke indlæst for denne enhed."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Cyklus ikke fundet eller har ingen strømdata."
+    },
+    "trim_failed_empty_window": {
+      "message": "Trim mislykkedes - cyklus blev ikke fundet, ingen strømdata, eller det resulterende vindue er tomt."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s skal være større end trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Ingen aktiv cyklus til pause eller genoptagelse."
+    },
+    "path_not_allowed": {
+      "message": "Stien er ikke tilladt: {path}. Tilføj dens mappe til 'allowlist_external_dirs' i configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Kunne ikke oprette profil: {error}"
+    },
+    "export_path_exists": {
+      "message": "Eksportmålet findes allerede: {path}. Vælg en anden sti, eller fjern den eksisterende fil først."
+    },
+    "export_write_failed": {
+      "message": "Kunne ikke skrive eksporten til {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Kunne ikke tildele profil: {error}"
+    }
+  }
+}

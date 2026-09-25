@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData-Setup",
+        "description": "Konfigurieren Sie Ihre Waschmaschine oder ein anderes Gerät.\n\nLeistungssensor ist erforderlich.\n\nNach der Einrichtung öffnen Sie das WashData-Panel über die Seitenleiste (oder gehen Sie zu [/ha-washdata](/ha-washdata)), um Zyklen anzuzeigen, die Erkennung anzupassen und Profile zu verwalten.",
+        "data": {
+          "name": "Gerätename",
+          "device_type": "Gerätetyp",
+          "power_sensor": "Leistungssensor",
+          "min_power": "Mindestleistungsschwelle (W)"
+        },
+        "data_description": {
+          "name": "Ein benutzerfreundlicher Name für dieses Gerät (z. B. „Waschmaschine“, „Geschirrspüler“).",
+          "device_type": "Um welche Art von Gerät handelt es sich? Dies hilft bei der individuellen Erkennung und Zuordnung.",
+          "power_sensor": "Die Sensoreinheit, die den Stromverbrauch (in Watt) Ihres Smart Plugs in Echtzeit meldet.",
+          "min_power": "Leistungswerte über diesem Schwellwert (in Watt) zeigen an, dass das Gerät läuft. Für die meisten Geräte ist 2W ein guter Anfang."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Aktualisieren Sie den Gerätenamen, den Gerätetyp oder den Leistungssensor.\n\nDas WashData-Panel (Seitenleiste oder [/ha-washdata](/ha-washdata)) ist der Ort, an dem Erkennung, Zyklen, Profile und Benachrichtigungen verwaltet werden.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung konnte nicht hergestellt werden",
+      "invalid_auth": "Ungültige Authentifizierung",
+      "unknown": "Unerwarteter Fehler",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Gerät ist bereits konfiguriert",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Benennen Sie das Gerät um oder ändern Sie seine grundlegenden Hardware-Einstellungen. Alle Erkennungs-, Abgleich- und Benachrichtigungseinstellungen befinden sich im [WashData-Panel](/ha-washdata) (auch über die Seitenleiste erreichbar).",
+        "data": {
+          "name": "Name des Geräts",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes}-Min.-Timer",
+      "timer_pause_action_title": "Zyklus fortsetzen",
+      "timer_pause_body_suffix": "Der Zyklus ist angehalten. Öffnen Sie das WashData-Panel, um fortzufahren.",
+      "unload_dismiss_action_title": "Nicht mehr erinnern",
+      "notify_live_waiting_message": "{device}: Noch kein Profil erkannt.",
+      "vs_typical_longer": "{pct}% länger als üblich",
+      "vs_typical_shorter": "{pct}% kürzer als üblich",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Waschmaschine",
+        "dryer": "Trockner",
+        "washer_dryer": "Waschmaschine-Trockner-Kombination",
+        "dishwasher": "Spülmaschine",
+        "air_fryer": "Luftfritteuse",
+        "bread_maker": "Brotbackautomat",
+        "pump": "Pumpe / Sumpfpumpe",
+        "generic": "Andere (Fortgeschrittene)",
+        "other": "Schwellengerät"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Zyklus zuordnen",
+      "description": "Einen Zyklus einem Profil zuordnen oder die Zuordnung aufheben.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät für die Zuordnung."
+        },
+        "cycle_id": {
+          "name": "Zyklus-ID",
+          "description": "Die ID des zuzuordnenden Zyklus."
+        },
+        "profile_name": {
+          "name": "Profilname",
+          "description": "Der Name eines vorhandenen Profils (Profile erstellen im Menü „Profile verwalten“). Feld leer lassen, um die Zuordnung zu entfernen."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Profil erstellen",
+      "description": "Ein neues Profil erstellen (leer oder basierend auf einem Referenzzyklus).",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät."
+        },
+        "profile_name": {
+          "name": "Profilname",
+          "description": "Name für das neue Profil (z. B. „Heavy Duty“, „Delicates“)."
+        },
+        "reference_cycle_id": {
+          "name": "Referenzzyklus-ID",
+          "description": "Optionale Zyklus-ID, auf der dieses Profil basieren soll."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Profil löschen",
+      "description": "Profil löschen und optional alle Zuordnungen von Zyklen aufheben, die es verwenden.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät."
+        },
+        "profile_name": {
+          "name": "Profilname",
+          "description": "Das zu löschende Profil."
+        },
+        "unlabel_cycles": {
+          "name": "Zyklen-Zuordnung aufheben",
+          "description": "Zuordnung aller Zyklen aufheben, die dieses Profil verwenden."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Alte Zyklen automatisch zuordnen",
+      "description": "Nicht zugeordnete Zyklen rückwirkend mithilfe des Profilabgleichs zuordnen.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät."
+        },
+        "confidence_threshold": {
+          "name": "Vertrauensschwellwert",
+          "description": "Mindestübereinstimmungskonfidenz (0,50–0,95) zum Anwenden von Zuordnungen."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Konfiguration exportieren",
+      "description": "Profile, Zyklen und Einstellungen dieses Geräts in eine JSON-Datei exportieren (pro Gerät).",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das zu exportierende WashData-Gerät."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Optionaler absoluter Dateipfad zum Schreiben (standardmäßig /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Konfiguration importieren",
+      "description": "Profile, Zyklen und Einstellungen für dieses Gerät aus einer JSON-Exportdatei importieren (Einstellungen werden möglicherweise überschrieben).",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät, in das importiert werden soll."
+        },
+        "path": {
+          "name": "Pfad",
+          "description": "Absoluter Pfad zur zu importierenden JSON-Exportdatei."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Zyklus-Feedback bestätigen",
+      "description": "Ein automatisch erkanntes Programm nach einem abgeschlossenen Zyklus bestätigen oder korrigieren. Geben Sie entweder „entry_id“ (erweitert) oder „device_id“ (empfohlen) an.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät (empfohlen anstelle von „entry_id“)."
+        },
+        "entry_id": {
+          "name": "Eintrags-ID",
+          "description": "Die Konfigurationseintrags-ID für das Gerät (Alternative zu device_id)."
+        },
+        "cycle_id": {
+          "name": "Zyklus-ID",
+          "description": "Die in der Feedback-Benachrichtigung/in den Protokollen angezeigte Zyklus-ID."
+        },
+        "user_confirmed": {
+          "name": "Das erkannte Programm bestätigen",
+          "description": "Auf „true“ setzen, wenn das erkannte Programm korrekt ist."
+        },
+        "corrected_profile": {
+          "name": "Korrigiertes Profil",
+          "description": "Wenn dies nicht bestätigt wird, den korrekten Profil-/Programmnamen angeben."
+        },
+        "corrected_duration": {
+          "name": "Korrigierte Dauer (Sekunden)",
+          "description": "Optionale korrigierte Dauer in Sekunden."
+        },
+        "notes": {
+          "name": "Notizen",
+          "description": "Optionale Hinweise zu diesem Zyklus."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Zyklusstart aufzeichnen",
+      "description": "Manuelle Aufzeichnung eines sauberen Zyklus starten (umgeht alle Matching-Funktionen).",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät zum Aufnehmen."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Aufnahmezyklusstopp",
+      "description": "Die manuelle Aufnahme beenden.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät stoppt die Aufnahme."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Zyklus zuschneiden",
+      "description": "Die Leistungsdaten eines vergangenen Zyklus auf ein bestimmtes Zeitfenster zuschneiden.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät."
+        },
+        "cycle_id": {
+          "name": "Zyklus-ID",
+          "description": "Die ID des zuzuschneidenden Zyklus."
+        },
+        "trim_start_s": {
+          "name": "Anfang zuschneiden (Sekunden)",
+          "description": "Daten ab diesem Zeitpunkt (in Sekunden) behalten. Standard 0."
+        },
+        "trim_end_s": {
+          "name": "Ende zuschneiden (Sekunden)",
+          "description": "Daten bis zu diesem Zeitpunkt behalten. Standard = Zyklusende."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Zyklus anhalten",
+      "description": "Unterbrechen Sie den aktiven Zyklus für ein WashData-Gerät.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät, das angehalten werden soll."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Zyklus fortsetzen",
+      "description": "Setzen Sie einen angehaltenen Zyklus für ein WashData-Gerät fort.",
+      "fields": {
+        "device_id": {
+          "name": "Gerät",
+          "description": "Das WashData-Gerät, das fortgesetzt werden soll."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Läuft"
+      },
+      "match_ambiguity": {
+        "name": "Übereinstimmungsmehrdeutigkeit"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Zustand",
+        "state": {
+          "off": "Aus",
+          "idle": "Leerlauf",
+          "starting": "Beginnt",
+          "running": "Läuft",
+          "paused": "Angehalten",
+          "user_paused": "Vom Benutzer angehalten",
+          "ending": "Ende",
+          "finished": "Fertig",
+          "anti_wrinkle": "Knitterschutz",
+          "interrupted": "Unterbrochen",
+          "force_stopped": "Erzwungen beendet",
+          "rinse": "Spülen",
+          "unknown": "Unbekannt",
+          "clean": "Sauber",
+          "delay_wait": "Warten auf den Start"
+        }
+      },
+      "washer_program": {
+        "name": "Programm"
+      },
+      "time_remaining": {
+        "name": "Verbleibende Zeit"
+      },
+      "total_duration": {
+        "name": "Gesamtdauer"
+      },
+      "cycle_progress": {
+        "name": "Fortschritt"
+      },
+      "current_power": {
+        "name": "Aktuelle Leistung"
+      },
+      "elapsed_time": {
+        "name": "Verstrichene Zeit"
+      },
+      "debug_info": {
+        "name": "Debug-Info"
+      },
+      "match_confidence": {
+        "name": "Match-Vertrauen"
+      },
+      "top_candidates": {
+        "name": "Top-Kandidaten",
+        "state": {
+          "none": "Keiner"
+        }
+      },
+      "ambiguity": {
+        "name": "Mehrdeutigkeitswert"
+      },
+      "current_phase": {
+        "name": "Aktuelle Phase"
+      },
+      "profile_cycle_count": {
+        "name": "Profil {profile_name} Anzahl",
+        "unit_of_measurement": "Zyklen"
+      },
+      "suggestions": {
+        "name": "Empfohlene Einstellungen"
+      },
+      "pump_runs_today": {
+        "name": "Pumpenläufe (letzte 24 Stunden)"
+      },
+      "cycle_count": {
+        "name": "Zyklusanzahl"
+      },
+      "energy_total": {
+        "name": "Energie gesamt"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Zyklusprogramm",
+        "state": {
+          "auto_detect": "Automatische Erkennung"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Zyklusende erzwingen"
+      },
+      "pause_cycle": {
+        "name": "Zyklus anhalten"
+      },
+      "resume_cycle": {
+        "name": "Zyklus fortsetzen"
+      },
+      "record_start": {
+        "name": "Zyklusaufzeichnung starten"
+      },
+      "record_stop": {
+        "name": "Zyklusaufzeichnung stoppen"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Eine gültige Geräte-ID ist erforderlich."
+    },
+    "cycle_id_required": {
+      "message": "Eine gültige cycle_id ist erforderlich."
+    },
+    "profile_name_required": {
+      "message": "Ein gültiger Profilname ist erforderlich."
+    },
+    "device_not_found": {
+      "message": "Gerät nicht gefunden."
+    },
+    "no_config_entry": {
+      "message": "Für das Gerät wurde kein Konfigurationseintrag gefunden."
+    },
+    "integration_not_loaded": {
+      "message": "Die Integration wurde für dieses Gerät nicht geladen."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Zyklus nicht gefunden oder hat keine Leistungsdaten."
+    },
+    "trim_failed_empty_window": {
+      "message": "Zuschneiden fehlgeschlagen – Zyklus nicht gefunden, keine Leistungsdaten oder resultierendes Fenster ist leer."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s muss größer als trim_start_s sein."
+    },
+    "no_active_cycle": {
+      "message": "Kein aktiver Zyklus zum Anhalten oder Fortsetzen."
+    },
+    "path_not_allowed": {
+      "message": "Pfad ist nicht zulässig: {path}. Fügen Sie dessen Verzeichnis zu 'allowlist_external_dirs' in configuration.yaml hinzu."
+    },
+    "create_profile_failed": {
+      "message": "Profil konnte nicht erstellt werden: {error}"
+    },
+    "export_path_exists": {
+      "message": "Das Exportziel existiert bereits: {path}. Wählen Sie einen anderen Pfad oder entfernen Sie zuerst die vorhandene Datei."
+    },
+    "export_write_failed": {
+      "message": "Export konnte nicht nach {path} geschrieben werden: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Profil konnte nicht zugewiesen werden: {error}"
+    }
+  }
+}

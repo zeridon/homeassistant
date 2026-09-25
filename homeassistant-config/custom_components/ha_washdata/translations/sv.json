@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData Setup",
+        "description": "Konfigurera din tvättmaskin eller annan apparat.\n\nEffektsensor krävs.\n\nEfter installationen öppnar du WashData-panelen från sidofältet (eller gå till [/ha-washdata](/ha-washdata)) för att visa cykler, finjustera identifiering och hantera profiler.",
+        "data": {
+          "name": "Enhetens namn",
+          "device_type": "Enhetstyp",
+          "power_sensor": "Effektsensor",
+          "min_power": "Minsta effekttröskel (W)"
+        },
+        "data_description": {
+          "name": "Ett vänligt namn för den här enheten (t.ex. \"Tvättmaskin\", \"Diskmaskin\").",
+          "device_type": "Vilken typ av apparat är detta? Hjälper till att skräddarsy detektering och märkning.",
+          "power_sensor": "Sensorenheten som rapporterar strömförbrukning i realtid (i watt) från din smarta kontakt.",
+          "min_power": "Effektavläsningar över detta tröskelvärde (i watt) indikerar att apparaten är igång. Börja med 2W för de flesta enheter."
+        }
+      },
+      "reconfigure": {
+        "title": "Konfigurera om WashData",
+        "description": "Uppdatera enhetsnamnet, apparattypen eller effektsensorn.\n\nWashData-panelen (sidofältet eller [/ha-washdata](/ha-washdata)) är där identifiering, cykler, profiler och notiser hanteras.",
+        "data": {
+          "name": "Enhetens namn",
+          "device_type": "Enhetstyp",
+          "power_sensor": "Effektsensor",
+          "min_power": "Minsta effekttröskel (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Det gick inte att ansluta",
+      "invalid_auth": "Ogiltig autentisering",
+      "unknown": "Oväntat fel",
+      "invalid_power": "Effekttröskeln måste vara större än 0"
+    },
+    "abort": {
+      "already_configured": "Enheten är redan konfigurerad",
+      "reconfigure_successful": "Omkonfigurationen lyckades"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "name": "Enhetsnamn",
+          "device_type": "Enhetstyp",
+          "power_sensor": "Effektsensor",
+          "min_power": "Minsta effekttröskel (W)"
+        },
+        "title": "WashData-inställningar",
+        "description": "Byt namn på enheten eller ändra dess grundläggande hårdvaruinställningar. Alla inställningar för identifiering, matchning och notiser finns i [WashData-panelen](/ha-washdata) (även nåbar från sidofältet)."
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: timer {minutes} min",
+      "timer_pause_action_title": "Återuppta cykeln",
+      "timer_pause_body_suffix": "Cykeln är pausad. Öppna WashData-panelen för att fortsätta.",
+      "unload_dismiss_action_title": "Sluta påminna",
+      "notify_live_waiting_message": "{device}: Ingen profil matchad ännu.",
+      "vs_typical_longer": "{pct}% längre än vanligt",
+      "vs_typical_shorter": "{pct}% kortare än vanligt",
+      "invalid_power": "Effekttröskeln måste vara större än 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Tvättmaskin",
+        "dryer": "Torktumlare",
+        "washer_dryer": "Kombination av tvättmaskin och torktumlare",
+        "dishwasher": "Diskmaskin",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Brödmaskin",
+        "pump": "Pump / Sump Pump",
+        "generic": "Annat (avancerat)",
+        "other": "Tröskelenhet"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Märk cykel",
+      "description": "Tilldela en befintlig profil till en tidigare cykel eller ta bort etiketten.",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten att märka."
+        },
+        "cycle_id": {
+          "name": "Cykel-ID",
+          "description": "ID för cykeln som ska märkas."
+        },
+        "profile_name": {
+          "name": "Profilnamn",
+          "description": "Namnet på en befintlig profil (skapa profiler i menyn Hantera profiler). Lämna tomt för att ta bort etiketten."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Skapa profil",
+      "description": "Skapa en ny profil (fristående eller baserad på en referenscykel).",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten."
+        },
+        "profile_name": {
+          "name": "Profilnamn",
+          "description": "Namn på den nya profilen (t.ex. \"Kraftfull\", \"Delikat\")."
+        },
+        "reference_cycle_id": {
+          "name": "Referenscykel-ID",
+          "description": "Valfritt cykel-ID att basera denna profil på."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Ta bort profil",
+      "description": "Ta bort en profil och eventuellt avmarkera cykler som använder den.",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten."
+        },
+        "profile_name": {
+          "name": "Profilnamn",
+          "description": "Profilen som ska tas bort."
+        },
+        "unlabel_cycles": {
+          "name": "Avmarkera cykler",
+          "description": "Ta bort profiletikett från cykler som använder denna profil."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Automatisk märkning av gamla cykler",
+      "description": "Märk omärkta cykler retroaktivt med hjälp av profilmatchning.",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten."
+        },
+        "confidence_threshold": {
+          "name": "Konfidenströskel",
+          "description": "Minsta matchningskonfidens (0,50–0,95) för att applicera etiketter."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Exportera konfiguration",
+      "description": "Exportera enhetens profiler, cykler och inställningar till en JSON-fil (per enhet).",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten att exportera."
+        },
+        "path": {
+          "name": "Sökväg",
+          "description": "Valfri absolut filsökväg att skriva till (standard: /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importera konfiguration",
+      "description": "Importera profiler, cykler och inställningar för den här enheten från en JSON-exportfil (inställningarna kan skrivas över).",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten att importera till."
+        },
+        "path": {
+          "name": "Sökväg",
+          "description": "Absolut sökväg till export-JSON-filen som ska importeras."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Skicka cykelfeedback",
+      "description": "Bekräfta eller korrigera ett automatiskt identifierat program efter en avslutad cykel. Ange antingen `entry_id` (avancerat) eller `device_id` (rekommenderas).",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten (rekommenderas framför entry_id)."
+        },
+        "entry_id": {
+          "name": "Post-ID",
+          "description": "Konfigurationspost-ID för enheten (alternativ till device_id)."
+        },
+        "cycle_id": {
+          "name": "Cykel-ID",
+          "description": "Cykel-ID som visas i feedbackmeddelandet/loggarna."
+        },
+        "user_confirmed": {
+          "name": "Bekräfta identifierat program",
+          "description": "Ange sant om det identifierade programmet är korrekt."
+        },
+        "corrected_profile": {
+          "name": "Korrigerad profil",
+          "description": "Om det inte bekräftas, ange korrekt profil-/programnamn."
+        },
+        "corrected_duration": {
+          "name": "Korrigerad varaktighet (sekunder)",
+          "description": "Valfri korrigerad varaktighet i sekunder."
+        },
+        "notes": {
+          "name": "Anteckningar",
+          "description": "Valfria anteckningar om denna cykel."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Starta cykelinspelning",
+      "description": "Börja manuellt spela in en ren cykel (kringgår all matchningslogik).",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten att spela in."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Stoppa cykelinspelning",
+      "description": "Stoppa manuell inspelning.",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten att stoppa inspelning på."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Trimma cykel",
+      "description": "Trimma effektdata för en tidigare cykel till ett specifikt tidsfönster.",
+      "fields": {
+        "device_id": {
+          "name": "Enhet",
+          "description": "WashData-enheten."
+        },
+        "cycle_id": {
+          "name": "Cykel-ID",
+          "description": "ID för cykeln som ska trimmas."
+        },
+        "trim_start_s": {
+          "name": "Trimstart (sekunder)",
+          "description": "Behåll data från denna offset i sekunder. Standard: 0."
+        },
+        "trim_end_s": {
+          "name": "Trimslut (sekunder)",
+          "description": "Behåll data upp till denna offset i sekunder. Standard = full varaktighet."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pauscykel",
+      "description": "Pausa den aktiva cykeln för en WashData-enhet.",
+      "fields": {
+        "device_id": {
+          "name": "Anordning",
+          "description": "WashData-enheten att pausa."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Återuppta cykeln",
+      "description": "Återuppta en pausad cykel för en WashData-enhet.",
+      "fields": {
+        "device_id": {
+          "name": "Anordning",
+          "description": "WashData-enheten ska återupptas."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Träna om ML-modellerna på enheten manuellt från enhetens egna märkta cykler (experimentell).",
+      "fields": {
+        "device_id": {
+          "name": "Anordning",
+          "description": "WashData-enheten att omskola modeller till."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Igång"
+      },
+      "match_ambiguity": {
+        "name": "Matchningstvetydighet"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Tillstånd",
+        "state": {
+          "off": "Av",
+          "idle": "Inaktiv",
+          "starting": "Startar",
+          "running": "Igång",
+          "paused": "Pausad",
+          "user_paused": "Pausad av användare",
+          "ending": "Avslutar",
+          "finished": "Färdig",
+          "anti_wrinkle": "Antirynkläge",
+          "delay_wait": "Väntar på att starta",
+          "interrupted": "Avbruten",
+          "force_stopped": "Tvångsstoppad",
+          "rinse": "Sköljning",
+          "unknown": "Okänd",
+          "clean": "Rena"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Återstående tid"
+      },
+      "total_duration": {
+        "name": "Total varaktighet"
+      },
+      "cycle_progress": {
+        "name": "Förlopp"
+      },
+      "current_power": {
+        "name": "Aktuell effekt"
+      },
+      "elapsed_time": {
+        "name": "Förfluten tid"
+      },
+      "debug_info": {
+        "name": "Felsökningsinformation"
+      },
+      "match_confidence": {
+        "name": "Matchningskonfidens"
+      },
+      "top_candidates": {
+        "name": "Toppkandidater",
+        "state": {
+          "none": "Ingen"
+        }
+      },
+      "current_phase": {
+        "name": "Aktuell fas"
+      },
+      "profile_cycle_count": {
+        "name": "Antal cykler för profil {profile_name}",
+        "unit_of_measurement": "cykler"
+      },
+      "suggestions": {
+        "name": "Tillgängliga föreslagna inställningar"
+      },
+      "pump_runs_today": {
+        "name": "Pumpen går (senaste 24 timmarna)"
+      },
+      "cycle_count": {
+        "name": "Cykelräkning"
+      },
+      "ambiguity": {
+        "name": "Tvetydighetspoäng"
+      },
+      "energy_total": {
+        "name": "Total energi"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Cykelprogram",
+        "state": {
+          "auto_detect": "Automatisk identifiering"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Tvinga cykelavslut"
+      },
+      "pause_cycle": {
+        "name": "Pauscykel"
+      },
+      "resume_cycle": {
+        "name": "Återuppta cykeln"
+      },
+      "record_start": {
+        "name": "Starta cykelinspelning"
+      },
+      "record_stop": {
+        "name": "Stoppa cykelinspelning"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Ett giltigt device_id krävs."
+    },
+    "cycle_id_required": {
+      "message": "Ett giltigt cycle_id krävs."
+    },
+    "profile_name_required": {
+      "message": "Ett giltigt profile_name krävs."
+    },
+    "device_not_found": {
+      "message": "Enheten hittades inte."
+    },
+    "no_config_entry": {
+      "message": "Ingen konfigurationspost hittades för enheten."
+    },
+    "integration_not_loaded": {
+      "message": "Integrationen har inte laddats för den här enheten."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Cykeln hittades inte eller har inga effektdata."
+    },
+    "trim_failed_empty_window": {
+      "message": "Trimmningen misslyckades – cykeln hittades inte, inga effektdata eller det resulterande fönstret är tomt."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s måste vara större än trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Ingen aktiv cykel att pausa eller återuppta."
+    },
+    "path_not_allowed": {
+      "message": "Sökvägen är inte tillåten: {path}. Lägg till dess katalog i 'allowlist_external_dirs' i configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Det gick inte att skapa profilen: {error}"
+    },
+    "export_path_exists": {
+      "message": "Exportmålet finns redan: {path}. Välj en annan sökväg eller ta bort den befintliga filen först."
+    },
+    "export_write_failed": {
+      "message": "Det gick inte att skriva exporten till {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Det gick inte att tilldela profilen: {error}"
+    }
+  }
+}

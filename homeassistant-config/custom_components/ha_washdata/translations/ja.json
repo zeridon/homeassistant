@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData セットアップ",
+        "description": "洗濯機またはその他の家電製品を設定します。\n\n電力センサーが必要です。\n\nセットアップ後、サイドバーの WashData パネルを開くか（または [/ha-washdata](/ha-washdata) にアクセスして）、サイクルの確認、検出の調整、プロファイルの管理を行ってください。",
+        "data": {
+          "name": "デバイス名",
+          "device_type": "デバイスの種類",
+          "power_sensor": "電力センサー",
+          "min_power": "最小電力しきい値 (W)"
+        },
+        "data_description": {
+          "name": "このデバイスのわかりやすい名前（例：「洗濯機」、「食器洗い機」）。",
+          "device_type": "家電製品の種類を選択します。検出とラベル付けの精度向上に役立ちます。",
+          "power_sensor": "スマートプラグからリアルタイムの消費電力（ワット）を報告するセンサーエンティティ。",
+          "min_power": "このしきい値（ワット）を超える電力値は、家電製品が動作中であることを示します。ほとんどのデバイスでは 2W から始めてください。"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "デバイス名、家電の種類、または電力センサーを更新します。\n\nWashData パネル（サイドバー、または [/ha-washdata](/ha-washdata)）で、検出、サイクル、プロファイル、通知を管理できます。",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "接続に失敗しました",
+      "invalid_auth": "認証に失敗しました",
+      "unknown": "予期しないエラーが発生しました",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "このデバイスはすでに設定されています",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "デバイス名を変更するか、主要なハードウェア設定を変更します。すべての検出・照合・通知の設定は [WashData パネル](/ha-washdata) で確認できます（サイドバーからもアクセス可能）。",
+        "data": {
+          "name": "デバイス名",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} 分タイマー",
+      "timer_pause_action_title": "サイクルを再開する",
+      "timer_pause_body_suffix": "サイクルが一時停止中です。再開するには WashData パネルを開いてください。",
+      "unload_dismiss_action_title": "リマインダーを停止",
+      "notify_live_waiting_message": "{device}: まだ一致するプロファイルがありません。",
+      "vs_typical_longer": "通常より {pct}% 長い",
+      "vs_typical_shorter": "通常より {pct}% 短い",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "洗濯機",
+        "dryer": "ドライヤー",
+        "washer_dryer": "洗濯乾燥機コンボ",
+        "dishwasher": "食器洗い機",
+        "air_fryer": "エアーフライヤー",
+        "bread_maker": "パンメーカー",
+        "pump": "ポンプ/サンプポンプ",
+        "generic": "その他（上級）",
+        "other": "閾値デバイス"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "サイクルにラベルを付ける",
+      "description": "既存のプロファイルを過去のサイクルに割り当てる、またはラベルを削除します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "ラベルを付ける WashData デバイス。"
+        },
+        "cycle_id": {
+          "name": "サイクル ID",
+          "description": "ラベルを付けるサイクルの ID。"
+        },
+        "profile_name": {
+          "name": "プロファイル名",
+          "description": "既存のプロファイル名（プロファイル管理メニューでプロファイルを作成）。ラベルを削除するには空白にします。"
+        }
+      }
+    },
+    "create_profile": {
+      "name": "プロファイルを作成",
+      "description": "新しいプロファイルを作成します（スタンドアロンまたは参照サイクルに基づく）。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイス。"
+        },
+        "profile_name": {
+          "name": "プロファイル名",
+          "description": "新しいプロファイルの名前（例：「強力洗浄」、「デリケート」）。"
+        },
+        "reference_cycle_id": {
+          "name": "参照サイクル ID",
+          "description": "このプロファイルの基にするオプションのサイクル ID。"
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "プロファイルを削除",
+      "description": "プロファイルを削除し、オプションでそのプロファイルを使用しているサイクルのラベルを削除します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイス。"
+        },
+        "profile_name": {
+          "name": "プロファイル名",
+          "description": "削除するプロファイル。"
+        },
+        "unlabel_cycles": {
+          "name": "サイクルのラベルを削除",
+          "description": "このプロファイルを使用しているサイクルからプロファイルラベルを削除します。"
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "過去のサイクルを自動ラベル付け",
+      "description": "プロファイル照合を使用してラベルなしのサイクルに遡及的にラベルを付けます。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイス。"
+        },
+        "confidence_threshold": {
+          "name": "信頼度しきい値",
+          "description": "ラベルを適用する最小照合信頼度（0.50-0.95）。"
+        }
+      }
+    },
+    "export_config": {
+      "name": "設定をエクスポート",
+      "description": "このデバイスのプロファイル、サイクル、設定を JSON ファイルにエクスポートします（デバイスごと）。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "エクスポートする WashData デバイス。"
+        },
+        "path": {
+          "name": "パス",
+          "description": "書き込むオプションの絶対ファイルパス（デフォルト：/config/ha_washdata_export_{entry}.json）。"
+        }
+      }
+    },
+    "import_config": {
+      "name": "設定をインポート",
+      "description": "JSON エクスポートファイルからこのデバイスのプロファイル、サイクル、設定をインポートします（設定が上書きされる場合があります）。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "インポート先の WashData デバイス。"
+        },
+        "path": {
+          "name": "パス",
+          "description": "インポートするエクスポート JSON ファイルへの絶対パス。"
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "サイクルフィードバックを送信",
+      "description": "完了したサイクルの自動検出されたプログラムを確認または修正します。`entry_id`（上級者向け）または `device_id`（推奨）のいずれかを指定します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイス（entry_id の代わりに推奨）。"
+        },
+        "entry_id": {
+          "name": "エントリ ID",
+          "description": "デバイスの設定エントリ ID（device_id の代替）。"
+        },
+        "cycle_id": {
+          "name": "サイクル ID",
+          "description": "フィードバック通知/ログに表示されるサイクル ID。"
+        },
+        "user_confirmed": {
+          "name": "検出されたプログラムを確認",
+          "description": "検出されたプログラムが正しい場合は true に設定します。"
+        },
+        "corrected_profile": {
+          "name": "修正後のプロファイル",
+          "description": "確認しない場合は、正しいプロファイル/プログラム名を指定します。"
+        },
+        "corrected_duration": {
+          "name": "修正後の所要時間（秒）",
+          "description": "オプションの修正後の所要時間（秒）。"
+        },
+        "notes": {
+          "name": "メモ",
+          "description": "このサイクルに関するオプションのメモ。"
+        }
+      }
+    },
+    "record_start": {
+      "name": "サイクル記録を開始",
+      "description": "クリーンなサイクルの手動記録を開始します（すべての照合ロジックをバイパス）。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "記録する WashData デバイス。"
+        }
+      }
+    },
+    "record_stop": {
+      "name": "サイクル記録を停止",
+      "description": "手動記録を停止します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "記録を停止する WashData デバイス。"
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "サイクルをトリミング",
+      "description": "過去のサイクルの電力データを特定の時間ウィンドウにトリミングします。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイス。"
+        },
+        "cycle_id": {
+          "name": "サイクル ID",
+          "description": "トリミングするサイクルの ID。"
+        },
+        "trim_start_s": {
+          "name": "トリミング開始（秒）",
+          "description": "このオフセット（秒）からデータを保持します。デフォルト：0。"
+        },
+        "trim_end_s": {
+          "name": "トリミング終了（秒）",
+          "description": "このオフセット（秒）までデータを保持します。デフォルト = 全所要時間。"
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "サイクルを一時停止する",
+      "description": "WashData デバイスのアクティブなサイクルを一時停止します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "WashData デバイスを一時停止します。"
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "サイクルを再開する",
+      "description": "WashData デバイスの一時停止したサイクルを再開します。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "再開する WashData デバイス。"
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "ML トレーニングを開始",
+      "description": "このデバイス自身のラベル付きサイクルからオンデバイス ML モデルを手動で再トレーニングします（実験的機能）。",
+      "fields": {
+        "device_id": {
+          "name": "デバイス",
+          "description": "モデルを再トレーニングする WashData デバイス。"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "動作中"
+      },
+      "match_ambiguity": {
+        "name": "照合の曖昧さ"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "状態",
+        "state": {
+          "off": "オフ",
+          "idle": "待機中",
+          "starting": "起動中",
+          "running": "動作中",
+          "paused": "一時停止中",
+          "user_paused": "ユーザーにより一時停止中",
+          "ending": "終了中",
+          "finished": "完了",
+          "anti_wrinkle": "しわ防止",
+          "interrupted": "中断",
+          "force_stopped": "強制停止",
+          "rinse": "すすぎ",
+          "unknown": "不明",
+          "clean": "クリーン",
+          "delay_wait": "開始を待っています"
+        }
+      },
+      "washer_program": {
+        "name": "プログラム"
+      },
+      "time_remaining": {
+        "name": "残り時間"
+      },
+      "total_duration": {
+        "name": "総所要時間"
+      },
+      "cycle_progress": {
+        "name": "進捗"
+      },
+      "current_power": {
+        "name": "現在の電力"
+      },
+      "elapsed_time": {
+        "name": "経過時間"
+      },
+      "debug_info": {
+        "name": "デバッグ情報"
+      },
+      "match_confidence": {
+        "name": "照合信頼度"
+      },
+      "top_candidates": {
+        "name": "上位候補",
+        "state": {
+          "none": "なし"
+        }
+      },
+      "ambiguity": {
+        "name": "曖昧さスコア"
+      },
+      "current_phase": {
+        "name": "現在のフェーズ"
+      },
+      "profile_cycle_count": {
+        "name": "プロファイル {profile_name} の件数",
+        "unit_of_measurement": "サイクル"
+      },
+      "suggestions": {
+        "name": "利用可能な推奨設定"
+      },
+      "pump_runs_today": {
+        "name": "ポンプの稼働 (過去 24 時間)"
+      },
+      "cycle_count": {
+        "name": "サイクルカウント"
+      },
+      "energy_total": {
+        "name": "総電力量"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "サイクルプログラム",
+        "state": {
+          "auto_detect": "自動検出"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "サイクルを強制終了"
+      },
+      "pause_cycle": {
+        "name": "サイクルを一時停止する"
+      },
+      "resume_cycle": {
+        "name": "サイクルを再開する"
+      },
+      "record_start": {
+        "name": "サイクル記録を開始"
+      },
+      "record_stop": {
+        "name": "サイクル記録を停止"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "有効な device_id が必要です。"
+    },
+    "cycle_id_required": {
+      "message": "有効なcycle_idが必要です。"
+    },
+    "profile_name_required": {
+      "message": "有効な profile_name が必要です。"
+    },
+    "device_not_found": {
+      "message": "デバイスが見つかりません。"
+    },
+    "no_config_entry": {
+      "message": "デバイスの設定エントリが見つかりません。"
+    },
+    "integration_not_loaded": {
+      "message": "このデバイスのインテグレーションが読み込まれていません。"
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "サイクルが見つからないか、電力データがありません。"
+    },
+    "trim_failed_empty_window": {
+      "message": "トリミングに失敗しました - サイクルが見つからないか、電力データがないか、結果ウィンドウが空です。"
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s は trim_start_s より大きい必要があります。"
+    },
+    "no_active_cycle": {
+      "message": "一時停止または再開できるアクティブなサイクルがありません。"
+    },
+    "path_not_allowed": {
+      "message": "パスは許可されていません：{path}。そのディレクトリを configuration.yaml の 'allowlist_external_dirs' に追加してください。"
+    },
+    "create_profile_failed": {
+      "message": "プロファイルを作成できませんでした：{error}"
+    },
+    "export_path_exists": {
+      "message": "エクスポート先はすでに存在します：{path}。別のパスを選択するか、既存のファイルを先に削除してください。"
+    },
+    "export_write_failed": {
+      "message": "エクスポートを{path}に書き込めませんでした：{error}"
+    },
+    "assign_profile_failed": {
+      "message": "プロファイルを割り当てできませんでした：{error}"
+    }
+  }
+}

@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData podešavanje",
+        "description": "Konfiguriši svoju mašinu za pranje veša ili drugi uređaj.\n\nSenzor snage je obavezan.\n\nNakon podešavanja, otvori WashData panel iz bočne trake (ili idi na [/ha-washdata](/ha-washdata)) za pregled ciklusa, podešavanje detekcije i upravljanje profilima.",
+        "data": {
+          "name": "Naziv uređaja",
+          "device_type": "Tip uređaja",
+          "power_sensor": "Senzor snage",
+          "min_power": "Minimalni prag snage (W)"
+        },
+        "data_description": {
+          "name": "Prijateljski naziv za ovaj uređaj (npr. 'Veš mašina', 'Mašina za suđe').",
+          "device_type": "Koja je ovo vrsta uređaja? Pomaže u prilagođenom otkrivanju i označavanju.",
+          "power_sensor": "Senzorski entitet koji prijavljuje potrošnju energije u realnom vremenu (u vatima) iz tvog pametnog priključka.",
+          "min_power": "Očitavanja snage iznad ovog praga (u vatima) ukazuju da uređaj radi. Počni sa 2W za većinu uređaja."
+        }
+      },
+      "reconfigure": {
+        "title": "Ponovo konfiguriši WashData",
+        "description": "Ažuriraj naziv uređaja, tip uređaja ili senzor snage.\n\nWashData panel (bočna traka ili [/ha-washdata](/ha-washdata)) je mesto gde se upravljaju detekcija, ciklusi, profili i obaveštenja.",
+        "data": {
+          "name": "Naziv uređaja",
+          "device_type": "Tip uređaja",
+          "power_sensor": "Senzor snage",
+          "min_power": "Minimalni prag snage (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Povezivanje nije uspelo",
+      "invalid_auth": "Nevažeća autentifikacija",
+      "unknown": "Neočekivana greška",
+      "invalid_power": "Prag snage mora biti veći od 0"
+    },
+    "abort": {
+      "already_configured": "Uređaj je već konfigurisan",
+      "reconfigure_successful": "Ponovna konfiguracija je bila uspešna"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData podešavanja",
+        "description": "Preimenuj uređaj ili promeni njegova osnovna hardverska podešavanja. Sva podešavanja detekcije, podudaranja i obaveštenja nalaze se u [WashData panelu](/ha-washdata) (dostupan i iz bočne trake).",
+        "data": {
+          "name": "Naziv uređaja",
+          "device_type": "Tip uređaja",
+          "power_sensor": "Senzor snage",
+          "min_power": "Minimalni prag snage (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: tajmer {minutes} min",
+      "timer_pause_action_title": "Nastavi ciklus",
+      "timer_pause_body_suffix": "Ciklus je pauziran. Otvori WashData panel da nastaviš.",
+      "unload_dismiss_action_title": "Prestani da podsećaš",
+      "notify_live_waiting_message": "{device}: Nijedan profil još nije podudaran.",
+      "vs_typical_longer": "{pct}% duže nego obično",
+      "vs_typical_shorter": "{pct}% kraće nego obično",
+      "invalid_power": "Prag snage mora biti veći od 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Mašina za pranje veša",
+        "dryer": "Sušač",
+        "washer_dryer": "Kombinovana mašina za pranje i sušenje",
+        "dishwasher": "Mašina za pranje sudova",
+        "air_fryer": "Friteza na vrući vazduh",
+        "bread_maker": "Mašina za hleb",
+        "pump": "Pumpa / Potopna pumpa",
+        "generic": "Друго (напредно)",
+        "other": "Тхресхолд Девице"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Označi ciklus",
+      "description": "Dodeli postojeći profil prošlom ciklusu ili ukloni oznaku.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj za pranje veša za označavanje."
+        },
+        "cycle_id": {
+          "name": "ID ciklusa",
+          "description": "ID ciklusa za označavanje."
+        },
+        "profile_name": {
+          "name": "Naziv profila",
+          "description": "Naziv postojećeg profila (napravi profile u meniju Upravljaj profilima). Ostavi praznim da ukloniš oznaku."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Napravi profil",
+      "description": "Napravi novi profil (samostalan ili zasnovan na referentnom ciklusu).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine."
+        },
+        "profile_name": {
+          "name": "Naziv profila",
+          "description": "Naziv za novi profil (npr. 'Teška zaprljanost', 'Delikatno')."
+        },
+        "reference_cycle_id": {
+          "name": "ID referentnog ciklusa",
+          "description": "Opcioni ID ciklusa na kome se zasniva ovaj profil."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Izbriši profil",
+      "description": "Izbriši profil i opciono poništi označavanje ciklusa koji ga koriste.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine."
+        },
+        "profile_name": {
+          "name": "Naziv profila",
+          "description": "Profil za brisanje."
+        },
+        "unlabel_cycles": {
+          "name": "Ukloni oznake ciklusa",
+          "description": "Ukloni oznaku profila sa ciklusa koji koriste ovaj profil."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Automatski označi stare cikluse",
+      "description": "Retroaktivno označi neoznačene cikluse pomoću podudaranja profila.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine."
+        },
+        "confidence_threshold": {
+          "name": "Prag pouzdanosti",
+          "description": "Minimalna pouzdanost podudaranja (0,50–0,95) za primenu oznaka."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Izvezi konfiguraciju",
+      "description": "Izvezi profile, cikluse i podešavanja ovog uređaja u JSON datoteku (po uređaju).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine za izvoz."
+        },
+        "path": {
+          "name": "Putanja",
+          "description": "Opciona apsolutna putanja datoteke za pisanje (podrazumevano je /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Uvezi konfiguraciju",
+      "description": "Uvezi profile, cikluse i podešavanja za ovaj uređaj iz JSON datoteke za izvoz (podešavanja mogu biti zamenjena).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine za uvoz."
+        },
+        "path": {
+          "name": "Putanja",
+          "description": "Apsolutna putanja do JSON datoteke za izvoz za uvoz."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Pošalji povratne informacije o ciklusu",
+      "description": "Potvrdi ili ispravi automatski otkriveni program nakon završenog ciklusa. Navedi ili `entry_id` (napredno) ili `device_id` (preporučeno).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "WashData uređaj (preporučuje se umesto entry_id)."
+        },
+        "entry_id": {
+          "name": "ID unosa",
+          "description": "ID unosa konfiguracije za uređaj (alternativa device_id)."
+        },
+        "cycle_id": {
+          "name": "ID ciklusa",
+          "description": "ID ciklusa prikazan u obaveštenju o povratnim informacijama / evidenciji."
+        },
+        "user_confirmed": {
+          "name": "Potvrdi otkriveni program",
+          "description": "Postavi tačno ako je otkriveni program ispravan."
+        },
+        "corrected_profile": {
+          "name": "Ispravljeni profil",
+          "description": "Ako nije potvrđeno, navedi tačan naziv profila/programa."
+        },
+        "corrected_duration": {
+          "name": "Ispravljeno trajanje (sekunde)",
+          "description": "Opciono ispravljeno trajanje u sekundama."
+        },
+        "notes": {
+          "name": "Napomene",
+          "description": "Opcionalne napomene o ovom ciklusu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Pokreni snimanje ciklusa",
+      "description": "Ručno pokreni snimanje čistog ciklusa (zaobilazi svu logiku podudaranja).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj za snimanje veš mašine."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Zaustavi snimanje ciklusa",
+      "description": "Zaustavi ručno snimanje.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj veš mašine za zaustavljanje snimanja."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Iseci ciklus",
+      "description": "Iseci podatke o snazi iz prošlog ciklusa na određeni vremenski prozor.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "WashData uređaj."
+        },
+        "cycle_id": {
+          "name": "ID ciklusa",
+          "description": "ID ciklusa za isecanje."
+        },
+        "trim_start_s": {
+          "name": "Početak isecanja (sekunde)",
+          "description": "Čuvaj podatke od ovog pomaka u sekundama. Podrazumevano 0."
+        },
+        "trim_end_s": {
+          "name": "Kraj isecanja (sekunde)",
+          "description": "Zadrži podatke do ovog pomaka u sekundama. Podrazumevano = puno trajanje."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pauziraj ciklus",
+      "description": "Pauziraj aktivni ciklus za WashData uređaj.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj WashData za pauziranje."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Nastavi ciklus",
+      "description": "Nastavi pauzirani ciklus za WashData uređaj.",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "Uređaj WashData za nastavak."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Pokreni ML obuku",
+      "description": "Ručno ponovo obuči ML modele na uređaju koristeći označene cikluse ovog uređaja (eksperimentalno).",
+      "fields": {
+        "device_id": {
+          "name": "Uređaj",
+          "description": "WashData uređaj za ponovnu obuku modela."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "U radu"
+      },
+      "match_ambiguity": {
+        "name": "Višeznačnost podudaranja"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Stanje",
+        "state": {
+          "off": "Isključeno",
+          "idle": "U mirovanju",
+          "starting": "Pokreće se",
+          "running": "U radu",
+          "paused": "Pauzirano",
+          "user_paused": "Pauzirano od strane korisnika",
+          "ending": "Završava se",
+          "finished": "Završeno",
+          "anti_wrinkle": "Zaštita od gužvanja",
+          "interrupted": "Prekinuto",
+          "force_stopped": "Prisilno zaustavljeno",
+          "rinse": "Ispiranje",
+          "unknown": "Nepoznato",
+          "clean": "Čisto",
+          "delay_wait": "Čeka se početak"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Preostalo vreme"
+      },
+      "total_duration": {
+        "name": "Ukupno trajanje"
+      },
+      "cycle_progress": {
+        "name": "Napredak"
+      },
+      "current_power": {
+        "name": "Trenutna snaga"
+      },
+      "elapsed_time": {
+        "name": "Proteklo vreme"
+      },
+      "debug_info": {
+        "name": "Informacije za otklanjanje grešaka"
+      },
+      "match_confidence": {
+        "name": "Pouzdanost podudaranja"
+      },
+      "top_candidates": {
+        "name": "Najbolji kandidati",
+        "state": {
+          "none": "Nijedan"
+        }
+      },
+      "ambiguity": {
+        "name": "Rezultat višeznačnosti"
+      },
+      "current_phase": {
+        "name": "Trenutna faza"
+      },
+      "profile_cycle_count": {
+        "name": "Broj profila {profile_name}",
+        "unit_of_measurement": "ciklusa"
+      },
+      "suggestions": {
+        "name": "Dostupna predložena podešavanja"
+      },
+      "pump_runs_today": {
+        "name": "Pumpa radi (poslednja 24 h)"
+      },
+      "cycle_count": {
+        "name": "Broj ciklusa"
+      },
+      "energy_total": {
+        "name": "Ukupna energija"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Program ciklusa",
+        "state": {
+          "auto_detect": "Automatska detekcija"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Prisilno završi ciklus"
+      },
+      "pause_cycle": {
+        "name": "Pauziraj ciklus"
+      },
+      "resume_cycle": {
+        "name": "Nastavi ciklus"
+      },
+      "record_start": {
+        "name": "Počni snimanje ciklusa"
+      },
+      "record_stop": {
+        "name": "Zaustavi snimanje ciklusa"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Neophodan je važeći ID uređaja."
+    },
+    "cycle_id_required": {
+      "message": "Potreban je važeći id_ciklusa."
+    },
+    "profile_name_required": {
+      "message": "Potrebno je važeće ime_profila."
+    },
+    "device_not_found": {
+      "message": "Uređaj nije pronađen."
+    },
+    "no_config_entry": {
+      "message": "Nije pronađen konfiguracioni unos za uređaj."
+    },
+    "integration_not_loaded": {
+      "message": "Integracija nije učitana za ovaj uređaj."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Ciklus nije pronađen ili nema podataka o snazi."
+    },
+    "trim_failed_empty_window": {
+      "message": "Isecanje nije uspelo - ciklus nije pronađen, nema podataka o napajanju ili je prozor kao rezultat prazan."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s mora biti veći od trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Нема активног циклуса за паузирање или наставак."
+    },
+    "path_not_allowed": {
+      "message": "Putanja nije dozvoljena: {path}. Dodajte njen direktorijum u 'allowlist_external_dirs' u configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Nije moguće napraviti profil: {error}"
+    },
+    "export_path_exists": {
+      "message": "Odredište izvoza već postoji: {path}. Izaberite drugu putanju ili prvo uklonite postojeću datoteku."
+    },
+    "export_write_failed": {
+      "message": "Nije moguće zapisati izvoz u {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Nije moguće dodeliti profil: {error}"
+    }
+  }
+}

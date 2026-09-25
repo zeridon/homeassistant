@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Налаштування WashData",
+        "description": "Налаштуйте пральну машину чи інший прилад.\n\nПотрібен датчик потужності.\n\nПісля налаштування відкрийте панель WashData з бічної панелі (або перейдіть на [/ha-washdata](/ha-washdata)), щоб переглядати цикли, налаштувати виявлення та керувати профілями.",
+        "data": {
+          "name": "Назва пристрою",
+          "device_type": "Тип пристрою",
+          "power_sensor": "Датчик потужності",
+          "min_power": "Мінімальний поріг потужності (Вт)"
+        },
+        "data_description": {
+          "name": "Зрозуміла назва цього пристрою (наприклад, «Пральна машина», «Посудомийна машина»).",
+          "device_type": "Що це за тип приладу? Допомагає адаптувати виявлення та маркування.",
+          "power_sensor": "Датчик, який повідомляє споживання електроенергії в реальному часі (у ватах) від вашої розумної розетки.",
+          "min_power": "Показники потужності вище цього порогу (у ватах) вказують на те, що прилад працює. Почніть з 2 Вт для більшості пристроїв."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Оновіть назву пристрою, тип приладу або датчик потужності.\n\nПанель WashData (бічна панель або [/ha-washdata](/ha-washdata)) — це місце для керування виявленням, циклами, профілями та сповіщеннями.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Не вдалося підключитися",
+      "invalid_auth": "Недійсна автентифікація",
+      "unknown": "Несподівана помилка",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Пристрій уже налаштовано",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Перейменуйте пристрій або змініть його основні апаратні налаштування. Усі налаштування виявлення, зіставлення та сповіщень знаходяться в [панелі WashData](/ha-washdata) (також доступна з бічної панелі).",
+        "data": {
+          "name": "Назва пристрою",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: таймер {minutes} хв",
+      "timer_pause_action_title": "Відновити цикл",
+      "timer_pause_body_suffix": "Цикл призупинено. Відкрийте панель WashData для відновлення.",
+      "unload_dismiss_action_title": "Не нагадувати",
+      "notify_live_waiting_message": "{device}: Профіль ще не розпізнано.",
+      "vs_typical_longer": "на {pct}% довше, ніж зазвичай",
+      "vs_typical_shorter": "на {pct}% коротше, ніж зазвичай",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Пральна машина",
+        "dryer": "Сушарка",
+        "washer_dryer": "Пральна машина Combo",
+        "dishwasher": "Посудомийна машина",
+        "air_fryer": "Аерофритюрниця",
+        "bread_maker": "Хлібопічка",
+        "pump": "Насос / Відстійний насос",
+        "generic": "Інше (розширений)",
+        "other": "Пороговий пристрій"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Позначити цикл",
+      "description": "Призначте існуючий профіль минулому циклу або видаліть мітку.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для маркування."
+        },
+        "cycle_id": {
+          "name": "Ідентифікатор циклу",
+          "description": "Ідентифікатор циклу для позначення."
+        },
+        "profile_name": {
+          "name": "Ім'я профілю",
+          "description": "Ім’я наявного профілю (створити профілі в меню Керування профілями). Залиште поле порожнім, щоб видалити мітку."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Створити профіль",
+      "description": "Створіть новий профіль (окремий або на основі контрольного циклу).",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData."
+        },
+        "profile_name": {
+          "name": "Ім'я профілю",
+          "description": "Назва для нового профілю (наприклад, «Heavy Duty», «Delicates»)."
+        },
+        "reference_cycle_id": {
+          "name": "Ідентифікатор еталонного циклу",
+          "description": "Додатковий ідентифікатор циклу, на якому базується цей профіль."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Видалити профіль",
+      "description": "Видалити профіль і за бажанням скасувати мітки циклів, використовуючи його.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData."
+        },
+        "profile_name": {
+          "name": "Ім'я профілю",
+          "description": "Профіль для видалення."
+        },
+        "unlabel_cycles": {
+          "name": "Зняти позначки циклів",
+          "description": "Видаліть мітку профілю з циклів, які використовують цей профіль."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Автоматичне позначення старих циклів",
+      "description": "Заднім числом позначайте немарковані цикли за допомогою відповідності профілів.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData."
+        },
+        "confidence_threshold": {
+          "name": "Поріг впевненості",
+          "description": "Мінімальна впевненість збігу (0,50-0,95) для застосування міток."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Експорт конфігурації",
+      "description": "Експортуйте профілі, цикли та налаштування цього пристрою у файл JSON (для кожного пристрою).",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для експорту."
+        },
+        "path": {
+          "name": "Шлях",
+          "description": "Додатковий абсолютний шлях до файлу для запису (за замовчуванням /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Імпорт конфігурації",
+      "description": "Імпортуйте профілі, цикли та налаштування для цього пристрою з файлу експорту JSON (параметри можуть бути перезаписані).",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для імпорту."
+        },
+        "path": {
+          "name": "Шлях",
+          "description": "Абсолютний шлях до експортованого файлу JSON для імпорту."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Надіслати відгук про цикл",
+      "description": "Підтвердьте або виправте автоматично визначену програму після завершення циклу. Укажіть `entry_id` (розширений) або `device_id` (рекомендовано).",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData (рекомендовано замість entry_id)."
+        },
+        "entry_id": {
+          "name": "ID запису",
+          "description": "Ідентифікатор запису конфігурації для пристрою (альтернатива device_id)."
+        },
+        "cycle_id": {
+          "name": "Ідентифікатор циклу",
+          "description": "Ідентифікатор циклу, показаний у сповіщенні/журналах відгуку."
+        },
+        "user_confirmed": {
+          "name": "Підтвердити виявлену програму",
+          "description": "Установіть true, якщо виявлена програма правильна."
+        },
+        "corrected_profile": {
+          "name": "Виправлений профіль",
+          "description": "Якщо не підтверджено, укажіть правильну назву профілю/програми."
+        },
+        "corrected_duration": {
+          "name": "Виправлена тривалість (секунди)",
+          "description": "Додаткова виправлена тривалість у секундах."
+        },
+        "notes": {
+          "name": "Примітки",
+          "description": "Додаткові примітки щодо цього циклу."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Початок циклу запису",
+      "description": "Почніть запис чистого циклу вручну (обійде всю відповідну логіку).",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для запису."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Зупинка циклу запису",
+      "description": "Зупиніть ручний запис.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для зупинки запису."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Цикл обрізки",
+      "description": "Обріжте дані про потужність минулого циклу до певного часового вікна.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData."
+        },
+        "cycle_id": {
+          "name": "Ідентифікатор циклу",
+          "description": "Ідентифікатор циклу, який потрібно обрізати."
+        },
+        "trim_start_s": {
+          "name": "Початок обрізки (секунди)",
+          "description": "Зберігайте дані з цього зміщення за лічені секунди. За замовчуванням 0."
+        },
+        "trim_end_s": {
+          "name": "Кінець обрізання (секунди)",
+          "description": "Зберігайте дані до цього зміщення за лічені секунди. За замовчуванням = повна тривалість."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Пауза циклу",
+      "description": "Призупинити активний цикл для пристрою WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для призупинення."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Цикл відновлення",
+      "description": "Відновити призупинений цикл для пристрою WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Пристрій",
+          "description": "Пристрій WashData для відновлення."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Вручну перенавчіть моделі ML на пристрої з власних позначених циклів цього пристрою (експериментальний).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Працює"
+      },
+      "match_ambiguity": {
+        "name": "Неоднозначність відповідності"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Стан",
+        "state": {
+          "off": "Вимкнено",
+          "idle": "Бездіяльність",
+          "starting": "Запуск",
+          "running": "Працює",
+          "paused": "Призупинено",
+          "user_paused": "Призупинено користувачем",
+          "ending": "Закінчення",
+          "finished": "Готово",
+          "anti_wrinkle": "Проти зморшок",
+          "interrupted": "Перерваний",
+          "force_stopped": "Примусово зупинено",
+          "rinse": "Полоскання",
+          "unknown": "Невідомо",
+          "clean": "Чистий",
+          "delay_wait": "Очікування початку"
+        }
+      },
+      "washer_program": {
+        "name": "Програма"
+      },
+      "time_remaining": {
+        "name": "Час, що залишився"
+      },
+      "total_duration": {
+        "name": "Загальна тривалість"
+      },
+      "cycle_progress": {
+        "name": "Прогрес"
+      },
+      "current_power": {
+        "name": "Поточна потужність"
+      },
+      "elapsed_time": {
+        "name": "Час, що минув"
+      },
+      "debug_info": {
+        "name": "Інформація про налагодження"
+      },
+      "match_confidence": {
+        "name": "Впевненість збігу"
+      },
+      "top_candidates": {
+        "name": "Кращі кандидати",
+        "state": {
+          "none": "Жодного"
+        }
+      },
+      "ambiguity": {
+        "name": "Оцінка неоднозначності"
+      },
+      "current_phase": {
+        "name": "Поточна фаза"
+      },
+      "profile_cycle_count": {
+        "name": "Кількість профілю {profile_name}",
+        "unit_of_measurement": "циклів"
+      },
+      "suggestions": {
+        "name": "Доступні пропоновані налаштування"
+      },
+      "pump_runs_today": {
+        "name": "Насос працює (останні 24 години)"
+      },
+      "cycle_count": {
+        "name": "Підрахунок циклу"
+      },
+      "energy_total": {
+        "name": "Загальна енергія"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Програма циклу",
+        "state": {
+          "auto_detect": "Автоматичне визначення"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Примусово завершити цикл"
+      },
+      "pause_cycle": {
+        "name": "Пауза циклу"
+      },
+      "resume_cycle": {
+        "name": "Цикл відновлення"
+      },
+      "record_start": {
+        "name": "Почати запис циклу"
+      },
+      "record_stop": {
+        "name": "Зупинити запис циклу"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Потрібен дійсний device_id."
+    },
+    "cycle_id_required": {
+      "message": "Потрібен дійсний cycle_id."
+    },
+    "profile_name_required": {
+      "message": "Потрібне дійсне profile_name."
+    },
+    "device_not_found": {
+      "message": "Пристрій не знайдено."
+    },
+    "no_config_entry": {
+      "message": "Для пристрою не знайдено жодного запису конфігурації."
+    },
+    "integration_not_loaded": {
+      "message": "Інтеграція не завантажена для цього пристрою."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Цикл не знайдено або немає даних про потужність."
+    },
+    "trim_failed_empty_window": {
+      "message": "Помилка обрізання - цикл не знайдено, немає даних про живлення або кінцеве вікно порожнє."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s має бути більше, ніж trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Немає активного циклу для призупинення або відновлення."
+    },
+    "path_not_allowed": {
+      "message": "Шлях не дозволено: {path}. Додайте його каталог до 'allowlist_external_dirs' у configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Не вдалося створити профіль: {error}"
+    },
+    "export_path_exists": {
+      "message": "Ціль експорту вже існує: {path}. Виберіть інший шлях або спочатку вилучіть наявний файл."
+    },
+    "export_write_failed": {
+      "message": "Не вдалося записати експорт до {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Не вдалося призначити профіль: {error}"
+    }
+  }
+}

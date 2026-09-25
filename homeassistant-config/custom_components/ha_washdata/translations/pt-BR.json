@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configuração WashData",
+        "description": "Configure sua máquina de lavar ou outro eletrodoméstico.\n\nSensor de potência é necessário.\n\nApós a configuração, abra o painel WashData pela barra lateral (ou acesse [/ha-washdata](/ha-washdata)) para visualizar ciclos, ajustar a detecção e gerenciar perfis.",
+        "data": {
+          "name": "Nome do dispositivo",
+          "device_type": "Tipo de dispositivo",
+          "power_sensor": "Sensor de potência",
+          "min_power": "Limite Mínimo de Potência (W)"
+        },
+        "data_description": {
+          "name": "Um nome amigável para este dispositivo (por exemplo, 'Máquina de lavar', 'Lava-louças').",
+          "device_type": "Que tipo de aparelho é esse? Ajuda a personalizar a detecção e a rotulagem.",
+          "power_sensor": "A entidade do sensor que informa o consumo de energia em tempo real (em watts) do seu plugue inteligente.",
+          "min_power": "As leituras de potência acima deste limite (em watts) indicam que o aparelho está funcionando. Comece com 2W para a maioria dos dispositivos."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Atualize o nome do dispositivo, o tipo de eletrodoméstico ou o sensor de potência.\n\nO painel WashData (barra lateral ou [/ha-washdata](/ha-washdata)) é onde detecção, ciclos, perfis e notificações são gerenciados.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Falha ao conectar",
+      "invalid_auth": "Autenticação inválida",
+      "unknown": "Erro inesperado",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "O dispositivo já está configurado",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Renomeie o dispositivo ou altere suas configurações principais de hardware. Todas as configurações de detecção, correspondência e notificação estão no [painel WashData](/ha-washdata) (também acessível pela barra lateral).",
+        "data": {
+          "name": "Nome do dispositivo",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: timer de {minutes} min",
+      "timer_pause_action_title": "Retomar ciclo",
+      "timer_pause_body_suffix": "O ciclo está pausado. Abra o painel WashData para retomar.",
+      "unload_dismiss_action_title": "Parar de lembrar",
+      "notify_live_waiting_message": "{device}: Nenhum perfil identificado ainda.",
+      "vs_typical_longer": "{pct}% mais longo que o normal",
+      "vs_typical_shorter": "{pct}% mais curto que o normal",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Máquina de lavar",
+        "dryer": "Secador",
+        "washer_dryer": "Combinação Lavadora e Secadora",
+        "dishwasher": "Máquina de lavar louça",
+        "air_fryer": "Fritadeira de ar",
+        "bread_maker": "Máquina de fazer pão",
+        "pump": "Bomba / Bomba de depósito",
+        "generic": "Outro (avançado)",
+        "other": "Dispositivo de limite"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Rotular ciclo",
+      "description": "Atribua um perfil existente a um ciclo anterior ou remova o rótulo.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar a ser rotulado."
+        },
+        "cycle_id": {
+          "name": "ID do ciclo",
+          "description": "O ID do ciclo a ser rotulado."
+        },
+        "profile_name": {
+          "name": "Nome do perfil",
+          "description": "O nome de um perfil existente (crie perfis no menu Gerenciar Perfis). Deixe em branco para remover o rótulo."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Criar perfil",
+      "description": "Crie um novo perfil (autônomo ou baseado em um ciclo de referência).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar."
+        },
+        "profile_name": {
+          "name": "Nome do perfil",
+          "description": "Nome do novo perfil (ex.: 'Pesados', 'Delicados')."
+        },
+        "reference_cycle_id": {
+          "name": "ID do ciclo de referência",
+          "description": "ID de ciclo opcional para basear este perfil."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Excluir perfil",
+      "description": "Exclua um perfil e, opcionalmente, remova o rótulo dos ciclos que o utilizam.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar."
+        },
+        "profile_name": {
+          "name": "Nome do perfil",
+          "description": "O perfil a ser excluído."
+        },
+        "unlabel_cycles": {
+          "name": "Remover rótulo dos ciclos",
+          "description": "Remove o rótulo do perfil dos ciclos que o utilizam."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Rotular automaticamente ciclos anteriores",
+      "description": "Rotule retroativamente ciclos não rotulados usando correspondência de perfil.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar."
+        },
+        "confidence_threshold": {
+          "name": "Limite de confiança",
+          "description": "Confiança mínima de correspondência (0,50–0,95) para aplicar rótulos."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Exportar configuração",
+      "description": "Exporte os perfis, ciclos e configurações deste dispositivo para um arquivo JSON (por dispositivo).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar a exportar."
+        },
+        "path": {
+          "name": "Caminho",
+          "description": "Caminho de arquivo absoluto opcional para gravação (o padrão é /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importar configuração",
+      "description": "Importe perfis, ciclos e configurações para este dispositivo a partir de um arquivo de exportação JSON (as configurações podem ser substituídas).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar para importar."
+        },
+        "path": {
+          "name": "Caminho",
+          "description": "Caminho absoluto para o arquivo JSON de exportação a ser importado."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Enviar feedback do ciclo",
+      "description": "Confirme ou corrija um programa detectado automaticamente após um ciclo concluído. Forneça `entry_id` (avançado) ou `device_id` (recomendado).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo WashData (recomendado em vez de entry_id)."
+        },
+        "entry_id": {
+          "name": "ID de entrada",
+          "description": "O ID da entrada de configuração do dispositivo (alternativa ao device_id)."
+        },
+        "cycle_id": {
+          "name": "ID do ciclo",
+          "description": "O ID do ciclo mostrado na notificação/registros de feedback."
+        },
+        "user_confirmed": {
+          "name": "Confirmar programa detectado",
+          "description": "Defina como verdadeiro se o programa detectado estiver correto."
+        },
+        "corrected_profile": {
+          "name": "Perfil corrigido",
+          "description": "Se não for confirmado, forneça o nome correto do perfil/programa."
+        },
+        "corrected_duration": {
+          "name": "Duração corrigida (segundos)",
+          "description": "Duração corrigida opcional em segundos."
+        },
+        "notes": {
+          "name": "Observações",
+          "description": "Observações opcionais sobre este ciclo."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Gravar início do ciclo",
+      "description": "Inicia a gravação manual de um ciclo limpo (ignora toda a lógica de correspondência).",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar a ser gravado."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Gravar parada do ciclo",
+      "description": "Interrompe a gravação manual.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo da máquina de lavar para parar a gravação."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Recortar ciclo",
+      "description": "Recorta os dados de potência de um ciclo anterior para uma janela de tempo específica.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo WashData."
+        },
+        "cycle_id": {
+          "name": "ID do ciclo",
+          "description": "O ID do ciclo a ser recortado."
+        },
+        "trim_start_s": {
+          "name": "Início do recorte (segundos)",
+          "description": "Mantém os dados a partir deste deslocamento em segundos. Padrão: 0."
+        },
+        "trim_end_s": {
+          "name": "Fim do recorte (segundos)",
+          "description": "Mantém os dados até este deslocamento em segundos. Padrão = duração total."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pausar ciclo",
+      "description": "Pause o ciclo ativo para um dispositivo WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo WashData a ser pausado."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Retomar ciclo",
+      "description": "Retome um ciclo pausado para um dispositivo WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Dispositivo",
+          "description": "O dispositivo WashData a ser retomado."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Em funcionamento"
+      },
+      "match_ambiguity": {
+        "name": "Ambiguidade de correspondência"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Estado",
+        "state": {
+          "off": "Desligado",
+          "idle": "Ocioso",
+          "starting": "Iniciando",
+          "running": "Em funcionamento",
+          "paused": "Pausado",
+          "user_paused": "Pausado pelo usuário",
+          "ending": "Encerrando",
+          "finished": "Concluído",
+          "anti_wrinkle": "Anti-amasso",
+          "interrupted": "Interrompido",
+          "force_stopped": "Parada forçada",
+          "rinse": "Enxaguar",
+          "unknown": "Desconhecido",
+          "clean": "Limpar",
+          "delay_wait": "Esperando para começar"
+        }
+      },
+      "washer_program": {
+        "name": "Programa"
+      },
+      "time_remaining": {
+        "name": "Tempo restante"
+      },
+      "total_duration": {
+        "name": "Duração total"
+      },
+      "cycle_progress": {
+        "name": "Progresso"
+      },
+      "current_power": {
+        "name": "Potência atual"
+      },
+      "elapsed_time": {
+        "name": "Tempo decorrido"
+      },
+      "debug_info": {
+        "name": "Informações de depuração"
+      },
+      "match_confidence": {
+        "name": "Confiança na correspondência"
+      },
+      "top_candidates": {
+        "name": "Principais candidatos",
+        "state": {
+          "none": "Nenhum"
+        }
+      },
+      "ambiguity": {
+        "name": "Pontuação de ambiguidade"
+      },
+      "current_phase": {
+        "name": "Fase atual"
+      },
+      "profile_cycle_count": {
+        "name": "Contagem de ciclos de {profile_name}",
+        "unit_of_measurement": "ciclos"
+      },
+      "suggestions": {
+        "name": "Configurações sugeridas disponíveis"
+      },
+      "pump_runs_today": {
+        "name": "Funcionamento da bomba (últimas 24 horas)"
+      },
+      "cycle_count": {
+        "name": "Contagem de ciclos"
+      },
+      "energy_total": {
+        "name": "Energia total"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Programa do ciclo",
+        "state": {
+          "auto_detect": "Detecção automática"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Forçar fim do ciclo"
+      },
+      "pause_cycle": {
+        "name": "Pausar ciclo"
+      },
+      "resume_cycle": {
+        "name": "Retomar ciclo"
+      },
+      "record_start": {
+        "name": "Iniciar gravação do ciclo"
+      },
+      "record_stop": {
+        "name": "Parar gravação do ciclo"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "É necessário um device_id válido."
+    },
+    "cycle_id_required": {
+      "message": "É necessário um cycle_id válido."
+    },
+    "profile_name_required": {
+      "message": "É necessário um profile_name válido."
+    },
+    "device_not_found": {
+      "message": "Dispositivo não encontrado."
+    },
+    "no_config_entry": {
+      "message": "Nenhuma entrada de configuração encontrada para o dispositivo."
+    },
+    "integration_not_loaded": {
+      "message": "Integração não carregada para este dispositivo."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Ciclo não encontrado ou sem dados de potência."
+    },
+    "trim_failed_empty_window": {
+      "message": "Recorte falhou - ciclo não encontrado, sem dados de energia ou a janela resultante está vazia."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s deve ser maior que trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Nenhum ciclo ativo para pausar ou retomar."
+    },
+    "path_not_allowed": {
+      "message": "Caminho não permitido: {path}. Adicione o diretório dele a 'allowlist_external_dirs' no configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Não foi possível criar o perfil: {error}"
+    },
+    "export_path_exists": {
+      "message": "O destino de exportação já existe: {path}. Escolha um caminho diferente ou remova primeiro o arquivo existente."
+    },
+    "export_write_failed": {
+      "message": "Não foi possível gravar a exportação em {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Não foi possível atribuir o perfil: {error}"
+    }
+  }
+}

@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData uppsetning",
+        "description": "Stilltu þvottavélina þína eða annað tæki.\n\nKraftskynjari er nauðsynlegur.\n\nEftir uppsetningu skaltu opna WashData-spjaldið frá hliðarstikunni (eða fara á [/ha-washdata](/ha-washdata)) til að skoða hringrás, stilla skynjun og stjórna sniðum.",
+        "data": {
+          "name": "Nafn tækis",
+          "device_type": "Tegund tækis",
+          "power_sensor": "Aflskynjari",
+          "min_power": "Lágmarksaflsþröskuldur (W)"
+        },
+        "data_description": {
+          "name": "Vingjarnlegt nafn fyrir þetta tæki (t.d. „Þvottavél“, „Uppþvottavél“).",
+          "device_type": "Hvers konar tæki er þetta? Hjálpar til við að sérsníða greiningu og merkingu.",
+          "power_sensor": "Skynjareiningin sem tilkynnir um orkunotkun í rauntíma (í vöttum) frá snjalltenginu þínu.",
+          "min_power": "Aflmælingar yfir þessum viðmiðunarmörkum (í vöttum) gefa til kynna að heimilistækið sé í gangi. Byrjaðu með 2W fyrir flest tæki."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Uppfærðu heiti tækisins, tegund tækis eða kraftskynjara.\n\nWashData-spjaldið (hliðarstikan eða [/ha-washdata](/ha-washdata)) er þar sem skynjun, hringrás, sniðmát og tilkynningar eru stjórnað.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Tókst ekki að tengjast",
+      "invalid_auth": "Ógild auðkenning",
+      "unknown": "Óvænt villa",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Tæki er þegar stillt",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Endurnefndu tækið eða breyttu grunnstillingum vélbúnaðar. Allar stillingar fyrir skynjun, samsvörun og tilkynningar eru í [WashData-spjaldinu](/ha-washdata) (einnig aðgengilegt frá hliðarstikunni).",
+        "data": {
+          "name": "Nafn tækis",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} mín tímataki",
+      "timer_pause_action_title": "Halda áfram hringrás",
+      "timer_pause_body_suffix": "Hringrásin er í bið. Opnaðu WashData-gluggann til að halda áfram.",
+      "unload_dismiss_action_title": "Hætta að minna",
+      "notify_live_waiting_message": "{device}: Ekkert snið hefur enn verið greint.",
+      "vs_typical_longer": "{pct}% lengri en venjulega",
+      "vs_typical_shorter": "{pct}% styttri en venjulega",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Þvottavél",
+        "dryer": "Þurrkari",
+        "washer_dryer": "Þvottavél-þurrkari samsettur",
+        "dishwasher": "Uppþvottavél",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Brauðgerðarmaður",
+        "pump": "Dæla / Sump Pump",
+        "generic": "Annað (háþróað)",
+        "other": "Þröskuldstæki"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Merkja hringrás",
+      "description": "Úthlutaðu núverandi prófíl við fyrri lotu eða fjarlægðu merkið.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavél tæki til að merkja."
+        },
+        "cycle_id": {
+          "name": "Auðkenni hringrásar",
+          "description": "Auðkenni lotunnar sem á að merkja."
+        },
+        "profile_name": {
+          "name": "Nafn prófíls",
+          "description": "Heiti sniðs sem fyrir er (búið til snið í valmyndinni Stjórna sniðum). Skildu eftir autt til að fjarlægja merkimiðann."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Búðu til prófíl",
+      "description": "Búðu til nýtt snið (sjálfstætt eða byggt á viðmiðunarferli).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavélabúnaðurinn."
+        },
+        "profile_name": {
+          "name": "Nafn prófíls",
+          "description": "Heiti fyrir nýja prófílinn (t.d. 'Heavy Duty', 'Delicates')."
+        },
+        "reference_cycle_id": {
+          "name": "Auðkenni tilvísunarhrings",
+          "description": "Valfrjálst lotuauðkenni til að byggja þetta prófíl á."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Eyða prófíl",
+      "description": "Eyddu sniði og afmerktu hringrás með því að nota það.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavélabúnaðurinn."
+        },
+        "profile_name": {
+          "name": "Nafn prófíls",
+          "description": "Prófíllinn til að eyða."
+        },
+        "unlabel_cycles": {
+          "name": "Afmerkja hringrásir",
+          "description": "Fjarlægðu prófílmerki úr lotum með því að nota þetta prófíl."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Sjálfvirk merking á gömlum hringrásum",
+      "description": "Merktu afturvirkt ómerktar lotur með því að nota prófílsamsvörun.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavélabúnaðurinn."
+        },
+        "confidence_threshold": {
+          "name": "Sjálfstraustsþröskuldur",
+          "description": "Lágmarksöryggi (0,50-0,95) til að setja á merki."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Flytja út stillingar",
+      "description": "Flyttu út prófíla, lotur og stillingar þessa tækis í JSON skrá (á hvert tæki).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavél tæki til að flytja út."
+        },
+        "path": {
+          "name": "Slóð",
+          "description": "Valfrjáls alger skráarslóð til að skrifa (sjálfgefið er /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Flytja inn stillingar",
+      "description": "Flytja inn snið, lotur og stillingar fyrir þetta tæki úr JSON útflutningsskrá (stillingar gætu verið skrifaðar yfir).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavélin til að flytja inn í."
+        },
+        "path": {
+          "name": "Slóð",
+          "description": "Alger slóð að útflutnings JSON skránni sem á að flytja inn."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Senda endurgjöf um hringrás",
+      "description": "Staðfestu eða leiðréttu sjálfvirkt forrit sem greint hefur verið frá eftir að lotunni er lokið. Gefðu upp annað hvort 'entry_id' (háþróað) eða 'device_id' (ráðlagt).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "WashData tækið (mælt með í staðinn fyrir entry_id)."
+        },
+        "entry_id": {
+          "name": "Inngangsauðkenni",
+          "description": "Auðkenni stillingarfærslu fyrir tækið (valkostur við device_id)."
+        },
+        "cycle_id": {
+          "name": "Auðkenni hringrásar",
+          "description": "Auðkenni hringrásarinnar sem sýnt er í endurgjöfstilkynningunni / logs."
+        },
+        "user_confirmed": {
+          "name": "Staðfestu uppgötvað forrit",
+          "description": "Stilltu satt ef forritið sem fannst er rétt."
+        },
+        "corrected_profile": {
+          "name": "Leiðrétt prófíl",
+          "description": "Ef það er ekki staðfest skaltu gefa upp rétt snið/nafn forrits."
+        },
+        "corrected_duration": {
+          "name": "Leiðrétt lengd (sekúndur)",
+          "description": "Valfrjáls leiðrétt lengd í sekúndum."
+        },
+        "notes": {
+          "name": "Skýringar",
+          "description": "Valfrjálsar athugasemdir um þessa lotu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Hefja upptöku hringrásar",
+      "description": "Byrjaðu handvirkt að taka upp hreina lotu (framhjá öllum samsvarandi rökfræði).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavél tæki til að taka upp."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Stöðva upptöku",
+      "description": "Stöðva handvirka upptöku.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "Þvottavél tæki til að hætta upptöku."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Klipptu hringrás",
+      "description": "Klipptu aflgögn fyrri lotu í ákveðinn tímaglugga.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "WashData tækið."
+        },
+        "cycle_id": {
+          "name": "Auðkenni hringrásar",
+          "description": "Auðkenni hringrásarinnar sem á að klippa."
+        },
+        "trim_start_s": {
+          "name": "Klippiupphaf (sekúndur)",
+          "description": "Geymdu gögn frá þessari færslu á nokkrum sekúndum. Sjálfgefið 0."
+        },
+        "trim_end_s": {
+          "name": "Klipptu enda (sekúndur)",
+          "description": "Haltu gögnum upp að þessari frávik á nokkrum sekúndum. Sjálfgefið = full lengd."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Gera hlé á hringrás",
+      "description": "Gerðu hlé á virku hringrásinni fyrir WashData tæki.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "WashData tækið til að gera hlé."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Halda áfram hringrás",
+      "description": "Haltu áfram að gera hlé á lotu fyrir WashData tæki.",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "WashData tækið að halda áfram."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Kveikja á ML þjálfun",
+      "description": "Endurþjálfaðu ML líkönin á tækinu handvirkt með þjálfuðum hringrásum þessa tækis (tilraunakenndar).",
+      "fields": {
+        "device_id": {
+          "name": "Tæki",
+          "description": "WashData tækið til að endurþjálfa líkön fyrir."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Í gangi"
+      },
+      "match_ambiguity": {
+        "name": "Samsvörun tvíræðni"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Staða",
+        "state": {
+          "off": "Slökkt",
+          "idle": "Aðgerðarlaus",
+          "starting": "Byrjar",
+          "running": "Í gangi",
+          "paused": "Gert hlé",
+          "user_paused": "Í bið af notanda",
+          "ending": "Að ljúka",
+          "finished": "Lokið",
+          "anti_wrinkle": "Anti-hrukku",
+          "interrupted": "Truflað",
+          "force_stopped": "Þvingun stöðvuð",
+          "rinse": "Skolaðu",
+          "unknown": "Óþekkt",
+          "clean": "Hreint",
+          "delay_wait": "Bíður eftir að byrja"
+        }
+      },
+      "washer_program": {
+        "name": "Forrit"
+      },
+      "time_remaining": {
+        "name": "Tími sem eftir er"
+      },
+      "total_duration": {
+        "name": "Heildarlengd"
+      },
+      "cycle_progress": {
+        "name": "Framfarir"
+      },
+      "current_power": {
+        "name": "Núverandi afl"
+      },
+      "elapsed_time": {
+        "name": "Tími liðinn"
+      },
+      "debug_info": {
+        "name": "Villuleit upplýsingar"
+      },
+      "match_confidence": {
+        "name": "Samsvörunaröryggi"
+      },
+      "top_candidates": {
+        "name": "Efstu frambjóðendur",
+        "state": {
+          "none": "Engin"
+        }
+      },
+      "ambiguity": {
+        "name": "Tvíræðnistig"
+      },
+      "current_phase": {
+        "name": "Núverandi áfangi"
+      },
+      "profile_cycle_count": {
+        "name": "Prófíl {profile_name} Talning",
+        "unit_of_measurement": "hringrásir"
+      },
+      "suggestions": {
+        "name": "Tillögur að stillingum"
+      },
+      "pump_runs_today": {
+        "name": "Dæla gengur (síðasti 24 klst.)"
+      },
+      "cycle_count": {
+        "name": "Talning hringrásar"
+      },
+      "energy_total": {
+        "name": "Heildarorka"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Hringrásarforrit",
+        "state": {
+          "auto_detect": "Sjálfvirk uppgötvun"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Þvingaðu lokahring"
+      },
+      "pause_cycle": {
+        "name": "Gera hlé á hringrás"
+      },
+      "resume_cycle": {
+        "name": "Halda áfram hringrás"
+      },
+      "record_start": {
+        "name": "Hefja upptöku hringrásar"
+      },
+      "record_stop": {
+        "name": "Stöðva upptöku hringrásar"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Gilt device_id er krafist."
+    },
+    "cycle_id_required": {
+      "message": "Gilt cycle_id er krafist."
+    },
+    "profile_name_required": {
+      "message": "Gilt prófílnafn er krafist."
+    },
+    "device_not_found": {
+      "message": "Tæki fannst ekki."
+    },
+    "no_config_entry": {
+      "message": "Engin stillingarfærsla fannst fyrir tækið."
+    },
+    "integration_not_loaded": {
+      "message": "Samþætting ekki hlaðin fyrir þetta tæki."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Hringrás fannst ekki eða hefur engin orkugögn."
+    },
+    "trim_failed_empty_window": {
+      "message": "Trim mistókst - hringrás fannst ekki, engin orkugögn eða gluggi sem myndast er tómur."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s verða að vera stærri en trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Engin virk lota til að gera hlé á eða halda áfram."
+    },
+    "path_not_allowed": {
+      "message": "Slóðin er ekki leyfð: {path}. Bættu möppu hennar við 'allowlist_external_dirs' í configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Ekki tókst að búa til prófíl: {error}"
+    },
+    "export_path_exists": {
+      "message": "Útflutningsáfangastaður er þegar til: {path}. Veldu aðra slóð eða fjarlægðu núverandi skrá fyrst."
+    },
+    "export_write_failed": {
+      "message": "Ekki tókst að skrifa útflutninginn í {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Ekki tókst að úthluta prófíl: {error}"
+    }
+  }
+}

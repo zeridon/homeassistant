@@ -1,0 +1,374 @@
+# WashData - Home Assistant integration for appliance cycle monitoring via smart plugs.
+# Copyright (C) 2026 Lukas Bandura
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Phase catalog defaults and helpers for WashData."""
+
+from __future__ import annotations
+
+import re
+from copy import deepcopy
+from typing import Any
+
+from .const import (
+    DEVICE_TYPE_DISHWASHER,
+    DEVICE_TYPE_DRYER,
+    DEVICE_TYPE_WASHER_DRYER,
+    DEVICE_TYPE_WASHING_MACHINE,
+)
+
+PhaseItem = dict[str, Any]
+
+
+def _builtin_phase_id(device_type: str, name: str) -> str:
+    """Return a stable ID like 'washing_machine.pre_wash' for a built-in phase."""
+    slug = re.sub(r"[^a-z0-9]+", "_", name.strip().lower()).strip("_")
+    return f"{device_type}.{slug}"
+
+DEFAULT_PHASES_BY_DEVICE: dict[str, list[PhaseItem]] = {
+    DEVICE_TYPE_WASHING_MACHINE: [
+        {
+            "name": "Pre-Wash",
+            "description": "Initial soak or pre-treatment before the main wash.",
+            "translation_key": "phase_desc.pre_wash",
+            "is_default": True,
+        },
+        {
+            "name": "Wash",
+            "description": "Main washing cycle with drum movement and optional heating.",
+            "translation_key": "phase_desc.wash",
+            "is_default": True,
+        },
+        {
+            "name": "Rinse",
+            "description": "Clean-water rinse stage. This phase may repeat multiple times.",
+            "translation_key": "phase_desc.rinse",
+            "is_default": True,
+        },
+        {
+            "name": "Spin",
+            "description": "High-speed extraction to remove water from the load.",
+            "translation_key": "phase_desc.spin",
+            "is_default": True,
+        },
+        {
+            "name": "Soak",
+            "description": "Low-activity soaking period between active wash stages.",
+            "translation_key": "phase_desc.soak",
+            "is_default": True,
+        },
+        {
+            "name": "Anti-Crease",
+            "description": "Occasional short tumbles after completion to reduce wrinkles.",
+            "translation_key": "phase_desc.anti_crease",
+            "is_default": True,
+        },
+    ],
+    DEVICE_TYPE_DRYER: [
+        {
+            "name": "Heat Up",
+            "description": "Initial heater warm-up before full drying begins.",
+            "translation_key": "phase_desc.heat_up",
+            "is_default": True,
+        },
+        {
+            "name": "Drying",
+            "description": "Main heated tumbling period.",
+            "translation_key": "phase_desc.drying",
+            "is_default": True,
+        },
+        {
+            "name": "Cool Down",
+            "description": "Tumbling without heat near cycle end.",
+            "translation_key": "phase_desc.cool_down",
+            "is_default": True,
+        },
+        {
+            "name": "Anti-Wrinkle",
+            "description": "Periodic post-cycle tumbling to reduce wrinkles.",
+            "translation_key": "phase_desc.anti_wrinkle",
+            "is_default": True,
+        },
+        {
+            "name": "Sensor Check",
+            "description": "Short low-power pause while dryness is measured.",
+            "translation_key": "phase_desc.sensor_check",
+            "is_default": True,
+        },
+    ],
+    DEVICE_TYPE_WASHER_DRYER: [
+        {
+            "name": "Pre-Wash",
+            "description": "Initial soak or pre-treatment before the main wash.",
+            "translation_key": "phase_desc.pre_wash",
+            "is_default": True,
+        },
+        {
+            "name": "Wash",
+            "description": "Main washing cycle with drum movement and optional heating.",
+            "translation_key": "phase_desc.wash",
+            "is_default": True,
+        },
+        {
+            "name": "Rinse",
+            "description": "Clean-water rinse stage. This phase may repeat multiple times.",
+            "translation_key": "phase_desc.rinse",
+            "is_default": True,
+        },
+        {
+            "name": "Spin",
+            "description": "High-speed extraction before drying transition.",
+            "translation_key": "phase_desc.spin_wd",
+            "is_default": True,
+        },
+        {
+            "name": "Drain & Switch",
+            "description": "Transition period from washing to drying mode.",
+            "translation_key": "phase_desc.drain_and_switch",
+            "is_default": True,
+        },
+        {
+            "name": "Heat Up",
+            "description": "Initial heater warm-up before full drying begins.",
+            "translation_key": "phase_desc.heat_up",
+            "is_default": True,
+        },
+        {
+            "name": "Drying",
+            "description": "Main heated tumbling period.",
+            "translation_key": "phase_desc.drying",
+            "is_default": True,
+        },
+        {
+            "name": "Cool Down",
+            "description": "Tumbling without heat near cycle end.",
+            "translation_key": "phase_desc.cool_down",
+            "is_default": True,
+        },
+        {
+            "name": "Anti-Wrinkle",
+            "description": "Periodic post-cycle tumbling to reduce wrinkles.",
+            "translation_key": "phase_desc.anti_wrinkle",
+            "is_default": True,
+        },
+    ],
+    DEVICE_TYPE_DISHWASHER: [
+        {
+            "name": "Pre-Rinse",
+            "description": "Initial spray-down before detergent wash.",
+            "translation_key": "phase_desc.pre_rinse",
+            "is_default": True,
+        },
+        {
+            "name": "Wash",
+            "description": "Main detergent wash with heating.",
+            "translation_key": "phase_desc.wash_dw",
+            "is_default": True,
+        },
+        {
+            "name": "Rinse",
+            "description": "Clean-water rinse stage. This phase may repeat multiple times.",
+            "translation_key": "phase_desc.rinse",
+            "is_default": True,
+        },
+        {
+            "name": "Dry",
+            "description": "Drying stage using heater and/or residual heat.",
+            "translation_key": "phase_desc.dry",
+            "is_default": True,
+        },
+        {
+            "name": "Sanitize",
+            "description": "High-temperature cleaning stage for sanitization programs.",
+            "translation_key": "phase_desc.sanitize",
+            "is_default": True,
+        },
+        {
+            "name": "Soak",
+            "description": "Extended soak period for heavy soil.",
+            "translation_key": "phase_desc.soak_dw",
+            "is_default": True,
+        },
+    ],
+}
+
+
+def normalize_phase_name(name: str) -> str:
+    """Normalize and validate phase names."""
+    normalized = " ".join(name.strip().split())
+    if not normalized:
+        raise ValueError("invalid_phase_name")
+    if len(normalized) > 48:
+        raise ValueError("phase_name_too_long")
+    return normalized
+
+
+def get_default_phase_catalog(device_type: str) -> list[PhaseItem]:
+    """Return default phase catalog for a device type, with id and device_type injected."""
+    phases = deepcopy(DEFAULT_PHASES_BY_DEVICE.get(device_type, []))
+    for phase in phases:
+        phase["id"] = _builtin_phase_id(device_type, str(phase.get("name", "")))
+        phase["device_type"] = device_type
+    return phases
+
+
+def get_shared_default_phase_catalog() -> list[PhaseItem]:
+    """Return a shared default catalog deduplicated by name across all device types.
+
+    One entry per phase name (first occurrence wins), but a later same-named phase
+    can back-fill a ``translation_key`` the first occurrence lacked, so a localized
+    label from any device-specific definition is not silently discarded.
+    """
+    by_name: dict[str, PhaseItem] = {}
+    order: list[str] = []
+    for device_type, device_phases in DEFAULT_PHASES_BY_DEVICE.items():
+        for item in device_phases:
+            name = str(item.get("name", "")).strip()
+            if not name:
+                continue
+            key = name.casefold()
+            existing = by_name.get(key)
+            if existing is None:
+                entry: PhaseItem = {
+                    "id": _builtin_phase_id(device_type, name),
+                    "device_type": "",
+                    "name": name,
+                    "description": str(item.get("description", "")).strip(),
+                    "is_default": True,
+                }
+                if "translation_key" in item:
+                    entry["translation_key"] = item["translation_key"]
+                by_name[key] = entry
+                order.append(key)
+            elif "translation_key" not in existing and "translation_key" in item:
+                existing["translation_key"] = item["translation_key"]
+    return [by_name[k] for k in order]
+
+
+def get_builtin_phase_by_id(phase_id: str) -> PhaseItem | None:
+    """Return a copy of the built-in phase with the given id, or None."""
+    for device_type, device_phases in DEFAULT_PHASES_BY_DEVICE.items():
+        for item in device_phases:
+            name = str(item.get("name", "")).strip()
+            if _builtin_phase_id(device_type, name) == phase_id:
+                result = deepcopy(item)
+                result["id"] = phase_id
+                result["device_type"] = device_type
+                return result
+    return None
+
+
+def merge_phase_catalog(device_type: str, custom_phases: list[PhaseItem] | None) -> list[PhaseItem]:
+    """Merge device defaults with custom phases. Uses 'id' as the primary collision key."""
+    merged = (
+        get_default_phase_catalog(device_type)
+        if device_type in DEFAULT_PHASES_BY_DEVICE
+        else get_shared_default_phase_catalog()
+    )
+
+    # Index built-ins by id and by (device_type, name) for the name-based fallback.
+    builtin_by_id: dict[str, int] = {}
+    builtin_by_name: dict[tuple[str, str], int] = {}
+    for idx, item in enumerate(merged):
+        item_id = str(item.get("id", ""))
+        if item_id:
+            builtin_by_id[item_id] = idx
+        item_dt = str(item.get("device_type", "")).casefold()
+        item_name = str(item.get("name", "")).strip().casefold()
+        if item_name:
+            builtin_by_name[(item_dt, item_name)] = idx
+
+    seen_ids: set[str] = set(builtin_by_id.keys())
+    seen_names: set[tuple[str, str]] = set(builtin_by_name.keys())
+
+    # All known built-in names - used to guard against polluting unrelated catalogs.
+    all_builtin_names = {
+        str(p.get("name", "")).strip().casefold()
+        for phases_list in DEFAULT_PHASES_BY_DEVICE.values()
+        for p in phases_list
+    }
+
+    for item in (custom_phases or []):
+        try:
+            normalized_name = normalize_phase_name(str(item.get("name", "")))
+        except ValueError:
+            continue
+        if not normalized_name:
+            continue
+
+        item_device_type = str(item.get("device_type", "")).strip()
+        # Skip if this custom phase targets a different specific device type.
+        if item_device_type:
+            if item_device_type.casefold() != str(device_type or "").strip().casefold():
+                continue
+
+        phase_id = str(item.get("id", "")).strip()
+
+        # Primary: id-based in-place replacement of a built-in entry.
+        if phase_id and phase_id in builtin_by_id:
+            idx = builtin_by_id[phase_id]
+            original_device_type = str(merged[idx].get("device_type", item_device_type))
+            merged[idx] = {
+                "id": phase_id,
+                "device_type": original_device_type,
+                "name": normalized_name,
+                "description": str(item.get("description", "")).strip(),
+                "is_default": False,
+            }
+            continue
+
+        # Fallback: name-based match for old data without ids.
+        name_key = (item_device_type.casefold(), normalized_name.casefold())
+        if name_key in builtin_by_name:
+            idx = builtin_by_name[name_key]
+            new_desc = str(item.get("description", "")).strip()
+            if new_desc:
+                merged[idx]["description"] = new_desc
+            merged[idx]["is_default"] = False
+            continue
+
+        # New phase: guard against universal overrides leaking into unrelated catalogs.
+        # For legacy items with no device_type, first try matching against the active
+        # catalog device_type before discarding, so legacy overrides are preserved.
+        if not item_device_type and normalized_name.casefold() in all_builtin_names:
+            active_dt_key = (str(device_type or "").strip().casefold(), normalized_name.casefold())
+            if active_dt_key in builtin_by_name:
+                idx = builtin_by_name[active_dt_key]
+                new_desc = str(item.get("description", "")).strip()
+                if new_desc:
+                    merged[idx]["description"] = new_desc
+                merged[idx]["is_default"] = False
+            continue
+
+        # Deduplicate before appending.
+        if phase_id and phase_id in seen_ids:
+            continue
+        append_name_key = (item_device_type.casefold(), normalized_name.casefold())
+        if append_name_key in seen_names:
+            continue
+
+        new_phase: PhaseItem = {
+            "name": normalized_name,
+            "description": str(item.get("description", "")).strip(),
+            "device_type": item_device_type,
+            "is_default": False,
+        }
+        if phase_id:
+            new_phase["id"] = phase_id
+            seen_ids.add(phase_id)
+        seen_names.add(append_name_key)
+        merged.append(new_phase)
+
+    return [p for p in merged if p.get("name")]

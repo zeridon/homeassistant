@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData-asetukset",
+        "description": "Määritä pesukoneesi tai muu laite.\n\nTehoanturi tarvitaan.\n\nAsetuksen jälkeen avaa WashData-paneeli sivupalkista (tai siirry osoitteeseen [/ha-washdata](/ha-washdata)) nähdäksesi syklit, säätääksesi tunnistuksen ja hallitaksesi profiileja.",
+        "data": {
+          "name": "Laitteen nimi",
+          "device_type": "Laitteen tyyppi",
+          "power_sensor": "Tehon anturi",
+          "min_power": "Minimitehokynnys (W)"
+        },
+        "data_description": {
+          "name": "Ystävällinen nimi tälle laitteelle (esim. 'pesukone', 'astianpesukone').",
+          "device_type": "Minkä tyyppinen laite tämä on? Auttaa räätälöimään havaitsemista ja merkitsemistä.",
+          "power_sensor": "Anturientiteetti, joka raportoi reaaliaikaisen virrankulutuksen (watteina) älypistokkeesta.",
+          "min_power": "Tämän kynnyksen ylittävät teholukemat (watteina) osoittavat, että laite on käynnissä. Aloita 2 watilla useimmissa laitteissa."
+        }
+      },
+      "reconfigure": {
+        "title": "Konfiguroi WashData uudelleen",
+        "description": "Päivitä laitteen nimi, laitteen tyyppi tai tehoanturi.\n\nWashData-paneelissa (sivupalkki tai [/ha-washdata](/ha-washdata)) hallitaan tunnistusta, syklejä, profiileja ja ilmoituksia.",
+        "data": {
+          "name": "Laitteen nimi",
+          "device_type": "Laitteen tyyppi",
+          "power_sensor": "Tehon anturi",
+          "min_power": "Minimitehokynnys (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Yhteyden muodostaminen epäonnistui",
+      "invalid_auth": "Virheellinen todennus",
+      "unknown": "Odottamaton virhe",
+      "invalid_power": "Tehokynnyksen on oltava suurempi kuin 0"
+    },
+    "abort": {
+      "already_configured": "Laite on jo määritetty",
+      "reconfigure_successful": "Uudelleenmäärittely onnistui"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData-asetukset",
+        "description": "Nimeä laite uudelleen tai muuta sen ydinlaitteiston asetuksia. Kaikki tunnistus-, täsmäytys- ja ilmoitusasetukset ovat [WashData-paneelissa](/ha-washdata) (saavutettavissa myös sivupalkista).",
+        "data": {
+          "name": "Laitteen nimi",
+          "device_type": "Laitteen tyyppi",
+          "power_sensor": "Tehon anturi",
+          "min_power": "Minimitehokynnys (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} min ajastin",
+      "timer_pause_action_title": "Jatka sykliä",
+      "timer_pause_body_suffix": "Sykli on keskeytetty. Avaa WashData-paneeli jatkaaksesi.",
+      "unload_dismiss_action_title": "Lopeta muistuttaminen",
+      "notify_live_waiting_message": "{device}: Yhtään profiilia ei ole vielä tunnistettu.",
+      "vs_typical_longer": "{pct}% tavallista pidempi",
+      "vs_typical_shorter": "{pct}% tavallista lyhyempi",
+      "invalid_power": "Tehokynnyksen on oltava suurempi kuin 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Pesukone",
+        "dryer": "Kuivausrumpu",
+        "washer_dryer": "Pesukone-kuivausrumpu yhdistelmä",
+        "dishwasher": "Astianpesukone",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Leipäkone",
+        "pump": "Pumppu / sumpupumppu",
+        "generic": "Muu (edistynyt)",
+        "other": "Kynnyslaite"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Merkitse sykli",
+      "description": "Määritä olemassa oleva profiili menneeseen jaksoon tai poista tarra.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite etikettiin."
+        },
+        "cycle_id": {
+          "name": "Syklin tunnus",
+          "description": "Merkittävän syklin tunnus."
+        },
+        "profile_name": {
+          "name": "Profiilin nimi",
+          "description": "Olemassa olevan profiilin nimi (luo profiilit Profiilien hallinta -valikossa). Jätä tyhjäksi poistaaksesi tarran."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Luo profiili",
+      "description": "Luo uusi profiili (erillinen tai referenssisykliin perustuva).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite."
+        },
+        "profile_name": {
+          "name": "Profiilin nimi",
+          "description": "Uuden profiilin nimi (esim. 'Heavy Duty', 'Delicates')."
+        },
+        "reference_cycle_id": {
+          "name": "Viitesyklin tunnus",
+          "description": "Valinnainen syklitunnus tämän profiilin perustana."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Poista profiili",
+      "description": "Poista profiili ja valinnaisesti poista jaksojen tunnisteet sen avulla.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite."
+        },
+        "profile_name": {
+          "name": "Profiilin nimi",
+          "description": "Poistettava profiili."
+        },
+        "unlabel_cycles": {
+          "name": "Poista syklien merkinnät",
+          "description": "Poista profiilimerkki syklistä käyttämällä tätä profiilia."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Merkitse vanhat syklit automaattisesti",
+      "description": "Merkitse merkitsemättömät syklit takautuvasti käyttämällä profiilin täsmäyttämistä.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite."
+        },
+        "confidence_threshold": {
+          "name": "Luottamuskynnys",
+          "description": "Vähimmäisosumavarmuus (0,50–0,95) tunnisteiden lisäämistä varten."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Vie kokoonpano",
+      "description": "Vie tämän laitteen profiilit, syklit ja asetukset JSON-tiedostoon (laitetta kohti).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Vietävä pesukonelaite."
+        },
+        "path": {
+          "name": "Polku",
+          "description": "Valinnainen absoluuttinen kirjoitettava tiedostopolku (oletus on /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Tuo kokoonpano",
+      "description": "Tuo tämän laitteen profiilit, syklit ja asetukset JSON-vientitiedostosta (asetukset voidaan korvata).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pyykinpesukone, johon tuodaan."
+        },
+        "path": {
+          "name": "Polku",
+          "description": "Absoluuttinen polku tuotavaan JSON-vientitiedostoon."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Lähetä syklipalaute",
+      "description": "Vahvista tai korjaa automaattisesti tunnistettu ohjelma suoritetun jakson jälkeen. Anna joko \"entry_id\" (lisäasetukset) tai \"device_id\" (suositus).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "WashData-laite (suositellaan entry_id:n sijaan)."
+        },
+        "entry_id": {
+          "name": "Sisääntulotunnus",
+          "description": "Laitteen konfigurointimerkinnän tunnus (vaihtoehto laite_id:lle)."
+        },
+        "cycle_id": {
+          "name": "Syklin tunnus",
+          "description": "Palauteilmoituksessa / lokeissa näkyvä syklitunnus."
+        },
+        "user_confirmed": {
+          "name": "Vahvista havaittu ohjelma",
+          "description": "Aseta tosi, jos havaittu ohjelma on oikea."
+        },
+        "corrected_profile": {
+          "name": "Korjattu profiili",
+          "description": "Jos et vahvista, anna oikea profiilin/ohjelman nimi."
+        },
+        "corrected_duration": {
+          "name": "Korjattu kesto (sekuntia)",
+          "description": "Valinnainen korjattu kesto sekunneissa."
+        },
+        "notes": {
+          "name": "Huomautuksia",
+          "description": "Valinnaisia huomautuksia tästä syklistä."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Aloita syklin tallennus",
+      "description": "Aloita puhtaan syklin tallentaminen manuaalisesti (ohittaa kaiken vastaavan logiikan).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite tallentaa."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Lopeta syklin tallennus",
+      "description": "Lopeta manuaalinen tallennus.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "Pesukone laite lopettaa tallennuksen."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Trimmaussykli",
+      "description": "Leikkaa edellisen jakson tehotiedot tiettyyn aikaikkunaan.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "WashData-laite."
+        },
+        "cycle_id": {
+          "name": "Syklin tunnus",
+          "description": "Trimmoitavan syklin tunnus."
+        },
+        "trim_start_s": {
+          "name": "Trimmauksen aloitus (sekuntia)",
+          "description": "Säilytä tiedot tästä siirtymästä sekunneissa. Oletusarvo 0."
+        },
+        "trim_end_s": {
+          "name": "Trimmaus loppu (sekuntia)",
+          "description": "Säilytä tiedot tässä poikkeamassa sekunneissa. Oletus = koko kesto."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Keskeytä sykli",
+      "description": "Keskeytä WashData-laitteen aktiivinen sykli.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "WashData-laite keskeytettäväksi."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Jatka sykliä",
+      "description": "Jatka keskeytettyä jaksoa WashData-laitteella.",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "WashData-laite jatkaa."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Käynnistä ML-koulutus",
+      "description": "Kouluta laitteen ML-mallit manuaalisesti uudelleen tämän laitteen omien merkittyjen syklien perusteella (kokeellinen).",
+      "fields": {
+        "device_id": {
+          "name": "Laite",
+          "description": "WashData-laite, jonka malleja koulutetaan uudelleen."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Käynnissä"
+      },
+      "match_ambiguity": {
+        "name": "Vastaavuuden epäselvyys"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Tila",
+        "state": {
+          "off": "Pois päältä",
+          "idle": "Odottaa",
+          "starting": "Käynnistyy",
+          "running": "Käynnissä",
+          "paused": "Keskeytetty",
+          "user_paused": "Keskeytetty käyttäjän toimesta",
+          "ending": "Loppuu",
+          "finished": "Valmis",
+          "anti_wrinkle": "Ryppyjenesto",
+          "interrupted": "Keskeytynyt",
+          "force_stopped": "Pakotettu pysäytys",
+          "rinse": "Huuhtelu",
+          "unknown": "Tuntematon",
+          "clean": "Puhdas",
+          "delay_wait": "Odotetaan aloitusta"
+        }
+      },
+      "washer_program": {
+        "name": "Ohjelma"
+      },
+      "time_remaining": {
+        "name": "Aikaa jäljellä"
+      },
+      "total_duration": {
+        "name": "Kokonaiskesto"
+      },
+      "cycle_progress": {
+        "name": "Edistyminen"
+      },
+      "current_power": {
+        "name": "Nykyinen teho"
+      },
+      "elapsed_time": {
+        "name": "Kulunut aika"
+      },
+      "debug_info": {
+        "name": "Virheenkorjaustiedot"
+      },
+      "match_confidence": {
+        "name": "Vastaavuuden varmuus"
+      },
+      "top_candidates": {
+        "name": "Parhaat ehdokkaat",
+        "state": {
+          "none": "Ei mitään"
+        }
+      },
+      "ambiguity": {
+        "name": "Epäselvyyspisteet"
+      },
+      "current_phase": {
+        "name": "Nykyinen vaihe"
+      },
+      "profile_cycle_count": {
+        "name": "Profiilin {profile_name} syklimäärä",
+        "unit_of_measurement": "syklit"
+      },
+      "suggestions": {
+        "name": "Saatavilla olevat suositellut asetukset"
+      },
+      "pump_runs_today": {
+        "name": "Pumppu käy (viimeiset 24 tuntia)"
+      },
+      "cycle_count": {
+        "name": "Syklien määrä"
+      },
+      "energy_total": {
+        "name": "Energia yhteensä"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Syklin ohjelma",
+        "state": {
+          "auto_detect": "Automaattinen tunnistus"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Pakota syklin lopetus"
+      },
+      "pause_cycle": {
+        "name": "Keskeytä sykli"
+      },
+      "resume_cycle": {
+        "name": "Jatka sykliä"
+      },
+      "record_start": {
+        "name": "Aloita syklin tallennus"
+      },
+      "record_stop": {
+        "name": "Lopeta syklin tallennus"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Kelvollinen laitetunnus vaaditaan."
+    },
+    "cycle_id_required": {
+      "message": "Kelvollinen cycle_id vaaditaan."
+    },
+    "profile_name_required": {
+      "message": "Kelvollinen profile_name vaaditaan."
+    },
+    "device_not_found": {
+      "message": "Laitetta ei löydy."
+    },
+    "no_config_entry": {
+      "message": "Laitteelle ei löytynyt asetusmerkintää."
+    },
+    "integration_not_loaded": {
+      "message": "Integraatiota ei ole ladattu tälle laitteelle."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Jaksoa ei löydy tai siinä ei ole virtatietoja."
+    },
+    "trim_failed_empty_window": {
+      "message": "Trimmaus epäonnistui – sykliä ei löydy, ei virtatietoja tai tuloksena oleva ikkuna on tyhjä."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s on oltava suurempi kuin trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Ei aktiivista jaksoa keskeyttää tai jatkaa."
+    },
+    "path_not_allowed": {
+      "message": "Polku ei ole sallittu: {path}. Lisää sen hakemisto asetukseen 'allowlist_external_dirs' tiedostossa configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Profiilin luominen epäonnistui: {error}"
+    },
+    "export_path_exists": {
+      "message": "Viennin kohde on jo olemassa: {path}. Valitse toinen polku tai poista ensin olemassa oleva tiedosto."
+    },
+    "export_write_failed": {
+      "message": "Viennin kirjoittaminen kohteeseen {path} epäonnistui: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Profiilin määrittäminen epäonnistui: {error}"
+    }
+  }
+}

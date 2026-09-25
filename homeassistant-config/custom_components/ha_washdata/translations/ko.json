@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData 설정",
+        "description": "세탁기 또는 기타 가전제품을 구성하세요.\n\n전력 센서가 필요합니다.\n\n설정 후, 사이드바에서 WashData 패널을 열거나 [/ha-washdata](/ha-washdata)로 이동하여 사이클 확인, 검출 조정 및 프로파일 관리를 하세요.",
+        "data": {
+          "name": "장치 이름",
+          "device_type": "장치 유형",
+          "power_sensor": "전력 센서",
+          "min_power": "최소 전력 임계값 (W)"
+        },
+        "data_description": {
+          "name": "이 장치의 이름입니다(예: '세탁기', '식기세척기').",
+          "device_type": "이 가전제품의 종류는 무엇입니까? 감지 및 라벨링 맞춤에 도움이 됩니다.",
+          "power_sensor": "스마트 플러그에서 실시간 전력 소비(와트)를 보고하는 센서 엔터티입니다.",
+          "min_power": "이 임계값(와트)보다 높은 전력 수치는 가전제품이 작동 중임을 나타냅니다. 대부분의 장치에서는 2W로 시작하세요."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "장치 이름, 가전 유형 또는 전력 센서를 업데이트합니다.\n\nWashData 패널(사이드바 또는 [/ha-washdata](/ha-washdata))에서 검출, 사이클, 프로파일 및 알림을 관리합니다.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "연결하지 못했습니다",
+      "invalid_auth": "인증 실패",
+      "unknown": "예기치 않은 오류",
+      "invalid_power": "전력 임계값은 0보다 커야 합니다"
+    },
+    "abort": {
+      "already_configured": "장치가 이미 구성되어 있습니다",
+      "reconfigure_successful": "재구성이 성공했습니다"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "장치 이름을 변경하거나 핵심 하드웨어 설정을 변경합니다. 모든 검출, 매칭 및 알림 설정은 [WashData 패널](/ha-washdata)에서 확인할 수 있습니다(사이드바에서도 접근 가능).",
+        "data": {
+          "name": "장치 이름",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes}분 타이머",
+      "timer_pause_action_title": "사이클 재개",
+      "timer_pause_body_suffix": "사이클이 일시 정지되었습니다. 재개하려면 WashData 패널을 여세요.",
+      "unload_dismiss_action_title": "알림 중지",
+      "notify_live_waiting_message": "{device}: 아직 일치하는 프로필이 없습니다.",
+      "vs_typical_longer": "평소보다 {pct}% 더 김",
+      "vs_typical_shorter": "평소보다 {pct}% 더 짧음",
+      "invalid_power": "전력 임계값은 0보다 커야 합니다"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "세탁기",
+        "dryer": "건조기",
+        "washer_dryer": "세탁기-건조기 콤보",
+        "dishwasher": "식기세척기",
+        "air_fryer": "에어프라이어",
+        "bread_maker": "빵 제조기",
+        "pump": "펌프 / 배수 펌프",
+        "generic": "기타(고급)",
+        "other": "임계값 장치"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "사이클 라벨 지정",
+      "description": "이전 사이클에 기존 프로필을 할당하거나 라벨을 제거합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "라벨을 지정할 WashData 장치입니다."
+        },
+        "cycle_id": {
+          "name": "사이클 ID",
+          "description": "라벨을 지정할 사이클의 ID입니다."
+        },
+        "profile_name": {
+          "name": "프로필 이름",
+          "description": "기존 프로필의 이름입니다(프로필 관리 메뉴에서 프로필 생성). 라벨을 제거하려면 비워두세요."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "프로필 만들기",
+      "description": "새 프로필을 만듭니다(독립형 또는 참조 사이클 기반).",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "WashData 장치입니다."
+        },
+        "profile_name": {
+          "name": "프로필 이름",
+          "description": "새 프로필의 이름입니다(예: 'Heavy Duty', 'Delicates')."
+        },
+        "reference_cycle_id": {
+          "name": "참조 사이클 ID",
+          "description": "이 프로필의 기반이 될 선택적 사이클 ID입니다."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "프로필 삭제",
+      "description": "프로필을 삭제하고 선택적으로 이를 사용하는 사이클의 라벨을 해제합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "WashData 장치입니다."
+        },
+        "profile_name": {
+          "name": "프로필 이름",
+          "description": "삭제할 프로필입니다."
+        },
+        "unlabel_cycles": {
+          "name": "사이클 라벨 해제",
+          "description": "이 프로필을 사용하는 사이클에서 프로필 라벨을 제거합니다."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "기존 사이클 자동 라벨 지정",
+      "description": "프로필 일치를 사용하여 라벨 없는 사이클에 소급하여 라벨을 지정합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "WashData 장치입니다."
+        },
+        "confidence_threshold": {
+          "name": "신뢰도 임계값",
+          "description": "라벨을 적용하기 위한 최소 일치 신뢰도(0.50-0.95)입니다."
+        }
+      }
+    },
+    "export_config": {
+      "name": "구성 내보내기",
+      "description": "이 장치의 프로필, 사이클 및 설정을 JSON 파일로 내보냅니다(장치별).",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "내보낼 WashData 장치입니다."
+        },
+        "path": {
+          "name": "경로",
+          "description": "쓸 선택적 절대 파일 경로입니다(기본값: /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "구성 가져오기",
+      "description": "JSON 내보내기 파일에서 이 장치의 프로필, 사이클 및 설정을 가져옵니다(설정이 덮어써질 수 있음).",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "가져올 WashData 장치입니다."
+        },
+        "path": {
+          "name": "경로",
+          "description": "가져올 내보내기 JSON 파일의 절대 경로입니다."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "사이클 피드백 제출",
+      "description": "사이클이 완료된 후 자동 감지된 프로그램을 확인하거나 수정합니다. `entry_id`(고급) 또는 `device_id`(권장)를 제공하세요.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "WashData 장치입니다(entry_id 대신 권장)."
+        },
+        "entry_id": {
+          "name": "항목 ID",
+          "description": "장치의 구성 항목 ID입니다(device_id의 대안)."
+        },
+        "cycle_id": {
+          "name": "사이클 ID",
+          "description": "피드백 알림/로그에 표시된 사이클 ID입니다."
+        },
+        "user_confirmed": {
+          "name": "감지된 프로그램 확인",
+          "description": "감지된 프로그램이 맞으면 true로 설정하세요."
+        },
+        "corrected_profile": {
+          "name": "수정된 프로필",
+          "description": "확인되지 않은 경우 올바른 프로필/프로그램 이름을 제공하세요."
+        },
+        "corrected_duration": {
+          "name": "수정된 기간 (초)",
+          "description": "선택적 수정 기간(초)입니다."
+        },
+        "notes": {
+          "name": "메모",
+          "description": "이 사이클에 대한 선택적 메모입니다."
+        }
+      }
+    },
+    "record_start": {
+      "name": "사이클 기록 시작",
+      "description": "클린 사이클을 수동으로 기록하기 시작합니다(모든 일치 로직을 우회합니다).",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "기록할 WashData 장치입니다."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "사이클 기록 중지",
+      "description": "수동 기록을 중지합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "기록을 중지할 WashData 장치입니다."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "사이클 트림",
+      "description": "이전 사이클의 전력 데이터를 특정 시간 창으로 트림합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "WashData 장치입니다."
+        },
+        "cycle_id": {
+          "name": "사이클 ID",
+          "description": "트림할 사이클의 ID입니다."
+        },
+        "trim_start_s": {
+          "name": "트림 시작 (초)",
+          "description": "이 오프셋(초)부터 데이터를 유지합니다. 기본값 0."
+        },
+        "trim_end_s": {
+          "name": "트림 종료 (초)",
+          "description": "이 오프셋(초)까지 데이터를 유지합니다. 기본값 = 전체 기간."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "사이클 일시 정지",
+      "description": "WashData 장치의 활성 주기를 일시 중지합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "일시중지할 WashData 장치입니다."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "사이클 재개",
+      "description": "WashData 장치에 대해 일시 중지된 주기를 재개합니다.",
+      "fields": {
+        "device_id": {
+          "name": "장치",
+          "description": "재개할 WashData 장치입니다."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "이 기기의 자체 라벨이 지정된 주기에서 기기 내 ML 모델을 수동으로 재교육합니다(실험용).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "실행 중"
+      },
+      "match_ambiguity": {
+        "name": "일치 모호도"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "상태",
+        "state": {
+          "off": "꺼짐",
+          "idle": "대기 중",
+          "starting": "시작 중",
+          "running": "실행 중",
+          "paused": "일시 정지됨",
+          "user_paused": "사용자가 일시 정지함",
+          "ending": "종료 중",
+          "finished": "완료됨",
+          "anti_wrinkle": "주름 방지",
+          "interrupted": "중단됨",
+          "force_stopped": "강제 정지됨",
+          "rinse": "헹굼",
+          "unknown": "알 수 없음",
+          "clean": "깨끗한",
+          "delay_wait": "시작을 기다리는 중"
+        }
+      },
+      "washer_program": {
+        "name": "프로그램"
+      },
+      "time_remaining": {
+        "name": "남은 시간"
+      },
+      "total_duration": {
+        "name": "총 기간"
+      },
+      "cycle_progress": {
+        "name": "진행 상황"
+      },
+      "current_power": {
+        "name": "현재 전력"
+      },
+      "elapsed_time": {
+        "name": "경과 시간"
+      },
+      "debug_info": {
+        "name": "디버그 정보"
+      },
+      "match_confidence": {
+        "name": "일치 신뢰도"
+      },
+      "top_candidates": {
+        "name": "상위 후보",
+        "state": {
+          "none": "없음"
+        }
+      },
+      "ambiguity": {
+        "name": "모호도 점수"
+      },
+      "current_phase": {
+        "name": "현재 단계"
+      },
+      "profile_cycle_count": {
+        "name": "프로필 {profile_name} 횟수",
+        "unit_of_measurement": "사이클"
+      },
+      "suggestions": {
+        "name": "이용 가능한 제안 설정"
+      },
+      "pump_runs_today": {
+        "name": "펌프 작동(지난 24시간)"
+      },
+      "cycle_count": {
+        "name": "사이클 수"
+      },
+      "energy_total": {
+        "name": "총 에너지"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "사이클 프로그램",
+        "state": {
+          "auto_detect": "자동 감지"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "사이클 강제 종료"
+      },
+      "pause_cycle": {
+        "name": "사이클 일시 정지"
+      },
+      "resume_cycle": {
+        "name": "사이클 재개"
+      },
+      "record_start": {
+        "name": "사이클 기록 시작"
+      },
+      "record_stop": {
+        "name": "사이클 기록 중지"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "유효한 device_id가 필요합니다."
+    },
+    "cycle_id_required": {
+      "message": "유효한 Cycle_id가 필요합니다."
+    },
+    "profile_name_required": {
+      "message": "유효한 profile_name이 필요합니다."
+    },
+    "device_not_found": {
+      "message": "장치를 찾을 수 없습니다."
+    },
+    "no_config_entry": {
+      "message": "장치에 대한 구성 항목을 찾을 수 없습니다."
+    },
+    "integration_not_loaded": {
+      "message": "이 장치에 대한 통합이 로드되지 않았습니다."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "사이클을 찾을 수 없거나 전력 데이터가 없습니다."
+    },
+    "trim_failed_empty_window": {
+      "message": "트림 실패 - 사이클을 찾을 수 없거나 전력 데이터가 없거나 결과 창이 비어 있습니다."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s는 trim_start_s보다 커야 합니다."
+    },
+    "no_active_cycle": {
+      "message": "일시 중지하거나 재개할 활성 주기가 없습니다."
+    },
+    "path_not_allowed": {
+      "message": "경로가 허용되지 않습니다: {path}. configuration.yaml의 'allowlist_external_dirs'에 해당 디렉터리를 추가하세요."
+    },
+    "create_profile_failed": {
+      "message": "프로필을 만들 수 없습니다: {error}"
+    },
+    "export_path_exists": {
+      "message": "내보내기 대상이 이미 존재합니다: {path}. 다른 경로를 선택하거나 기존 파일을 먼저 제거하세요."
+    },
+    "export_write_failed": {
+      "message": "내보내기를 {path}에 쓸 수 없습니다: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "프로필을 할당할 수 없습니다: {error}"
+    }
+  }
+}

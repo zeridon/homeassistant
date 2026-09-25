@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData Setup",
+        "description": "Configure your washing machine or other appliance.\n\nPower sensor is required.\n\nAfter setup, open the WashData panel from the sidebar (or go to [/ha-washdata](/ha-washdata)) to view cycles, tune detection and manage profiles.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        },
+        "data_description": {
+          "name": "A friendly name for this device (e.g., 'Washing Machine', 'Dishwasher').",
+          "device_type": "What type of appliance is this? Helps tailor detection and labeling.",
+          "power_sensor": "The sensor entity that reports real-time power consumption (in watts) from your smart plug.",
+          "min_power": "Power readings above this threshold (in watts) indicate the appliance is running. Start with 2W for most devices."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Update the device name, appliance type, or power sensor.\n\nThe WashData panel (sidebar, or [/ha-washdata](/ha-washdata)) is where detection, cycles, profiles and notifications are managed.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
+      "unknown": "Unexpected error",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Rename the device or change its core hardware settings. All detection, matching and notification settings are in the [WashData panel](/ha-washdata) (also reachable from the sidebar).",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "invalid_power": "Power threshold must be greater than 0",
+      "timer_default_message": "{device}: {minutes} min timer",
+      "timer_pause_action_title": "Resume Cycle",
+      "timer_pause_body_suffix": "The cycle is paused. Open the WashData panel to resume.",
+      "unload_dismiss_action_title": "Stop reminding",
+      "vs_typical_longer": "{pct}% longer than usual",
+      "vs_typical_shorter": "{pct}% shorter than usual",
+      "notify_live_waiting_message": "{device}: No profile matched yet."
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Washing Machine",
+        "dryer": "Dryer",
+        "washer_dryer": "Washer-Dryer Combo",
+        "dishwasher": "Dishwasher",
+        "air_fryer": "Air Fryer",
+        "bread_maker": "Bread Maker",
+        "pump": "Pump / Sump Pump",
+        "generic": "Other (Advanced)",
+        "other": "Threshold Device"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Label Cycle",
+      "description": "Assign an existing profile to a past cycle, or remove the label.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to label."
+        },
+        "cycle_id": {
+          "name": "Cycle ID",
+          "description": "The ID of the cycle to label."
+        },
+        "profile_name": {
+          "name": "Profile Name",
+          "description": "The name of an existing profile (create profiles in Manage Profiles menu). Leave blank to remove label."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Create Profile",
+      "description": "Create a new profile (standalone or based on a reference cycle).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device."
+        },
+        "profile_name": {
+          "name": "Profile Name",
+          "description": "Name for the new profile (e.g. 'Heavy Duty', 'Delicates')."
+        },
+        "reference_cycle_id": {
+          "name": "Reference Cycle ID",
+          "description": "Optional cycle ID to base this profile on."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Delete Profile",
+      "description": "Delete a profile and optionally unlabel cycles using it.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device."
+        },
+        "profile_name": {
+          "name": "Profile Name",
+          "description": "The profile to delete."
+        },
+        "unlabel_cycles": {
+          "name": "Unlabel Cycles",
+          "description": "Remove profile label from cycles using this profile."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Auto-Label Old Cycles",
+      "description": "Retroactively label unlabeled cycles using profile matching.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device."
+        },
+        "confidence_threshold": {
+          "name": "Confidence Threshold",
+          "description": "Minimum match confidence (0.50-0.95) to apply labels."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Export Config",
+      "description": "Export this device's profiles, cycles, and settings to a JSON file (per device).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to export."
+        },
+        "path": {
+          "name": "Path",
+          "description": "Optional absolute file path to write (defaults to /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Import Config",
+      "description": "Import profiles, cycles, and settings for this device from a JSON export file (settings may be overwritten).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to import into."
+        },
+        "path": {
+          "name": "Path",
+          "description": "Absolute path to the export JSON file to import."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Submit Cycle Feedback",
+      "description": "Confirm or correct an auto-detected program after a completed cycle. Provide either `entry_id` (advanced) or `device_id` (recommended).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device (recommended instead of entry_id)."
+        },
+        "entry_id": {
+          "name": "Entry ID",
+          "description": "The config entry id for the device (alternative to device_id)."
+        },
+        "cycle_id": {
+          "name": "Cycle ID",
+          "description": "The cycle id shown in the feedback notification / logs."
+        },
+        "user_confirmed": {
+          "name": "Confirm Detected Program",
+          "description": "Set true if the detected program is correct."
+        },
+        "corrected_profile": {
+          "name": "Corrected Profile",
+          "description": "If not confirmed, provide the correct profile/program name."
+        },
+        "corrected_duration": {
+          "name": "Corrected Duration (seconds)",
+          "description": "Optional corrected duration in seconds."
+        },
+        "notes": {
+          "name": "Notes",
+          "description": "Optional notes about this cycle."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Record Cycle Start",
+      "description": "Start manually recording a clean cycle (bypasses all matching logic).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to record."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Record Cycle Stop",
+      "description": "Stop manual recording.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to stop recording."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Trim Cycle",
+      "description": "Trim the power data of a past cycle to a specific time window.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device."
+        },
+        "cycle_id": {
+          "name": "Cycle ID",
+          "description": "The ID of the cycle to trim."
+        },
+        "trim_start_s": {
+          "name": "Trim Start (seconds)",
+          "description": "Keep data from this offset in seconds. Default 0."
+        },
+        "trim_end_s": {
+          "name": "Trim End (seconds)",
+          "description": "Keep data up to this offset in seconds. Default = full duration."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pause Cycle",
+      "description": "Pause the active cycle for a WashData device.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to pause."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Resume Cycle",
+      "description": "Resume a paused cycle for a WashData device.",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to resume."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Running"
+      },
+      "match_ambiguity": {
+        "name": "Match Ambiguity"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "State",
+        "state": {
+          "off": "Off",
+          "idle": "Idle",
+          "starting": "Starting",
+          "running": "Running",
+          "paused": "Paused",
+          "user_paused": "Paused by user",
+          "ending": "Ending",
+          "finished": "Finished",
+          "anti_wrinkle": "Anti-Wrinkle",
+          "interrupted": "Interrupted",
+          "force_stopped": "Force Stopped",
+          "rinse": "Rinse",
+          "unknown": "Unknown",
+          "clean": "Clean",
+          "delay_wait": "Delay Start"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Time Remaining"
+      },
+      "total_duration": {
+        "name": "Total Duration"
+      },
+      "cycle_progress": {
+        "name": "Progress"
+      },
+      "current_power": {
+        "name": "Current Power"
+      },
+      "elapsed_time": {
+        "name": "Elapsed Time"
+      },
+      "debug_info": {
+        "name": "Debug Info"
+      },
+      "match_confidence": {
+        "name": "Match Confidence"
+      },
+      "top_candidates": {
+        "name": "Top Candidates",
+        "state": {
+          "none": "None"
+        }
+      },
+      "ambiguity": {
+        "name": "Ambiguity Score"
+      },
+      "current_phase": {
+        "name": "Current Phase"
+      },
+      "profile_cycle_count": {
+        "name": "Profile {profile_name} Count",
+        "unit_of_measurement": "cycles"
+      },
+      "suggestions": {
+        "name": "Suggested Settings Available"
+      },
+      "pump_runs_today": {
+        "name": "Pump Runs (Last 24 h)"
+      },
+      "cycle_count": {
+        "name": "Cycle Count"
+      },
+      "energy_total": {
+        "name": "Energy Total"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Cycle Program",
+        "state": {
+          "auto_detect": "Auto-Detect"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Force End Cycle"
+      },
+      "pause_cycle": {
+        "name": "Pause Cycle"
+      },
+      "resume_cycle": {
+        "name": "Resume Cycle"
+      },
+      "record_start": {
+        "name": "Record Cycle Start"
+      },
+      "record_stop": {
+        "name": "Record Cycle Stop"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "A valid device_id is required."
+    },
+    "cycle_id_required": {
+      "message": "A valid cycle_id is required."
+    },
+    "profile_name_required": {
+      "message": "A valid profile_name is required."
+    },
+    "device_not_found": {
+      "message": "Device not found."
+    },
+    "no_config_entry": {
+      "message": "No config entry found for device."
+    },
+    "integration_not_loaded": {
+      "message": "Integration not loaded for this device."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Cycle not found or has no power data."
+    },
+    "trim_failed_empty_window": {
+      "message": "Trim failed - cycle not found, no power data, or resulting window is empty."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s must be greater than trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "No active cycle to pause or resume."
+    },
+    "path_not_allowed": {
+      "message": "Path is not allowed: {path}. Add its directory to 'allowlist_external_dirs' in configuration.yaml."
+    },
+    "export_path_exists": {
+      "message": "Export target already exists: {path}. Choose a different path or remove the existing file first."
+    },
+    "export_write_failed": {
+      "message": "Could not write export to {path}: {error}"
+    },
+    "create_profile_failed": {
+      "message": "Could not create profile: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Could not assign profile: {error}"
+    }
+  }
+}

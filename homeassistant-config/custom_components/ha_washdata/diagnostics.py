@@ -1,0 +1,140 @@
+# WashData - Home Assistant integration for appliance cycle monitoring via smart plugs.
+# Copyright (C) 2026 Lukas Bandura
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Diagnostics support for WashData."""
+
+from __future__ import annotations
+
+from typing import Any
+
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+
+from .const import CONF_AUTO_MAINTENANCE, DEFAULT_AUTO_MAINTENANCE, DOMAIN
+from .manager import WashDataManager
+
+# Keys that can identify the user or their home network - redacted in all contexts.
+_SENSITIVE_KEYS = {
+    "auth",
+    "entry_id",
+    "flow_id",
+    "flow_title",
+    "handler",
+    "name",
+    "source",
+    "title",
+    "unique_id",
+    "user_id",
+    # Community-store account credentials / identifiers.
+    "refresh_token",
+    "id_token",
+    "uid",
+    # HA entity / service references that reveal home topology.
+    "notify_service",
+    "notify_start_services",
+    "notify_finish_services",
+    "notify_live_services",
+    "notify_people",
+    "notify_actions",
+    "power_sensor",
+    "external_end_trigger",
+    "door_sensor_entity",
+    "switch_entity",
+    "energy_price_entity",
+    "energy_sensor",
+}
+
+
+def _redact(obj: Any) -> Any:
+    if isinstance(obj, dict):
+        return {
+            k: "**REDACTED**" if k in _SENSITIVE_KEYS else _redact(v)
+            for k, v in obj.items()
+        }
+    if isinstance(obj, list):
+        return [_redact(v) for v in obj]
+    return obj
+
+
+async def async_get_config_entry_diagnostics(
+    hass: HomeAssistant, entry: ConfigEntry
+) -> dict[str, Any]:
+    """Return diagnostics for a config entry."""
+    manager: WashDataManager = hass.data[DOMAIN][entry.entry_id]
+
+    # Full store export - same payload as the export_config service, but the
+    # entry_data / entry_options pass through the redactor to strip personal keys.
+    exported: dict[str, Any] = manager.profile_store.export_data(
+        entry_data=dict(entry.data),
+        entry_options=dict(entry.options),
+    )
+
+    from .frontend import served_asset_report
+
+    return {
+        "entry": _redact(entry.as_dict()),
+        # Which panel/card variant is actually being served. Both are served at the
+        # same URL by design, so without this a bug report cannot tell us whether the
+        # reporter was running the minified bundle or the readable fallback.
+        "frontend_assets": served_asset_report(),
+        "manager_state": {
+            "current_state": manager.check_state(),
+            "current_program": manager.current_program,
+            "time_remaining": manager.time_remaining,
+            "cycle_progress": manager.cycle_progress,
+            "sample_interval_stats": (
+                dict(manager.sample_interval_stats)
+                if isinstance(manager.sample_interval_stats, dict)
+                else {}
+            ),
+            "profile_sample_repair_stats": manager.profile_sample_repair_stats,
+            # Programs the matcher cannot even consider (no evidence cycle behind them),
+            # which used to be a debug log only - #400 was reported against a device in
+            # exactly this state, where the right program could neither win a match nor
+            # veto a shorter look-alike.
+            "unmatchable_profiles": manager.profile_store.unmatchable_profiles(),
+            "suggestions": manager.profile_store.get_suggestions(),
+            # Read each flag off the object that actually owns it. Two of these used
+            # to be read off the manager, which owns neither, so they reported False
+            # for everyone and sent triage down the wrong path (issue #407).
+            "feature_flags": {
+                # No runtime mirror on the manager: the option is read on demand in
+                # _setup_maintenance_scheduler. Report the effective option *and*
+                # whether the midnight job actually armed, so a divergence points at
+                # the scheduler instead of looking like a stale flag.
+                "auto_maintenance": bool(
+                    entry.options.get(
+                        CONF_AUTO_MAINTENANCE,
+                        entry.data.get(CONF_AUTO_MAINTENANCE, DEFAULT_AUTO_MAINTENANCE),
+                    )
+                ),
+                "auto_maintenance_scheduled": (
+                    getattr(manager, "_remove_maintenance_scheduler", None) is not None
+                ),
+                # Lives on the store, not the manager.
+                "save_debug_traces": bool(
+                    getattr(manager.profile_store, "save_debug_traces", False)
+                ),
+                "notify_fire_events": bool(getattr(manager, "_notify_fire_events", False)),
+            },
+        },
+        "store_export": _redact(exported),
+        # Rolling 24-hour in-memory buffers (redacted: msg fields stripped from logs).
+        # power_trace:   [[iso_ts, watts], ...] - every raw sensor reading
+        # state_history: [{ts, from, to, program}, ...] - detector state changes
+        # logs:          [{ts, lvl}, ...] - log timestamps and levels (msg removed)
+        "live_diagnostics": manager.diag_buffer.redacted_snapshot(),
+    }

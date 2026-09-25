@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData häälestus",
+        "description": "Seadistage oma pesumasin või muu seade.\n\nVajalik on võimsusandur.\n\nPärast seadistamist avage WashData paneel külgribalt (või minge [/ha-washdata](/ha-washdata)), et vaadata tsükleid, häälestada tuvastust ja hallata profiile.",
+        "data": {
+          "name": "Seadme nimi",
+          "device_type": "Seadme tüüp",
+          "power_sensor": "Võimsussensor",
+          "min_power": "Minimaalne võimsuslävi (W)"
+        },
+        "data_description": {
+          "name": "Selle seadme sõbralik nimi (nt 'pesumasin', 'nõudepesumasin').",
+          "device_type": "Mis tüüpi seade see on? Aitab kohandada tuvastamist ja märgistamist.",
+          "power_sensor": "Anduri olem, mis teatab teie nutika pistiku reaalajas energiatarbimisest (vattides).",
+          "min_power": "Sellest läviväärtusest kõrgemad võimsusnäidud (vattides) näitavad, et seade töötab. Enamiku seadmete puhul alustage 2W-st."
+        }
+      },
+      "reconfigure": {
+        "title": "WashData uuesti seadistamine",
+        "description": "Uuendage seadme nime, seadmetüüpi või võimsusandurit.\n\nWashData paneelis (külgriba või [/ha-washdata](/ha-washdata)) hallatakse tuvastust, tsükleid, profiile ja teavitusi.",
+        "data": {
+          "name": "Seadme nimi",
+          "device_type": "Seadme tüüp",
+          "power_sensor": "Võimsusandur",
+          "min_power": "Minimaalne võimsuslävi (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Ühenduse loomine ebaõnnestus",
+      "invalid_auth": "Kehtetu autentimine",
+      "unknown": "Ootamatu viga",
+      "invalid_power": "Võimsuslävi peab olema suurem kui 0"
+    },
+    "abort": {
+      "already_configured": "Seade on juba konfigureeritud",
+      "reconfigure_successful": "Uuesti seadistamine õnnestus"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData seadistused",
+        "description": "Nimetage seade ümber või muutke selle põhilisi riistvara seadeid. Kõik tuvastus-, sobitamis- ja teavitusseaded asuvad [WashData paneelil](/ha-washdata) (ligipääsetav ka külgribalt).",
+        "data": {
+          "name": "Seadme nimi",
+          "device_type": "Seadme tüüp",
+          "power_sensor": "Võimsusandur",
+          "min_power": "Minimaalne võimsuslävi (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} min taimer",
+      "timer_pause_action_title": "Tsükli jätkamine",
+      "timer_pause_body_suffix": "Tsükkel on peatatud. Jätkamiseks avage WashData paneel.",
+      "unload_dismiss_action_title": "Lõpeta meeldetuletused",
+      "notify_live_waiting_message": "{device}: Ühtki profiili pole veel tuvastatud.",
+      "vs_typical_longer": "{pct}% tavapärasest pikem",
+      "vs_typical_shorter": "{pct}% tavapärasest lühem",
+      "invalid_power": "Võimsuslävi peab olema suurem kui 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Pesumasin",
+        "dryer": "Kuivati",
+        "washer_dryer": "Kombineeritud pesumasin-kuivati",
+        "dishwasher": "Nõudepesumasin",
+        "air_fryer": "Õhufritüür",
+        "bread_maker": "Leivaküpsetaja",
+        "pump": "Pump / Äravoolupump",
+        "generic": "Muu (täpsem)",
+        "other": "Läve seade"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Tsükli sildistamine",
+      "description": "Määrake olemasolev profiil eelmisele tsüklile või eemaldage silt.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade märgistada."
+        },
+        "cycle_id": {
+          "name": "Tsükli ID",
+          "description": "Silditava tsükli ID."
+        },
+        "profile_name": {
+          "name": "Profiili nimi",
+          "description": "Olemasoleva profiili nimi (profiilide loomine menüüs Profiilide haldamine). Sildi eemaldamiseks jätke tühjaks."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Loo profiil",
+      "description": "Looge uus profiil (eraldi või võrdlustsükli alusel).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade."
+        },
+        "profile_name": {
+          "name": "Profiili nimi",
+          "description": "Uue profiili nimi (nt Heavy Duty, Delicates)."
+        },
+        "reference_cycle_id": {
+          "name": "Võrdlustsükli ID",
+          "description": "Valikuline tsükli ID selle profiili aluseks."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Kustuta profiil",
+      "description": "Kustutage profiil ja soovi korral eemaldage selle abil tsüklite sildid.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade."
+        },
+        "profile_name": {
+          "name": "Profiili nimi",
+          "description": "Kustutatav profiil."
+        },
+        "unlabel_cycles": {
+          "name": "Tsüklite märgistuse tühistamine",
+          "description": "Eemaldage profiili silt seda profiili kasutavatelt tsüklitelt."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Vanade tsüklite automaatne sildistamine",
+      "description": "Sildistada tagasiulatuvalt märgistamata tsüklid, kasutades profiili sobitamist.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade."
+        },
+        "confidence_threshold": {
+          "name": "Usalduse lävi",
+          "description": "Minimaalne vaste usaldusväärsus (0,50–0,95) siltide rakendamiseks."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Ekspordi konfiguratsioon",
+      "description": "Eksportige selle seadme profiilid, tsüklid ja seaded JSON-faili (seadme kohta).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade ekspordiks."
+        },
+        "path": {
+          "name": "Tee",
+          "description": "Valikuline absoluutne failitee kirjutamiseks (vaikimisi /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Impordi konfiguratsioon",
+      "description": "Importige selle seadme profiilid, tsüklid ja seaded JSON-i ekspordifailist (seaded võidakse üle kirjutada).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade, millesse importida."
+        },
+        "path": {
+          "name": "Tee",
+          "description": "Imporditava JSON-faili ekspordi absoluutne tee."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Esitage tsükli tagasiside",
+      "description": "Pärast tsükli lõppemist kinnitage või parandage automaatselt tuvastatud programm. Sisestage kas „entry_id” (täpsem) või „device_id” (soovitatav).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Seade WashData (soovitatav sisestamise_id asemel)."
+        },
+        "entry_id": {
+          "name": "Sisenemise ID",
+          "description": "Seadme konfiguratsioonikirje ID (alternatiiv seadme_id-le)."
+        },
+        "cycle_id": {
+          "name": "Tsükli ID",
+          "description": "Tsükli ID, mis kuvatakse tagasiside teatises / logides."
+        },
+        "user_confirmed": {
+          "name": "Kinnitage tuvastatud programm",
+          "description": "Määra tõene, kui tuvastatud programm on õige."
+        },
+        "corrected_profile": {
+          "name": "Parandatud profiil",
+          "description": "Kui seda ei kinnitata, sisestage õige profiili/programmi nimi."
+        },
+        "corrected_duration": {
+          "name": "Parandatud kestus (sekundites)",
+          "description": "Valikuline korrigeeritud kestus sekundites."
+        },
+        "notes": {
+          "name": "Märkmed",
+          "description": "Valikulised märkused selle tsükli kohta."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Tsükli salvestamise alustamine",
+      "description": "Alustage puhta tsükli käsitsi salvestamist (läheb mööda kogu sobivast loogikast).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade salvestamiseks."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Tsükli salvestamise lõpetamine",
+      "description": "Peatage käsitsi salvestamine.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Pesumasina seade salvestamise peatamiseks."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Tsükli kärpimine",
+      "description": "Kärbige möödunud tsükli võimsusandmeid kindlale ajaaknale.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Seade WashData."
+        },
+        "cycle_id": {
+          "name": "Tsükli ID",
+          "description": "Kärbitava tsükli ID."
+        },
+        "trim_start_s": {
+          "name": "Kärbi algus (sekundites)",
+          "description": "Säilitage andmed sellest nihkest sekundites. Vaikimisi 0."
+        },
+        "trim_end_s": {
+          "name": "Kärbi lõpp (sekundites)",
+          "description": "Hoidke andmeid sekundites selle nihkeni. Vaikimisi = täiskestus."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Peata tsükkel",
+      "description": "Peatage WashData seadme aktiivne tsükkel.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "Seade WashData peatamiseks."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Tsükli jätkamine",
+      "description": "Jätkake WashData seadme peatatud tsüklit.",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "WashData seade jätkamiseks."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Käivita ML koolitus",
+      "description": "Treeni käsitsi seadme ML-mudeleid uuesti selle seadme enda märgistatud tsüklite põhjal (eksperimentaalne).",
+      "fields": {
+        "device_id": {
+          "name": "Seade",
+          "description": "WashData seade, mille mudeleid uuesti treenida."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Töötab"
+      },
+      "match_ambiguity": {
+        "name": "Vaste ebamäärasus"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Olek",
+        "state": {
+          "off": "Väljas",
+          "idle": "Ootel",
+          "starting": "Käivitamine",
+          "running": "Töötab",
+          "paused": "Peatatud",
+          "user_paused": "Kasutaja peatatud",
+          "ending": "Lõpetamine",
+          "finished": "Valmis",
+          "anti_wrinkle": "Kortsudevastane",
+          "interrupted": "Katkestatud",
+          "force_stopped": "Sundpeatatud",
+          "rinse": "Loputamine",
+          "unknown": "Tundmatu",
+          "clean": "Puhas",
+          "delay_wait": "Ootab algust"
+        }
+      },
+      "washer_program": {
+        "name": "Programm"
+      },
+      "time_remaining": {
+        "name": "Järelejäänud aeg"
+      },
+      "total_duration": {
+        "name": "Kogukestus"
+      },
+      "cycle_progress": {
+        "name": "Edusammud"
+      },
+      "current_power": {
+        "name": "Praegune võimsus"
+      },
+      "elapsed_time": {
+        "name": "Kulunud aeg"
+      },
+      "debug_info": {
+        "name": "Silumisinfo"
+      },
+      "match_confidence": {
+        "name": "Vaste usaldusväärsus"
+      },
+      "top_candidates": {
+        "name": "Parimad kandidaadid",
+        "state": {
+          "none": "Mitte ühtegi"
+        }
+      },
+      "ambiguity": {
+        "name": "Ebamäärasuse skoor"
+      },
+      "current_phase": {
+        "name": "Praegune faas"
+      },
+      "profile_cycle_count": {
+        "name": "Profiili {profile_name} arv",
+        "unit_of_measurement": "tsüklid"
+      },
+      "suggestions": {
+        "name": "Saadaolevad soovituslikud seaded"
+      },
+      "pump_runs_today": {
+        "name": "Pump töötab (viimased 24 tundi)"
+      },
+      "cycle_count": {
+        "name": "Tsüklite arv"
+      },
+      "energy_total": {
+        "name": "Energia kokku"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Tsükli programm",
+        "state": {
+          "auto_detect": "Automaatne tuvastamine"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Sundlõpeta tsükkel"
+      },
+      "pause_cycle": {
+        "name": "Peata tsükkel"
+      },
+      "resume_cycle": {
+        "name": "Tsükli jätkamine"
+      },
+      "record_start": {
+        "name": "Alusta tsükli salvestamist"
+      },
+      "record_stop": {
+        "name": "Lõpeta tsükli salvestamine"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Nõutav on kehtiv device_id."
+    },
+    "cycle_id_required": {
+      "message": "Nõutav on kehtiv cycle_id."
+    },
+    "profile_name_required": {
+      "message": "Nõutav on kehtiv profile_name."
+    },
+    "device_not_found": {
+      "message": "Seadet ei leitud."
+    },
+    "no_config_entry": {
+      "message": "Seadme konfiguratsioonikirjet ei leitud."
+    },
+    "integration_not_loaded": {
+      "message": "Selle seadme jaoks pole integreerimist laaditud."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Tsüklit ei leitud või sellel puuduvad toiteandmed."
+    },
+    "trim_failed_empty_window": {
+      "message": "Kärpimine ebaõnnestus – tsüklit ei leitud, toiteandmeid pole või tulemuseks olev aken on tühi."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s peab olema suurem kui trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Peatamiseks või jätkamiseks pole aktiivset tsüklit."
+    },
+    "path_not_allowed": {
+      "message": "Tee ei ole lubatud: {path}. Lisage selle kataloog jaotisse 'allowlist_external_dirs' failis configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Profiili loomine ebaõnnestus: {error}"
+    },
+    "export_path_exists": {
+      "message": "Ekspordi sihtkoht on juba olemas: {path}. Valige teine tee või eemaldage esmalt olemasolev fail."
+    },
+    "export_write_failed": {
+      "message": "Ekspordi kirjutamine faili {path} ebaõnnestus: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Profiili määramine ebaõnnestus: {error}"
+    }
+  }
+}

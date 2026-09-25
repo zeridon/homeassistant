@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData Kurulumu",
+        "description": "Çamaşır makinenizi veya diğer cihazınızı yapılandırın.\n\nGüç sensörü gereklidir.\n\nKurulumdan sonra döngüleri görüntülemek, algılamayı ayarlamak ve profilleri yönetmek için kenar çubuğundan WashData panelini açın (veya [/ha-washdata](/ha-washdata) adresine gidin).",
+        "data": {
+          "name": "Cihaz Adı",
+          "device_type": "Cihaz Türü",
+          "power_sensor": "Güç Sensörü",
+          "min_power": "Minimum Güç Eşiği (W)"
+        },
+        "data_description": {
+          "name": "Bu cihaz için kolay bir ad (ör. 'Çamaşır Makinesi', 'Bulaşık Makinesi').",
+          "device_type": "Bu ne tür bir cihaz? Tespit ve etiketlemenin özel olarak yapılmasına yardımcı olur.",
+          "power_sensor": "Akıllı prizinizin gerçek zamanlı güç tüketimini (watt cinsinden) bildiren sensör varlığı.",
+          "min_power": "Bu eşiğin üzerindeki güç değerleri (watt cinsinden) cihazın çalıştığını gösterir. Çoğu cihaz için 2W ile başlayın."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Cihaz adını, cihaz türünü veya güç sensörünü güncelleyin.\n\nAlgılama, döngüler, profiller ve bildirimler WashData panelinde (kenar çubuğu veya [/ha-washdata](/ha-washdata)) yönetilir.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Bağlantı başarısız oldu",
+      "invalid_auth": "Geçersiz kimlik doğrulama",
+      "unknown": "Beklenmeyen hata",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Cihaz zaten yapılandırılmış",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Cihazı yeniden adlandırın veya temel donanım ayarlarını değiştirin. Tüm algılama, eşleştirme ve bildirim ayarları [WashData panelinde](/ha-washdata) bulunur (kenar çubuğundan da erişilebilir).",
+        "data": {
+          "name": "Cihaz Adı",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} dk zamanlayıcı",
+      "timer_pause_action_title": "Döngüyü Devam Ettir",
+      "timer_pause_body_suffix": "Döngü duraklatıldı. Devam ettirmek için WashData panelini açın.",
+      "unload_dismiss_action_title": "Hatırlatmayı durdur",
+      "notify_live_waiting_message": "{device}: Henüz eşleşen profil yok.",
+      "vs_typical_longer": "olağandan %{pct} daha uzun",
+      "vs_typical_shorter": "olağandan %{pct} daha kısa",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Çamaşır makinesi",
+        "dryer": "Kurutma makinesi",
+        "washer_dryer": "Yıkama-Kurutma Makinesi Kombinasyonu",
+        "dishwasher": "Bulaşık makinesi",
+        "air_fryer": "Hava Fritözü",
+        "bread_maker": "Ekmek Makinesi",
+        "pump": "Pompa / Karter Pompası",
+        "generic": "Diğer (Gelişmiş)",
+        "other": "Eşik Cihazı"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Etiket Döngüsü",
+      "description": "Mevcut bir profili geçmiş bir döngüye atayın veya etiketi kaldırın.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Etiketlenecek çamaşır makinesi cihazı."
+        },
+        "cycle_id": {
+          "name": "Döngü Kimliği",
+          "description": "Etiketlenecek döngünün kimliği."
+        },
+        "profile_name": {
+          "name": "Profil Adı",
+          "description": "Mevcut bir profilin adı (Profilleri Yönet menüsünde profiller oluşturun). Etiketi kaldırmak için boş bırakın."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Profil Oluştur",
+      "description": "Yeni bir profil oluşturun (bağımsız veya bir referans döngüsüne dayalı).",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Çamaşır makinesi cihazı."
+        },
+        "profile_name": {
+          "name": "Profil Adı",
+          "description": "Yeni profilin adı (ör. 'Ağır Hizmet', 'Hassas')."
+        },
+        "reference_cycle_id": {
+          "name": "Referans Döngü Kimliği",
+          "description": "Bu profili temel alacak isteğe bağlı döngü kimliği."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Profili Sil",
+      "description": "Bir profili silin ve isteğe bağlı olarak onu kullanarak döngülerin etiketini kaldırın.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Çamaşır makinesi cihazı."
+        },
+        "profile_name": {
+          "name": "Profil Adı",
+          "description": "Silinecek profil."
+        },
+        "unlabel_cycles": {
+          "name": "Döngülerin Etiketini Kaldırma",
+          "description": "Bu profili kullanarak profil etiketini döngülerden kaldırın."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Eski Döngüleri Otomatik Etiketle",
+      "description": "Profil eşleştirmeyi kullanarak etiketlenmemiş döngüleri geriye dönük olarak etiketleyin.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Çamaşır makinesi cihazı."
+        },
+        "confidence_threshold": {
+          "name": "Güven Eşiği",
+          "description": "Etiketleri uygulamak için minimum eşleşme güvenirliği (0,50-0,95)."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Yapılandırmayı Dışa Aktar",
+      "description": "Bu cihazın profillerini, döngülerini ve ayarlarını bir JSON dosyasına (cihaz başına) aktarın.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Dışa aktarılacak çamaşır makinesi cihazı."
+        },
+        "path": {
+          "name": "Yol",
+          "description": "Yazılacak isteğe bağlı mutlak dosya yolu (varsayılan olarak /config/ha_washdata_export_{entry}.json şeklindedir)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Yapılandırmayı İçe Aktar",
+      "description": "Bu cihazın profillerini, döngülerini ve ayarlarını bir JSON dışa aktarma dosyasından içe aktarın (ayarların üzerine yazılabilir).",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "İçe aktarılacak çamaşır makinesi cihazı."
+        },
+        "path": {
+          "name": "Yol",
+          "description": "İçe aktarılacak dışa aktarma JSON dosyasının mutlak yolu."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Döngü Geri Bildirimi Gönder",
+      "description": "Tamamlanan bir döngüden sonra otomatik olarak algılanan bir programı onaylayın veya düzeltin. \"Entry_id\" (gelişmiş) veya \"device_id\" (önerilen) bilgilerini sağlayın.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "WashData cihazı (entry_id yerine önerilir)."
+        },
+        "entry_id": {
+          "name": "Giriş Kimliği",
+          "description": "Cihazın yapılandırma girişi kimliği (cihaz_id'ye alternatif)."
+        },
+        "cycle_id": {
+          "name": "Döngü Kimliği",
+          "description": "Geri bildirim bildiriminde/günlüklerinde gösterilen döngü kimliği."
+        },
+        "user_confirmed": {
+          "name": "Algılanan Programı Onayla",
+          "description": "Algılanan program doğruysa true'yu ayarlayın."
+        },
+        "corrected_profile": {
+          "name": "Düzeltilmiş Profil",
+          "description": "Onaylanmazsa doğru profil/program adını girin."
+        },
+        "corrected_duration": {
+          "name": "Düzeltilmiş Süre (saniye)",
+          "description": "İsteğe bağlı olarak saniye cinsinden düzeltilmiş süre."
+        },
+        "notes": {
+          "name": "Notlar",
+          "description": "Bu döngüyle ilgili isteğe bağlı notlar."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Kayıt Döngüsü Başlatma",
+      "description": "Temiz bir döngüyü manuel olarak kaydetmeye başlayın (tüm eşleşen mantığı atlar).",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Kaydetmek için çamaşır makinesi cihazı."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Kayıt Döngüsünü Durdurma",
+      "description": "Manuel kaydı durdurun.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "Çamaşır makinesi cihazının kaydı durdurması."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Kırpma Döngüsü",
+      "description": "Geçmiş bir döngünün güç verilerini belirli bir zaman penceresine göre kesin.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "WashData cihazı."
+        },
+        "cycle_id": {
+          "name": "Döngü Kimliği",
+          "description": "Kırpılacak döngünün kimliği."
+        },
+        "trim_start_s": {
+          "name": "Kesim Başlangıcı (saniye)",
+          "description": "Bu ofsetteki verileri saniyeler içinde saklayın. Varsayılan 0."
+        },
+        "trim_end_s": {
+          "name": "Kırpma Sonu (saniye)",
+          "description": "Verileri saniyeler içinde bu ofset seviyesinde tutun. Varsayılan = tam süre."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Döngüyü Duraklat",
+      "description": "Bir WashData cihazının aktif döngüsünü duraklatın.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "WashData cihazının duraklatılması."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Döngüyü Devam Ettir",
+      "description": "WashData cihazı için duraklatılmış bir döngüyü devam ettirin.",
+      "fields": {
+        "device_id": {
+          "name": "Cihaz",
+          "description": "WashData cihazı devam ettirilecek."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Çalışıyor"
+      },
+      "match_ambiguity": {
+        "name": "Eşleşme Belirsizliği"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Durum",
+        "state": {
+          "off": "Kapalı",
+          "idle": "Boşta",
+          "starting": "Başlangıç",
+          "running": "Çalışıyor",
+          "paused": "Duraklatıldı",
+          "user_paused": "Kullanıcı tarafından duraklatıldı",
+          "ending": "Bitiş",
+          "finished": "Bitti",
+          "anti_wrinkle": "Kırışıklık Karşıtı",
+          "interrupted": "Kesintiye uğradı",
+          "force_stopped": "Zorla Durduruldu",
+          "rinse": "Durulmak",
+          "unknown": "Bilinmiyor",
+          "clean": "Temiz",
+          "delay_wait": "Başlamak için Bekleniyor"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Kalan Süre"
+      },
+      "total_duration": {
+        "name": "Toplam Süre"
+      },
+      "cycle_progress": {
+        "name": "İlerleme"
+      },
+      "current_power": {
+        "name": "Mevcut Güç"
+      },
+      "elapsed_time": {
+        "name": "Geçen Süre"
+      },
+      "debug_info": {
+        "name": "Hata Ayıklama Bilgisi"
+      },
+      "match_confidence": {
+        "name": "Eşleşme Güveni"
+      },
+      "top_candidates": {
+        "name": "En İyi Adaylar",
+        "state": {
+          "none": "Hiçbiri"
+        }
+      },
+      "ambiguity": {
+        "name": "Belirsizlik Puanı"
+      },
+      "current_phase": {
+        "name": "Mevcut Aşama"
+      },
+      "profile_cycle_count": {
+        "name": "Profil {profile_name} Sayısı",
+        "unit_of_measurement": "döngüler"
+      },
+      "suggestions": {
+        "name": "Önerilen Ayarlar"
+      },
+      "pump_runs_today": {
+        "name": "Pompa Çalışmaları (Son 24 saat)"
+      },
+      "cycle_count": {
+        "name": "Döngü Sayısı"
+      },
+      "energy_total": {
+        "name": "Toplam enerji"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Döngü Programı",
+        "state": {
+          "auto_detect": "Otomatik Algılama"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Sonlandırma Döngüsünü Zorla"
+      },
+      "pause_cycle": {
+        "name": "Döngüyü Duraklat"
+      },
+      "resume_cycle": {
+        "name": "Döngüyü Devam Ettir"
+      },
+      "record_start": {
+        "name": "Döngü Kaydını Başlat"
+      },
+      "record_stop": {
+        "name": "Döngü Kaydını Durdur"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Geçerli bir cihaz_kimliği gerekli."
+    },
+    "cycle_id_required": {
+      "message": "Geçerli bircycle_id gereklidir."
+    },
+    "profile_name_required": {
+      "message": "Geçerli bir profil_adı gerekli."
+    },
+    "device_not_found": {
+      "message": "Cihaz bulunamadı."
+    },
+    "no_config_entry": {
+      "message": "Cihaz için yapılandırma girişi bulunamadı."
+    },
+    "integration_not_loaded": {
+      "message": "Bu cihaz için entegrasyon yüklenmedi."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Döngü bulunamadı veya güç verisi yok."
+    },
+    "trim_failed_empty_window": {
+      "message": "Kesim başarısız oldu - döngü bulunamadı, güç verisi yok veya ortaya çıkan pencere boş."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s, trim_start_s'den büyük olmalıdır."
+    },
+    "no_active_cycle": {
+      "message": "Duraklatılacak veya devam ettirilecek etkin döngü yok."
+    },
+    "path_not_allowed": {
+      "message": "Yola izin verilmiyor: {path}. Dizinini configuration.yaml içindeki 'allowlist_external_dirs' listesine ekleyin."
+    },
+    "create_profile_failed": {
+      "message": "Profil oluşturulamadı: {error}"
+    },
+    "export_path_exists": {
+      "message": "Dışa aktarma hedefi zaten mevcut: {path}. Farklı bir yol seçin veya önce mevcut dosyayı kaldırın."
+    },
+    "export_write_failed": {
+      "message": "Dışa aktarma {path} konumuna yazılamadı: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Profil atanamadı: {error}"
+    }
+  }
+}

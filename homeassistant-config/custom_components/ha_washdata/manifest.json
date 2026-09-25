@@ -1,0 +1,25 @@
+{
+  "domain": "ha_washdata",
+  "name": "WashData",
+  "after_dependencies": [
+    "lovelace",
+    "http",
+    "frontend",
+    "websocket_api",
+    "recorder"
+  ],
+  "codeowners": [
+    "@3dg1luk43"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "conversation"
+  ],
+  "documentation": "https://github.com/3dg1luk43/ha_washdata",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/3dg1luk43/ha_washdata/issues",
+  "requirements": [
+    "numpy"
+  ],
+  "version": "0.5.6"
+}

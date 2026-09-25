@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData 设置",
+        "description": "配置您的洗衣机或其他家电设备。\n\n需要功率传感器。\n\n设置完成后，请从侧边栏打开 WashData 面板（或访问 [/ha-washdata](/ha-washdata)）来查看周期、调整检测参数和管理配置文件。",
+        "data": {
+          "name": "设备名称",
+          "device_type": "设备类型",
+          "power_sensor": "功率传感器",
+          "min_power": "最小功率阈值（W）"
+        },
+        "data_description": {
+          "name": "该设备的友好名称（例如“洗衣机”、“洗碗机”）。",
+          "device_type": "这是什么类型的设备？帮助定制检测和标记。",
+          "power_sensor": "报告智能插头实时功耗（以瓦为单位）的传感器实体。",
+          "min_power": "功率读数高于此阈值（以瓦为单位）表明设备正在运行。大多数设备从 2W 开始。"
+        }
+      },
+      "reconfigure": {
+        "title": "重新配置 WashData",
+        "description": "更新设备名称、家电类型或功率传感器。\n\nWashData 面板（侧边栏或 [/ha-washdata](/ha-washdata)）用于管理检测、周期、配置文件和通知。",
+        "data": {
+          "name": "设备名称",
+          "device_type": "设备类型",
+          "power_sensor": "功率传感器",
+          "min_power": "最小功率阈值（W）"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "连接失败",
+      "invalid_auth": "验证无效",
+      "unknown": "意外错误",
+      "invalid_power": "功率阈值必须大于 0"
+    },
+    "abort": {
+      "already_configured": "设备已配置",
+      "reconfigure_successful": "重新配置成功"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData 设置",
+        "description": "重命名设备或更改其核心硬件设置。所有检测、匹配和通知设置均在 [WashData 面板](/ha-washdata) 中（也可从侧边栏访问）。",
+        "data": {
+          "name": "设备名称",
+          "device_type": "设备类型",
+          "power_sensor": "功率传感器",
+          "min_power": "最小功率阈值（W）"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}：{minutes} 分钟定时器",
+      "timer_pause_action_title": "恢复周期",
+      "timer_pause_body_suffix": "周期已暂停。打开 WashData 面板以恢复。",
+      "unload_dismiss_action_title": "停止提醒",
+      "notify_live_waiting_message": "{device}：尚未匹配到配置文件。",
+      "vs_typical_longer": "比平常长 {pct}%",
+      "vs_typical_shorter": "比平常短 {pct}%",
+      "invalid_power": "功率阈值必须大于 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "洗衣机",
+        "dryer": "烘干机",
+        "washer_dryer": "洗衣机烘干机组合",
+        "dishwasher": "洗碗机",
+        "air_fryer": "空气炸锅",
+        "bread_maker": "面包机",
+        "pump": "泵/污水泵",
+        "generic": "其他（高级）",
+        "other": "阈值装置"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "标签周期",
+      "description": "将现有配置文件分配给过去的周期，或删除标签。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置要贴上标签。"
+        },
+        "cycle_id": {
+          "name": "周期ID",
+          "description": "要标记的周期的 ID。"
+        },
+        "profile_name": {
+          "name": "个人资料名称",
+          "description": "现有配置文件的名称（在“管理配置文件”菜单中创建配置文件）。留空以删除标签。"
+        }
+      }
+    },
+    "create_profile": {
+      "name": "创建个人资料",
+      "description": "创建新的配置文件（独立或基于参考周期）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置。"
+        },
+        "profile_name": {
+          "name": "个人资料名称",
+          "description": "新配置文件的名称（例如“重型”、“精细洗涤”）。"
+        },
+        "reference_cycle_id": {
+          "name": "参考周期 ID",
+          "description": "此配置文件所基于的可选循环 ID。"
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "删除个人资料",
+      "description": "删除配置文件并可选择使用它取消标记循环。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置。"
+        },
+        "profile_name": {
+          "name": "个人资料名称",
+          "description": "要删除的配置文件。"
+        },
+        "unlabel_cycles": {
+          "name": "取消标签循环",
+          "description": "使用此配置文件从循环中删除配置文件标签。"
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "自动标记旧周期",
+      "description": "使用配置文件匹配追溯标记未标记的循环。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置。"
+        },
+        "confidence_threshold": {
+          "name": "置信阈值",
+          "description": "应用标签的最小匹配置信度 (0.50-0.95)。"
+        }
+      }
+    },
+    "export_config": {
+      "name": "导出配置",
+      "description": "将此设备的配置文件、周期和设置导出到 JSON 文件（每个设备）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置出口。"
+        },
+        "path": {
+          "name": "路径",
+          "description": "可选的要写入的绝对文件路径（默认为 /config/ha_washdata_export_{entry}.json）。"
+        }
+      }
+    },
+    "import_config": {
+      "name": "导入配置",
+      "description": "从 JSON 导出文件导入此设备的配置文件、周期和设置（设置可能会被覆盖）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置导入。"
+        },
+        "path": {
+          "name": "路径",
+          "description": "要导入的导出 JSON 文件的绝对路径。"
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "提交周期反馈",
+      "description": "完成循环后确认或更正自动检测的程序。提供“entry_id”（高级）或“device_id”（推荐）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "WashData 设备（推荐而不是entry_id）。"
+        },
+        "entry_id": {
+          "name": "条目 ID",
+          "description": "设备的配置条目 ID（替代 device_id）。"
+        },
+        "cycle_id": {
+          "name": "周期ID",
+          "description": "反馈通知/日志中显示的周期 ID。"
+        },
+        "user_confirmed": {
+          "name": "确认检测到的程序",
+          "description": "如果检测到的程序正确，则设置为 true。"
+        },
+        "corrected_profile": {
+          "name": "修正后的配置文件",
+          "description": "如果未确认，请提供正确的配置文件/程序名称。"
+        },
+        "corrected_duration": {
+          "name": "修正的持续时间（秒）",
+          "description": "可选的修正持续时间（以秒为单位）。"
+        },
+        "notes": {
+          "name": "笔记",
+          "description": "关于此周期的可选注释。"
+        }
+      }
+    },
+    "record_start": {
+      "name": "记录周期开始",
+      "description": "开始手动记录一个干净的循环（绕过所有匹配逻辑）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机设备进行记录。"
+        }
+      }
+    },
+    "record_stop": {
+      "name": "记录循环停止",
+      "description": "停止手动录制。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "洗衣机装置停止记录。"
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "修剪周期",
+      "description": "将过去周期的功率数据修剪到特定时间窗口。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "WashData 设备。"
+        },
+        "cycle_id": {
+          "name": "周期ID",
+          "description": "要修剪的周期的 ID。"
+        },
+        "trim_start_s": {
+          "name": "修剪开始（秒）",
+          "description": "在几秒钟内保留此偏移量的数据。默认 0。"
+        },
+        "trim_end_s": {
+          "name": "修剪结束（秒）",
+          "description": "在几秒钟内将数据保持到此偏移量。默认 = 完整持续时间。"
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "暂停循环",
+      "description": "暂停 WashData 设备的活动周期。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "WashData 设备暂停。"
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "恢复周期",
+      "description": "恢复 WashData 设备的暂停周期。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "WashData 设备恢复。"
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "触发 ML 训练",
+      "description": "根据该设备自己的标记周期手动重新训练设备上的 ML 模型（实验）。",
+      "fields": {
+        "device_id": {
+          "name": "设备",
+          "description": "要重新训练模型的 WashData 设备。"
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "运行中"
+      },
+      "match_ambiguity": {
+        "name": "匹配歧义"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "状态",
+        "state": {
+          "off": "关闭",
+          "idle": "空闲",
+          "starting": "开始",
+          "running": "运行中",
+          "paused": "已暂停",
+          "user_paused": "用户已暂停",
+          "ending": "结束",
+          "finished": "已完成",
+          "anti_wrinkle": "抗皱",
+          "interrupted": "被打断",
+          "force_stopped": "强制停止",
+          "rinse": "冲洗",
+          "unknown": "未知",
+          "clean": "干净的",
+          "delay_wait": "等待开始"
+        }
+      },
+      "washer_program": {
+        "name": "程序"
+      },
+      "time_remaining": {
+        "name": "剩余时间"
+      },
+      "total_duration": {
+        "name": "总持续时间"
+      },
+      "cycle_progress": {
+        "name": "进度"
+      },
+      "current_power": {
+        "name": "当前功率"
+      },
+      "elapsed_time": {
+        "name": "经过时间"
+      },
+      "debug_info": {
+        "name": "调试信息"
+      },
+      "match_confidence": {
+        "name": "匹配置信度"
+      },
+      "top_candidates": {
+        "name": "最佳候选人",
+        "state": {
+          "none": "没有任何"
+        }
+      },
+      "ambiguity": {
+        "name": "歧义评分"
+      },
+      "current_phase": {
+        "name": "当前阶段"
+      },
+      "profile_cycle_count": {
+        "name": "配置文件 {profile_name} 计数",
+        "unit_of_measurement": "周期"
+      },
+      "suggestions": {
+        "name": "建议设置"
+      },
+      "pump_runs_today": {
+        "name": "泵运行（过去 24 小时）"
+      },
+      "cycle_count": {
+        "name": "循环计数"
+      },
+      "energy_total": {
+        "name": "总能耗"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "程序选择",
+        "state": {
+          "auto_detect": "自动检测"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "强制结束循环"
+      },
+      "pause_cycle": {
+        "name": "暂停循环"
+      },
+      "resume_cycle": {
+        "name": "恢复周期"
+      },
+      "record_start": {
+        "name": "开始记录循环"
+      },
+      "record_stop": {
+        "name": "停止记录循环"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "需要有效的 device_id。"
+    },
+    "cycle_id_required": {
+      "message": "需要有效的cycle_id。"
+    },
+    "profile_name_required": {
+      "message": "需要有效的 profile_name。"
+    },
+    "device_not_found": {
+      "message": "未找到设备。"
+    },
+    "no_config_entry": {
+      "message": "找不到设备的配置条目。"
+    },
+    "integration_not_loaded": {
+      "message": "未为此设备加载集成。"
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "未找到周期或没有功率数据。"
+    },
+    "trim_failed_empty_window": {
+      "message": "修剪失败 - 未找到周期、无功率数据或生成的窗口为空。"
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s必须大于trim_start_s。"
+    },
+    "no_active_cycle": {
+      "message": "没有可暂停或恢复的活动周期。"
+    },
+    "path_not_allowed": {
+      "message": "路径不被允许：{path}。请将其目录添加到 configuration.yaml 中的 'allowlist_external_dirs'。"
+    },
+    "create_profile_failed": {
+      "message": "无法创建配置文件：{error}"
+    },
+    "export_path_exists": {
+      "message": "导出目标已存在：{path}。请选择其他路径，或先移除现有文件。"
+    },
+    "export_write_failed": {
+      "message": "无法将导出写入 {path}：{error}"
+    },
+    "assign_profile_failed": {
+      "message": "无法分配配置文件：{error}"
+    }
+  }
+}

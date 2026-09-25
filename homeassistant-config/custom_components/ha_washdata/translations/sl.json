@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Nastavitev WashData",
+        "description": "Konfigurirajte svoj pralni stroj ali drugo napravo.\n\nSenzor moči je obvezen.\n\nPo nastavitvi odprite ploščo WashData s stranske vrstice (ali pojdite na [/ha-washdata](/ha-washdata)) za ogled ciklov, prilagoditev zaznavanja in upravljanje profilov.",
+        "data": {
+          "name": "Ime naprave",
+          "device_type": "Vrsta naprave",
+          "power_sensor": "Senzor moči",
+          "min_power": "Najmanjši prag moči (W)"
+        },
+        "data_description": {
+          "name": "Prijazno ime za to napravo (npr. \"Pralni stroj\", \"Pomivalni stroj\").",
+          "device_type": "Kakšna vrsta naprave je to? Pomaga pri prilagajanju odkrivanja in označevanja.",
+          "power_sensor": "Entiteta senzorja, ki poroča o porabi energije v realnem času (v vatih) iz vašega pametnega vtiča.",
+          "min_power": "Odčitki moči nad tem pragom (v vatih) pomenijo, da naprava deluje. Začnite z 2 W za večino naprav."
+        }
+      },
+      "reconfigure": {
+        "title": "Ponovno konfigurirajte WashData",
+        "description": "Posodobite ime naprave, vrsto naprave ali senzor moči.\n\nPlosca WashData (stranska vrstica ali [/ha-washdata](/ha-washdata)) je namenjena upravljanju zaznavanja, ciklov, profilov in obvestil.",
+        "data": {
+          "name": "Ime naprave",
+          "device_type": "Vrsta naprave",
+          "power_sensor": "Senzor moči",
+          "min_power": "Najmanjši prag moči (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Povezava ni uspela",
+      "invalid_auth": "Neveljavna avtentikacija",
+      "unknown": "Nepričakovana napaka",
+      "invalid_power": "Prag moči mora biti večji od 0"
+    },
+    "abort": {
+      "already_configured": "Naprava je že konfigurirana",
+      "reconfigure_successful": "Ponovna konfiguracija je bila uspešna"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "name": "Ime naprave",
+          "device_type": "Vrsta naprave",
+          "power_sensor": "Senzor moči",
+          "min_power": "Najmanjši prag moči (W)"
+        },
+        "title": "Nastavitve WashData",
+        "description": "Preimenujte napravo ali spremenite njene osnovne nastavitve strojne opreme. Vse nastavitve zaznavanja, ujemanja in obveščanja so na [plošči WashData](/ha-washdata) (dostopna tudi s stranske vrstice)."
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: časovnik {minutes} min",
+      "timer_pause_action_title": "Nadaljuj cikel",
+      "timer_pause_body_suffix": "Cikel je zaustavljen. Odprite ploščo WashData za nadaljevanje.",
+      "unload_dismiss_action_title": "Nehaj opominjati",
+      "notify_live_waiting_message": "{device}: Noben profil se še ne ujema.",
+      "vs_typical_longer": "{pct}% dlje kot običajno",
+      "vs_typical_shorter": "{pct}% krajše kot običajno",
+      "invalid_power": "Prag moči mora biti večji od 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "pralni stroj",
+        "dryer": "Sušilnik",
+        "washer_dryer": "Pralno-sušilni stroj Combo",
+        "dishwasher": "Pomivalni stroj",
+        "air_fryer": "Zračni cvrtnik",
+        "bread_maker": "pekač kruha",
+        "pump": "Črpalka / zbiralna črpalka",
+        "generic": "Drugo (napredno)",
+        "other": "Pražna naprava"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Označi cikel",
+      "description": "Dodelite obstoječi profil preteklemu ciklu ali odstranite oznako.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja za označevanje."
+        },
+        "cycle_id": {
+          "name": "ID cikla",
+          "description": "ID cikla za označevanje."
+        },
+        "profile_name": {
+          "name": "Ime profila",
+          "description": "Ime obstoječega profila (profile ustvarite v meniju Upravljanje profilov). Pustite prazno, da odstranite oznako."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Ustvari profil",
+      "description": "Ustvarite nov profil (samostojen ali na podlagi referenčnega cikla).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja."
+        },
+        "profile_name": {
+          "name": "Ime profila",
+          "description": "Ime za nov profil (npr. 'Intenzivno pranje', 'Občutljivo')."
+        },
+        "reference_cycle_id": {
+          "name": "ID referenčnega cikla",
+          "description": "Izbirni ID cikla, na katerem temelji ta profil."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Izbriši profil",
+      "description": "Izbrišite profil in po želji odstranite oznake ciklov, ki ga uporabljajo.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja."
+        },
+        "profile_name": {
+          "name": "Ime profila",
+          "description": "Profil za brisanje."
+        },
+        "unlabel_cycles": {
+          "name": "Odznači cikle",
+          "description": "Odstranite oznako profila iz ciklov, ki uporabljajo ta profil."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Samodejno označevanje starih ciklov",
+      "description": "Retroaktivno označite neoznačene cikle z ujemanjem profilov.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja."
+        },
+        "confidence_threshold": {
+          "name": "Prag zaupanja",
+          "description": "Najmanjše zaupanje ujemanja (0,50–0,95) za uporabo oznak."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Izvozi konfiguracijo",
+      "description": "Izvozite profile, cikle in nastavitve te naprave v datoteko JSON (na strežnik).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja za izvoz."
+        },
+        "path": {
+          "name": "Pot",
+          "description": "Izbirna absolutna pot datoteke za pisanje (privzeto je /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Uvozi konfiguracijo",
+      "description": "Uvozite profile, cikle in nastavitve za to napravo iz izvozne datoteke JSON (nastavitve so lahko prepisane).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja za uvoz v."
+        },
+        "path": {
+          "name": "Pot",
+          "description": "Absolutna pot do izvozne datoteke JSON za uvoz."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Pošlji povratne informacije o ciklu",
+      "description": "Po zaključenem ciklu potrdite ali popravite samodejno zaznan program. Navedite `entry_id` (napredno) ali `device_id` (priporočeno).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava WashData (priporočeno namesto entry_id)."
+        },
+        "entry_id": {
+          "name": "ID vnosa",
+          "description": "ID konfiguracijskega vnosa za napravo (alternativa device_id)."
+        },
+        "cycle_id": {
+          "name": "ID cikla",
+          "description": "ID cikla, prikazan v povratnem obvestilu/dnevnikih."
+        },
+        "user_confirmed": {
+          "name": "Potrdite zaznan program",
+          "description": "Nastavite true, če je zaznan program pravilen."
+        },
+        "corrected_profile": {
+          "name": "Popravljen profil",
+          "description": "Če ni potrjen, navedite pravilno ime profila/programa."
+        },
+        "corrected_duration": {
+          "name": "Popravljeno trajanje (sekunde)",
+          "description": "Izbirno popravljeno trajanje v sekundah."
+        },
+        "notes": {
+          "name": "Opombe",
+          "description": "Neobvezne opombe o tem ciklu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Začni snemanje cikla",
+      "description": "Začnite ročno snemati čisti cikel (zaobide vso logiko ujemanja).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja za snemanje."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Ustavi snemanje cikla",
+      "description": "Ustavi ročno snemanje.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava pralnega stroja za zaustavitev snemanja."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Obreži cikel",
+      "description": "Prirežite podatke o moči preteklega cikla na določeno časovno okno.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava WashData."
+        },
+        "cycle_id": {
+          "name": "ID cikla",
+          "description": "ID cikla za obrezovanje."
+        },
+        "trim_start_s": {
+          "name": "Začetek obrezovanja (sekunde)",
+          "description": "Shranite podatke od tega odmika v sekundah. Privzeto: 0."
+        },
+        "trim_end_s": {
+          "name": "Konec obrezovanja (sekunde)",
+          "description": "Ohranite podatke do tega odmika v sekundah. Privzeto = celotno trajanje."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Premor cikla",
+      "description": "Zaustavite aktivni cikel za napravo WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava WashData za premor."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Cikel nadaljevanja",
+      "description": "Nadaljevanje zaustavljenega cikla za napravo WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava WashData za nadaljevanje."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Sproži usposabljanje ML",
+      "description": "Ročno ponovno usposobite modele ML v napravi iz lastnih označenih ciklov te naprave (eksperimentalno).",
+      "fields": {
+        "device_id": {
+          "name": "Naprava",
+          "description": "Naprava WashData za prekvalificiranje modelov."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "V delovanju"
+      },
+      "match_ambiguity": {
+        "name": "Dvoumnost ujemanja"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Stanje",
+        "state": {
+          "off": "Izključeno",
+          "idle": "Nedejavno",
+          "starting": "Zaganjanje",
+          "running": "V delovanju",
+          "paused": "Zaustavljeno",
+          "user_paused": "Zaustavljeno s strani uporabnika",
+          "ending": "Zaključuje se",
+          "finished": "Končano",
+          "anti_wrinkle": "Zaščita pred gubami",
+          "delay_wait": "Čakam na začetek",
+          "interrupted": "Prekinjeno",
+          "force_stopped": "Prisilno ustavljeno",
+          "rinse": "Izpiranje",
+          "unknown": "Neznano",
+          "clean": "čisto"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Preostali čas"
+      },
+      "total_duration": {
+        "name": "Skupno trajanje"
+      },
+      "cycle_progress": {
+        "name": "Napredek"
+      },
+      "current_power": {
+        "name": "Trenutna moč"
+      },
+      "elapsed_time": {
+        "name": "Pretečeni čas"
+      },
+      "debug_info": {
+        "name": "Informacije o odpravljanju napak"
+      },
+      "match_confidence": {
+        "name": "Zaupanje ujemanja"
+      },
+      "top_candidates": {
+        "name": "Najboljši kandidati",
+        "state": {
+          "none": "Noben"
+        }
+      },
+      "current_phase": {
+        "name": "Trenutna faza"
+      },
+      "profile_cycle_count": {
+        "name": "Število ciklov profila {profile_name}",
+        "unit_of_measurement": "ciklov"
+      },
+      "suggestions": {
+        "name": "Razpoložljive predlagane nastavitve"
+      },
+      "pump_runs_today": {
+        "name": "Črpalka deluje (zadnjih 24 ur)"
+      },
+      "cycle_count": {
+        "name": "Štetje ciklov"
+      },
+      "ambiguity": {
+        "name": "Ocena dvoumnosti"
+      },
+      "energy_total": {
+        "name": "Skupna energija"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Program cikla",
+        "state": {
+          "auto_detect": "Samodejno zaznaj"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Prisilni konec cikla"
+      },
+      "pause_cycle": {
+        "name": "Premor cikla"
+      },
+      "resume_cycle": {
+        "name": "Cikel nadaljevanja"
+      },
+      "record_start": {
+        "name": "Začni snemanje cikla"
+      },
+      "record_stop": {
+        "name": "Ustavi snemanje cikla"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Potreben je veljaven device_id."
+    },
+    "cycle_id_required": {
+      "message": "Potreben je veljaven cycle_id."
+    },
+    "profile_name_required": {
+      "message": "Zahtevano je veljavno profile_name."
+    },
+    "device_not_found": {
+      "message": "Naprave ni bilo mogoče najti."
+    },
+    "no_config_entry": {
+      "message": "Za napravo ni bil najden noben konfiguracijski vnos."
+    },
+    "integration_not_loaded": {
+      "message": "Integracija ni naložena za to napravo."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Cikel ni najden ali nima podatkov o moči."
+    },
+    "trim_failed_empty_window": {
+      "message": "Obrezovanje ni uspelo - cikel ni najden, ni podatkov o moči ali pa je nastalo okno prazno."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s mora biti večje od trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Ni aktivnega cikla za premor ali nadaljevanje."
+    },
+    "path_not_allowed": {
+      "message": "Pot ni dovoljena: {path}. Dodajte njen imenik v 'allowlist_external_dirs' v configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Profila ni bilo mogoče ustvariti: {error}"
+    },
+    "export_path_exists": {
+      "message": "Cilj izvoza že obstaja: {path}. Izberite drugo pot ali najprej odstranite obstoječo datoteko."
+    },
+    "export_write_failed": {
+      "message": "Izvoza ni bilo mogoče zapisati v {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Profila ni bilo mogoče dodeliti: {error}"
+    }
+  }
+}

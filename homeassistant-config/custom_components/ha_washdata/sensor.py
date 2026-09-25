@@ -1,0 +1,1041 @@
+# WashData - Home Assistant integration for appliance cycle monitoring via smart plugs.
+# Copyright (C) 2026 Lukas Bandura
+# SPDX-License-Identifier: AGPL-3.0-or-later
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published
+# by the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+"""Sensors for WashData."""
+
+from __future__ import annotations
+
+from asyncio import Task
+import hashlib
+import logging
+from typing import Any
+
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorEntityDescription,
+    SensorDeviceClass,
+    SensorStateClass,
+)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.const import EntityCategory, UnitOfEnergy
+from homeassistant.helpers import entity_registry
+from homeassistant.helpers.dispatcher import async_dispatcher_connect
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.util import dt as dt_util
+
+from .const import (
+    CONF_AUTO_LABEL_CONFIDENCE,
+    CONF_DURATION_TOLERANCE,
+    DOMAIN,
+    CONF_END_ENERGY_THRESHOLD,
+    CONF_MIN_OFF_GAP,
+    CONF_MIN_POWER,
+    CONF_NO_UPDATE_ACTIVE_TIMEOUT,
+    CONF_OFF_DELAY,
+    CONF_PROFILE_DURATION_TOLERANCE,
+    CONF_PROFILE_MATCH_INTERVAL,
+    CONF_PROFILE_MATCH_MAX_DURATION_RATIO,
+    CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
+    CONF_SAMPLING_INTERVAL,
+    CONF_START_THRESHOLD_W,
+    CONF_STOP_THRESHOLD_W,
+    SIGNAL_WASHER_UPDATE,
+    CONF_WATCHDOG_INTERVAL,
+    CONF_EXPOSE_DEBUG_ENTITIES,
+    CONF_POWER_PROFILE_INTERVAL_MIN,
+    DEFAULT_POWER_PROFILE_INTERVAL_MIN,
+    DEVICE_TYPE_PUMP,
+    STATE_OFF,
+    STATE_IDLE,
+    STATE_STARTING,
+    STATE_RUNNING,
+    STATE_PAUSED,
+    STATE_USER_PAUSED,
+    STATE_ENDING,
+    STATE_FINISHED,
+    STATE_ANTI_WRINKLE,
+    STATE_DELAY_WAIT,
+    STATE_INTERRUPTED,
+    STATE_FORCE_STOPPED,
+    STATE_RINSE,
+    STATE_UNKNOWN,
+    STATE_CLEAN,
+)
+from .manager import WashDataManager
+
+_LOGGER = logging.getLogger(__name__)
+
+
+_STATIC_DIAGNOSTIC_SUFFIXES = {
+    "debug_info",
+    "suggestions",
+    "match_confidence",
+    "top_candidates",
+    "ambiguity",
+}
+
+
+def _profile_count_unique_id(entry_id: str, profile_name: str) -> str:
+    """Build deterministic unique_id for a profile count diagnostic sensor."""
+    profile_token = hashlib.sha256(profile_name.encode("utf-8")).hexdigest()[:8]
+    return f"{entry_id}_profile_count_{profile_token}"
+
+
+def _expected_diagnostic_unique_ids(manager: WashDataManager, entry: ConfigEntry) -> set[str]:
+    """Return expected diagnostic unique_ids for this config entry."""
+    expected = {
+        f"{entry.entry_id}_debug_info",
+        f"{entry.entry_id}_suggestions",
+    }
+
+    if entry.options.get(CONF_EXPOSE_DEBUG_ENTITIES):
+        expected.update(
+            {
+                f"{entry.entry_id}_match_confidence",
+                f"{entry.entry_id}_top_candidates",
+                f"{entry.entry_id}_ambiguity",
+            }
+        )
+
+    for profile in manager.profile_store.list_profiles():
+        profile_name = profile.get("name")
+        if isinstance(profile_name, str) and profile_name:
+            expected.add(_profile_count_unique_id(entry.entry_id, profile_name))
+
+    return expected
+
+
+def cleanup_orphaned_diagnostic_entities(
+    hass: HomeAssistant, manager: WashDataManager, entry: ConfigEntry
+) -> int:
+    """Remove stale diagnostic entities for this config entry from entity registry."""
+    ent_reg = entity_registry.async_get(hass)
+    expected_unique_ids = _expected_diagnostic_unique_ids(manager, entry)
+
+    removed = 0
+    entry_prefix = f"{entry.entry_id}_"
+    for reg_entry in entity_registry.async_entries_for_config_entry(ent_reg, entry.entry_id):
+        unique_id = reg_entry.unique_id or ""
+        if not unique_id.startswith(entry_prefix):
+            continue
+
+        suffix = unique_id[len(entry_prefix) :]
+
+        # Remove stale pump_runs_today when device type has changed away from pump.
+        if suffix == "pump_runs_today" and manager.device_type != DEVICE_TYPE_PUMP:
+            ent_reg.async_remove(reg_entry.entity_id)
+            removed += 1
+            continue
+
+        is_diagnostic_family = (
+            suffix in _STATIC_DIAGNOSTIC_SUFFIXES
+            or suffix.startswith("profile_count_")
+            or suffix == "wash_phase"
+        )
+        if not is_diagnostic_family:
+            continue
+
+        if unique_id not in expected_unique_ids:
+            ent_reg.async_remove(reg_entry.entity_id)
+            removed += 1
+
+    if removed:
+        _LOGGER.info(
+            "Removed %s orphaned diagnostic entities for entry %s",
+            removed,
+            entry.entry_id,
+        )
+    return removed
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Set up the sensors."""
+    manager: WashDataManager = hass.data[DOMAIN][entry.entry_id]
+
+    entities: list[SensorEntity] = [
+        WasherStateSensor(manager, entry),
+        WasherProgramSensor(manager, entry),
+        WasherCurrentPhaseSensor(manager, entry),
+        WasherTimeRemainingSensor(manager, entry),
+        WasherTotalDurationSensor(manager, entry),
+        WasherProgressSensor(manager, entry),
+        WasherPowerSensor(manager, entry),
+        WasherElapsedTimeSensor(manager, entry),
+        WasherDebugSensor(manager, entry),
+        WasherSuggestionsSensor(manager, entry),
+        WasherCycleCountSensor(manager, entry),
+        WasherEnergyTotalSensor(manager, entry),
+    ]
+
+    # Add pump-specific sensors
+    if manager.device_type == DEVICE_TYPE_PUMP:
+        entities.append(PumpRunsTodaySensor(manager, entry))
+
+    # Add debug entities if enabled
+    if entry.options.get(CONF_EXPOSE_DEBUG_ENTITIES):
+        entities.extend(
+            [
+                WasherMatchConfidenceSensor(manager, entry),
+                WasherTopCandidatesSensor(manager, entry),
+                WasherAmbiguitySensor(manager, entry),
+            ]
+        )
+
+    async_add_entities(entities)
+
+    # Reconcile diagnostics at startup so stale unavailable entries are auto-removed.
+    cleanup_orphaned_diagnostic_entities(hass, manager, entry)
+
+    # Initialize dynamic profile sensor manager
+    profile_sensor_manager = WasherProfileSensorManager(manager, entry, async_add_entities)
+    await profile_sensor_manager.async_update()
+    entry.async_on_unload(profile_sensor_manager.unsubscribe)
+
+
+class WasherBaseSensor(SensorEntity):
+    """Base sensor for ha_washdata."""
+
+    _attr_has_entity_name = True
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize."""
+        self._manager = manager
+        self._entry = entry
+        self._attr_device_info = {
+            "identifiers": {(DOMAIN, entry.entry_id)},
+            "name": entry.title,
+            "manufacturer": "WashData",
+        }
+        self._attr_unique_id = f"{entry.entry_id}_{self.entity_description.key}"
+
+    async def async_added_to_hass(self) -> None:
+        """Register callbacks."""
+        self.async_on_remove(
+            async_dispatcher_connect(
+                self.hass,
+                SIGNAL_WASHER_UPDATE.format(self._entry.entry_id),
+                self._update_callback,
+            )
+        )
+
+    @callback
+    def _update_callback(self) -> None:
+        """Update the sensor."""
+        self.async_write_ha_state()
+
+
+class WasherStateSensor(WasherBaseSensor):
+    """Sensor for the washing machine state."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the state sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="washer_state",
+            translation_key="washer_state",
+            device_class=SensorDeviceClass.ENUM,
+            options=[
+                STATE_OFF,
+                STATE_IDLE,
+                STATE_STARTING,
+                STATE_RUNNING,
+                STATE_PAUSED,
+                STATE_USER_PAUSED,
+                STATE_ENDING,
+                STATE_FINISHED,
+                STATE_ANTI_WRINKLE,
+                STATE_DELAY_WAIT,
+                STATE_INTERRUPTED,
+                STATE_FORCE_STOPPED,
+                STATE_RINSE,
+                STATE_UNKNOWN,
+                STATE_CLEAN,
+            ],
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def icon(self) -> str | None:  # type: ignore[override]
+        """Return the icon."""
+        dtype = self._manager.device_type
+        if dtype == "dryer":
+            return "mdi:tumble-dryer"
+        if dtype == "dishwasher":
+            return "mdi:dishwasher"
+        if dtype == "air_fryer":
+            return "mdi:pot-steam"
+        if dtype == "pump":
+            return "mdi:water-pump"
+        return "mdi:washing-machine"
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.check_state()
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        attrs: dict[str, Any] = {
+            "samples_recorded": self._manager.samples_recorded,
+            "current_program_guess": self._manager.current_program,
+            "sub_state": self._manager.sub_state,
+        }
+        if self._manager.device_type == DEVICE_TYPE_PUMP:
+            attrs["pump_stuck"] = self._manager.pump_stuck
+        # Runtime anomaly signal (visible only; never a notification). Present the
+        # overrun ratio while a cycle is overrunning its usual duration so users /
+        # automations can react without a push.
+        anomaly = self._manager.cycle_anomaly
+        if anomaly and anomaly != "none":
+            attrs["cycle_anomaly"] = anomaly
+            attrs["overrun_ratio"] = round(self._manager.overrun_ratio, 2)
+        # Envelope position (visible only): where the run maps onto the matched
+        # profile's own curve, which is independent of elapsed time and therefore
+        # still meaningful when a cycle over- or under-runs its usual duration.
+        # Refreshed only during the low-power phases the alignment runs in.
+        envelope_position = self._manager.envelope_position
+        if envelope_position is not None:
+            attrs["envelope_position"] = envelope_position
+        # Post-cycle anomaly data (underrun, energy spike/low) from last completed cycle.
+        last_post = self._manager.last_cycle_post_anomaly
+        if isinstance(last_post, dict):
+            if last_post.get("anomaly") == "underrun":
+                attrs["last_cycle_anomaly"] = "underrun"
+                if "underrun_ratio" in last_post:
+                    attrs["last_cycle_underrun_ratio"] = last_post["underrun_ratio"]
+            if "energy_anomaly" in last_post:
+                attrs["last_cycle_energy_anomaly"] = last_post["energy_anomaly"]
+            if "energy_z_score" in last_post:
+                attrs["last_cycle_energy_z_score"] = last_post["energy_z_score"]
+        # Surface HA restart gaps recorded during the current cycle so automations
+        # can see that the power trace has holes (pure metadata, never a notification).
+        gaps = self._manager.restart_gaps
+        if gaps:
+            attrs["ha_restart_gaps"] = len(gaps)
+        # Predictive-maintenance reminders (E2): event types whose cycle threshold
+        # has been reached. Automatable by users; never a notification.
+        maintenance_due = self._manager.maintenance_due
+        if maintenance_due:
+            attrs["maintenance_due"] = maintenance_due
+        return attrs
+
+
+class WasherProgramSensor(WasherBaseSensor):
+    """Sensor for the current program."""
+
+    # The reference-profile curve is a live forecast for energy managers; it is
+    # static per profile and has no historical value, so keep it out of the
+    # recorder database (still available live via state/templates/WebSocket).
+    _unrecorded_attributes = frozenset({"reference_profile"})
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the program sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="washer_program",
+            translation_key="washer_program",
+            icon="mdi:file-document-outline",
+            device_class=SensorDeviceClass.ENUM,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def options(self) -> list[str] | None:  # type: ignore[override]
+        """Return a list of possible options."""
+        profiles = self._manager.profile_store.list_profiles()
+        # Include current program if not in profiles (e.g. unknown or special states)
+        options = [p["name"] for p in profiles]
+        curr = self._manager.current_program
+        if curr and curr not in options:
+            options.append(curr)
+        if "none" not in options:
+            options.append("none")
+        if "unknown" not in options:
+            options.append("unknown")
+        return options
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.current_program
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        profile_name = self._manager.current_program
+        if not profile_name or profile_name in ("off", "detecting...", "starting", "unknown"):
+            return None
+
+        device_type = self._manager.device_type
+        if device_type:
+            catalog = self._manager.list_phase_catalog(device_type)
+            assigned = self._manager.get_profile_phase_ranges_for_device(
+                profile_name,
+                device_type,
+            )
+        else:
+            catalog = []
+            assigned = []
+        catalog_view: list[dict[str, Any]] = [
+            {
+                "name": p.get("name"),
+                "description": p.get("description", ""),
+                "is_default": bool(p.get("is_default", False)),
+            }
+            for p in catalog
+        ]
+
+        attrs: dict[str, Any] = {
+            "active_phase": self._manager.phase_description,
+            "phase_catalog": catalog_view,
+            "phase_ranges": assigned,
+        }
+        # Forward-looking reference power curve of the matched profile (issue
+        # #304): a compact `[[offset_s, watts], ...]` shape energy managers can
+        # slice by the live progress position to anticipate later load (e.g. a
+        # heating spike). Only present once a real profile is matched - the
+        # guard above already returns None while detecting/unmatched/off.
+        reference = self._manager.profile_store.reference_curve(profile_name)
+        if reference:
+            attrs["reference_profile"] = reference
+        return attrs
+
+
+class WasherTimeRemainingSensor(WasherBaseSensor):
+    """Sensor for estimated time remaining."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the time remaining sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="time_remaining",
+            translation_key="time_remaining",
+            device_class=SensorDeviceClass.DURATION,
+            # Declare the unit statically (not as a state-dependent property) so
+            # Home Assistant always sees a duration entity and offers the
+            # duration display-format options, even while the appliance is idle
+            # and the value is unknown (see issue #261).
+            native_unit_of_measurement="min",
+            suggested_display_precision=0,
+            icon="mdi:timer-sand",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        if self._manager.check_state() in (STATE_OFF, STATE_ANTI_WRINKLE, STATE_DELAY_WAIT):
+            return None
+        if self._manager.time_remaining is not None:
+            return int(self._manager.time_remaining / 60)
+        return None
+
+
+class WasherTotalDurationSensor(WasherBaseSensor):
+    """Sensor for total predicted duration."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the total duration sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="total_duration",
+            translation_key="total_duration",
+            device_class=SensorDeviceClass.DURATION,
+            # See WasherTimeRemainingSensor / issue #261: keep the unit static so
+            # the duration display-format options are available even while idle.
+            native_unit_of_measurement="min",
+            suggested_display_precision=0,
+            icon="mdi:timer-check-outline",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        if self._manager.check_state() == STATE_OFF:
+            return None
+        if self._manager.total_duration:
+            return int(self._manager.total_duration / 60)
+        return None
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        """Return extra state attributes."""
+        return {
+            "last_updated": self._manager.last_total_duration_update,
+        }
+
+
+class WasherProgressSensor(WasherBaseSensor):
+    """Sensor for cycle progress percentage."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the progress sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="cycle_progress",
+            translation_key="cycle_progress",
+            native_unit_of_measurement="%",
+            suggested_display_precision=1,
+            icon="mdi:progress-clock",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.cycle_progress
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        """Expose the live projected total energy/cost for the running cycle.
+
+        Derived from accumulated energy and the (ML-blended) progress estimate.
+        Keys are present only while a projection is available, so the attributes
+        stay clean when idle or early in a cycle.
+        """
+        attrs: dict[str, float] = {}
+        projected_wh = self._manager.projected_energy_wh
+        if projected_wh is not None:
+            attrs["projected_energy_kwh"] = round(float(projected_wh) / 1000.0, 3)
+        projected_cost = self._manager.projected_cost
+        if projected_cost is not None:
+            attrs["projected_cost"] = round(float(projected_cost), 2)
+        return attrs or None
+
+
+class WasherPowerSensor(WasherBaseSensor):
+    """Sensor for current power usage."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the power sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="current_power",
+            translation_key="current_power",
+            native_unit_of_measurement="W",
+            device_class=SensorDeviceClass.POWER,
+            icon="mdi:flash",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.current_power
+
+
+class WasherElapsedTimeSensor(WasherBaseSensor):
+    """Sensor for elapsed cycle time."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the elapsed time sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="elapsed_time",
+            translation_key="elapsed_time",
+            native_unit_of_measurement="s",
+            device_class=SensorDeviceClass.DURATION,
+            suggested_display_precision=0,
+            icon="mdi:timer-outline",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        if self._manager.check_state() == STATE_OFF:
+            return 0
+        start = self._manager.cycle_start_time
+        if start:
+            delta = dt_util.now() - start
+            return int(delta.total_seconds())
+        return 0
+
+
+class WasherDebugSensor(WasherBaseSensor):
+    """Sensor for internal debug information."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        """Initialize the debug sensor."""
+        self.entity_description = SensorEntityDescription(
+            key="debug_info",
+            translation_key="debug_info",
+            icon="mdi:bug",
+            entity_registry_enabled_default=False,  # Hidden by default
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.check_state()
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        """Return various internal states for debugging."""
+        detector = self._manager.detector
+        stats = self._manager.sample_interval_stats
+        # pylint: disable=protected-access
+        attrs: dict[str, Any] = {
+            "sub_state": detector.sub_state,
+            "match_confidence": getattr(self._manager, "_last_match_confidence", 0.0),
+            "cycle_id": getattr(detector, "_current_cycle_start", None),
+            "samples": detector.samples_recorded,
+            "energy_accum": getattr(detector, "_energy_since_idle_wh", 0.0),
+            "time_below": getattr(detector, "_time_below_threshold", 0.0),
+            "sampling_p95": stats.get("p95"),
+            "noise_events": len(getattr(self._manager, "_noise_events", [])),
+            "top_candidates": self._manager.top_candidates,
+            "last_match_details": self._manager.last_match_details,
+        }
+        return attrs
+
+
+class WasherMatchConfidenceSensor(WasherBaseSensor):
+    """Sensor for profile match confidence."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="match_confidence",
+            translation_key="match_confidence",
+            icon="mdi:chart-bar",
+            state_class="measurement",
+            native_unit_of_measurement="%",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        conf = getattr(self._manager, "_last_match_confidence", 0.0)
+        return int(conf * 100)
+
+
+class WasherTopCandidatesSensor(WasherBaseSensor):
+    """Sensor showing top matching candidates."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="top_candidates",
+            translation_key="top_candidates",
+            icon="mdi:format-list-numbered",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        candidates = self._manager.top_candidates
+        if not candidates:
+            return "none"
+        # Return simplified string: "Name (Score), Name (Score)"
+        return ", ".join([f"{c['name']} ({c['score']:.2f})" for c in candidates[:3]])
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        return {"candidates": self._manager.top_candidates}
+
+
+class WasherAmbiguitySensor(WasherBaseSensor):
+    """Diagnostic sensor for how ambiguous the last profile match was.
+
+    Reports the score margin between the top-1 and top-2 candidates as a
+    percentage: a small margin means the matcher could not confidently
+    distinguish the best profile from the runner-up.
+    """
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="ambiguity",
+            translation_key="ambiguity",
+            icon="mdi:help-rhombus-outline",
+            state_class=SensorStateClass.MEASUREMENT,
+            native_unit_of_measurement="%",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        margin = self._manager.last_ambiguity_margin
+        if margin is None:
+            return None
+        return round(float(margin) * 100, 1)
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        return {"is_ambiguous": self._manager.match_ambiguity}
+
+
+class WasherCurrentPhaseSensor(WasherBaseSensor):
+    """Sensor for the current detected phase."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="current_phase",
+            translation_key="current_phase",
+            icon="mdi:water-sync",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        return self._manager.phase_description
+
+
+class WasherProfileCountSensor(WasherBaseSensor):
+    """Diagnostic sensor showing cycle count for a specific profile."""
+
+    def __init__(
+        self, manager: WashDataManager, entry: ConfigEntry, profile_name: str, count: int
+    ) -> None:
+        """Initialize."""
+        self._profile_name = profile_name
+        self._profile_token = hashlib.sha256(
+            profile_name.encode("utf-8")
+        ).hexdigest()[:8]
+        # We store initial count, but update callback will refresh it
+        self._count = count
+
+        self.entity_description = SensorEntityDescription(
+            key=f"profile_count_{self._profile_token}",
+            translation_key="profile_cycle_count",
+            icon="mdi:counter",
+            state_class="total",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        self._attr_translation_placeholders = {"profile_name": profile_name}
+        super().__init__(manager, entry)
+        # Override unique ID to be profile specific
+        self._attr_unique_id = f"{entry.entry_id}_profile_count_{self._profile_token}"
+
+    @property
+    def native_value(self) -> int:  # type: ignore[override]
+        """Return the cycle count."""
+        # Fetch fresh count from store if available
+        profile = self._manager.profile_store.get_profile(self._profile_name)
+        if profile:
+            return profile.get("cycle_count", 0)
+        return 0
+
+    @property
+    def available(self) -> bool:  # type: ignore[override]
+        """Return True if profile still exists."""
+        return self._manager.profile_store.get_profile(self._profile_name) is not None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:  # type: ignore[override]
+        """Return profile statistics."""
+        profile = self._manager.profile_store.get_profile(self._profile_name)
+        if not profile:
+            return None
+
+        avg_energy = profile.get("avg_energy")
+        count = profile.get("cycle_count", 0)
+        total_energy = (avg_energy * count) if avg_energy is not None else None
+        duration_std_dev = profile.get("duration_std_dev")
+        consistency_min = (
+            float(duration_std_dev) / 60.0
+            if isinstance(duration_std_dev, (int, float))
+            else None
+        )
+
+        # Helper to format duration
+        def _to_min(sec: float) -> int:
+            return int(sec / 60) if sec else 0
+
+        # power_profile bucket size (minutes) is configurable (#367); default 15.
+        # Clamp to >=1 (get_profile_power_profile returns [] for interval <= 0).
+        interval_min = DEFAULT_POWER_PROFILE_INTERVAL_MIN
+        try:
+            interval_min = int(
+                self._entry.options.get(
+                    CONF_POWER_PROFILE_INTERVAL_MIN, DEFAULT_POWER_PROFILE_INTERVAL_MIN
+                )
+            )
+        except (TypeError, ValueError, OverflowError):
+            interval_min = DEFAULT_POWER_PROFILE_INTERVAL_MIN
+        interval_min = max(1, interval_min)
+
+        return {
+            "average_consumption_kwh": avg_energy,
+            "total_consumption_kwh": total_energy,
+            "last_run": profile.get("last_run"),
+            "average_length_min": _to_min(profile.get("avg_duration", 0)),
+            "min_length_min": _to_min(profile.get("min_duration", 0)),
+            "max_length_min": _to_min(profile.get("max_duration", 0)),
+            "consistency_min": consistency_min,
+            # Average power (W) per configured interval of this profile's learned shape,
+            # e.g. [2200, 2200, 800, ...] - the flat array external planners such
+            # as tibber_prices' `power_profile` consume to pick the cheapest run
+            # window (issue #272). Empty until the profile has a learned envelope.
+            # Refreshes with the profile: the envelope is rebuilt on each new
+            # labelled cycle, which bumps this sensor's cycle_count state.
+            "power_profile": self._manager.profile_store.get_profile_power_profile(
+                self._profile_name, interval_s=interval_min * 60.0
+            ),
+            "power_profile_interval_min": interval_min,
+        }
+
+
+class WasherProfileSensorManager:
+    """Manages dynamic profile sensors."""
+
+    def __init__(
+        self,
+        manager: WashDataManager,
+        entry: ConfigEntry,
+        async_add_entities: AddEntitiesCallback,
+    ) -> None:
+        """Initialize."""
+        self._manager = manager
+        self._entry = entry
+        self._async_add_entities = async_add_entities
+        self._sensors: dict[str, WasherProfileCountSensor] = {}
+        self._diagnostics_cleanup_done: bool = False
+
+        # Determine the signal string. It must match SIGNAL_WASHER_UPDATE from const.py
+        # which is "washdata_update_{}"
+        self._signal = SIGNAL_WASHER_UPDATE.format(entry.entry_id)
+        self._update_task: Task[None] | None = None
+        self._pending_update: bool = False
+
+        # Register callback for ALL updates (simplest hook we have)
+        # Ideally we'd have a specific profile update signal, but general update is fine
+        # as long as we debounce or check efficiently.
+        self._unsub_dispatcher = async_dispatcher_connect(
+            manager.hass,
+            self._signal,
+            self._update_callback,
+        )
+
+        # Handle stale diagnostics that were left in registry by previous naming schemes
+        # or profile renames. Run once at initialization instead of on every update.
+        cleanup_orphaned_diagnostic_entities(
+            self._manager.hass, self._manager, self._entry
+        )
+        self._diagnostics_cleanup_done = True
+
+    def unsubscribe(self) -> None:
+        """Remove the dispatcher subscription."""
+        if self._unsub_dispatcher:
+            self._unsub_dispatcher()
+            self._unsub_dispatcher = None
+
+        # Prevent queued follow-up refreshes after teardown.
+        self._pending_update = False
+        if self._update_task and not self._update_task.done():
+            self._update_task.cancel()
+        self._update_task = None
+
+    @callback
+    def _update_callback(self) -> None:
+        """Handle updates."""
+        if self._update_task and not self._update_task.done():
+            self._pending_update = True
+            return
+
+        task = self._manager.hass.async_create_task(self.async_update())
+        self._update_task = task
+
+        def _clear_update_task(done_task: Task[Any]) -> None:
+            if self._update_task is done_task:
+                self._update_task = None
+                if self._unsub_dispatcher is not None and self._pending_update:
+                    self._pending_update = False
+                    follow = self._manager.hass.async_create_task(self.async_update())
+                    self._update_task = follow
+                    follow.add_done_callback(_clear_update_task)
+
+        task.add_done_callback(_clear_update_task)
+
+    async def async_update(self) -> None:
+        """Reflect profile changes in sensors."""
+        profiles = self._manager.profile_store.list_profiles()
+        current_names = {p["name"] for p in profiles}
+        existing_names = set(self._sensors.keys())
+
+        # Add new
+        new_names = current_names - existing_names
+        new_entities: list[SensorEntity] = []
+        for name in new_names:
+            p_data = self._manager.profile_store.get_profile(name)
+            count = p_data.get("cycle_count", 0) if p_data else 0
+            sensor = WasherProfileCountSensor(self._manager, self._entry, name, count)
+            self._sensors[name] = sensor
+            new_entities.append(sensor)
+
+        if new_entities:
+            self._async_add_entities(new_entities)
+
+        # Remove old (if profile deleted)
+        removed_names = existing_names - current_names
+
+        if removed_names:
+            ent_reg = entity_registry.async_get(self._manager.hass)
+            for name in removed_names:
+                sensor = self._sensors.pop(name)
+                # Remove from Entity Registry if registered
+                if sensor.entity_id:
+                    if ent_reg.async_get(sensor.entity_id):
+                        ent_reg.async_remove(sensor.entity_id)
+                    else:
+                        # Fallback for non-registered entities that were attached.
+                        if sensor.hass:
+                            try:
+                                await sensor.async_remove()
+                            except Exception as err:  # pylint: disable=broad-exception-caught
+                                _LOGGER.debug(
+                                    "Failed to remove sensor '%s' via fallback path: %s",
+                                    name,
+                                    err,
+                                )
+
+
+class WasherSuggestionsSensor(WasherBaseSensor):
+    """Sensor for learned settings suggestions."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="suggestions",
+            translation_key="suggestions",
+            icon="mdi:lightbulb-on-outline",
+            entity_category=EntityCategory.DIAGNOSTIC,
+        )
+        super().__init__(manager, entry)
+
+    @staticmethod
+    def _applicable_suggestion_keys() -> tuple[str, ...]:
+        """Return suggestion keys that can be applied in options flow."""
+        return (
+            CONF_MIN_POWER,
+            CONF_OFF_DELAY,
+            CONF_WATCHDOG_INTERVAL,
+            CONF_NO_UPDATE_ACTIVE_TIMEOUT,
+            CONF_SAMPLING_INTERVAL,
+            CONF_PROFILE_MATCH_INTERVAL,
+            CONF_AUTO_LABEL_CONFIDENCE,
+            CONF_DURATION_TOLERANCE,
+            CONF_PROFILE_DURATION_TOLERANCE,
+            CONF_PROFILE_MATCH_MIN_DURATION_RATIO,
+            CONF_PROFILE_MATCH_MAX_DURATION_RATIO,
+            CONF_MIN_OFF_GAP,
+            CONF_STOP_THRESHOLD_W,
+            CONF_START_THRESHOLD_W,
+            CONF_END_ENERGY_THRESHOLD,
+        )
+
+    def _count_applicable_suggestions(self, suggestions: dict[str, Any]) -> int:
+        """Count only suggestions with values that can be applied from options flow."""
+        count = 0
+        for key in self._applicable_suggestion_keys():
+            entry = suggestions.get(key)
+            if isinstance(entry, dict) and entry.get("value") is not None:
+                count += 1
+        return count
+
+    @property
+    def native_value(self):  # type: ignore[override]
+        suggestions = self._manager.suggestions
+        if not suggestions:
+            return 0
+        return self._count_applicable_suggestions(suggestions)
+
+    @property
+    def extra_state_attributes(self):  # type: ignore[override]
+        suggestions: dict[str, Any] = self._manager.suggestions or {}
+        count = self._count_applicable_suggestions(suggestions)
+        applicable_keys = sorted(
+            k for k in self._applicable_suggestion_keys()
+            if isinstance(suggestions.get(k), dict) and suggestions[k].get("value") is not None
+        )
+
+        attrs: dict[str, Any] = {
+            "has_actionable_suggestions": count > 0,
+            "suggestions_count": count,
+            "suggested_option_keys": applicable_keys,
+            "suggestions": suggestions,
+        }
+        return attrs
+
+
+class PumpRunsTodaySensor(WasherBaseSensor):
+    """Sensor reporting how many pump cycles occurred in the last 24 hours.
+
+    Only created when device type is ``pump``.
+    """
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="pump_runs_today",
+            translation_key="pump_runs_today",
+            icon="mdi:counter",
+            native_unit_of_measurement="cycles",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self) -> int:  # type: ignore[override]
+        return self._manager.pump_runs_today
+
+
+class WasherCycleCountSensor(WasherBaseSensor):
+    """Odometer: how many cycles this appliance has run, ever.
+
+    Reports the monotonic lifetime counter, not ``len(stored history)`` (#414). The
+    stored-history number is capped at ``max_past_cycles`` and shrinks when the user
+    deletes a record, so as a state it was unusable for the thing people build on it:
+    an "every N cycles" maintenance schedule, whether WashData's own reminders or an
+    external integration's. The old number is still available as the
+    ``stored_cycles`` attribute.
+    """
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="cycle_count",
+            translation_key="cycle_count",
+            icon="mdi:counter",
+            native_unit_of_measurement="cycles",
+            # TOTAL, not TOTAL_INCREASING, even though the odometer only rises on its
+            # own. The user can correct it downward (WS set_lifetime_cycle_count ->
+            # set_lifetime_cycle_count(force=True)), and TOTAL_INCREASING reads any
+            # decrease as a meter reset: correcting 500 down to 300 makes the
+            # long-term sum absorb the new reading whole, recording 300 cycles that
+            # were never run. TOTAL applies the -200 the correction actually means.
+            # No last_reset: the sum accumulates continuously.
+            state_class=SensorStateClass.TOTAL,
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self) -> int:  # type: ignore[override]
+        return self._manager.lifetime_cycle_count
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any] | None:  # type: ignore[override]
+        """Expose the retained-history count the state used to report."""
+        return {"stored_cycles": self._manager.cycle_count}
+
+
+class WasherEnergyTotalSensor(WasherBaseSensor):
+    """Lifetime-accumulating energy meter for the HA Energy dashboard."""
+
+    def __init__(self, manager: WashDataManager, entry: ConfigEntry) -> None:
+        self.entity_description = SensorEntityDescription(
+            key="energy_total",
+            translation_key="energy_total",
+            device_class=SensorDeviceClass.ENERGY,
+            state_class=SensorStateClass.TOTAL_INCREASING,
+            native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+            suggested_display_precision=3,
+            icon="mdi:lightning-bolt",
+        )
+        super().__init__(manager, entry)
+
+    @property
+    def native_value(self) -> float:  # type: ignore[override]
+        return self._manager.lifetime_energy_kwh

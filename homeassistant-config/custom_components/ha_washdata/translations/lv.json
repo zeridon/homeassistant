@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WashData iestatīšana",
+        "description": "Konfigurējiet veļas mašīnu vai citu ierīci.\n\nNepieciešams jaudas sensors.\n\nPēc iestatīšanas atveriet WashData paneli no sānjoslas (vai dodieties uz [/ha-washdata](/ha-washdata)), lai skatītu ciklus, pielāgotu noteikšanu un pārvaldītu profilus.",
+        "data": {
+          "name": "Ierīces nosaukums",
+          "device_type": "Ierīces veids",
+          "power_sensor": "Jaudas sensors",
+          "min_power": "Minimālās jaudas slieksnis (W)"
+        },
+        "data_description": {
+          "name": "Šīs ierīces draudzīgs nosaukums (piemēram, “Veļas mašīna”, “Trauku mazgājamā mašīna”).",
+          "device_type": "Kāda veida ierīce šī ir? Palīdz pielāgot noteikšanu un marķēšanu.",
+          "power_sensor": "Sensora entītija, kas ziņo reāllaika enerģijas patēriņu (vatos) no jūsu viedā spraudņa.",
+          "min_power": "Jaudas rādījumi, kas pārsniedz šo slieksni (vatos), norāda, ka ierīce darbojas. Lielākajai daļai ierīču sāciet ar 2 W."
+        }
+      },
+      "reconfigure": {
+        "title": "WashData pārkonfigurēšana",
+        "description": "Atjauniniet ierīces nosaukumu, ierīces veidu vai jaudas sensoru.\n\nWashData panelī (sānjosla vai [/ha-washdata](/ha-washdata)) tiek pārvaldīta noteikšana, cikli, profili un paziņojumi.",
+        "data": {
+          "name": "Ierīces nosaukums",
+          "device_type": "Ierīces veids",
+          "power_sensor": "Jaudas sensors",
+          "min_power": "Minimālās jaudas slieksnis (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Neizdevās izveidot savienojumu",
+      "invalid_auth": "Nederīga autentifikācija",
+      "unknown": "Negaidīta kļūda",
+      "invalid_power": "Jaudas slieksnim jābūt lielākam par 0"
+    },
+    "abort": {
+      "already_configured": "Ierīce jau ir konfigurēta",
+      "reconfigure_successful": "Pārkonfigurēšana veiksmīga"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData iestatījumi",
+        "description": "Pārdēvējiet ierīci vai mainiet tās galvenos aparatūras iestatījumus. Visi noteikšanas, saskaņošanas un paziņojumu iestatījumi atrodas [WashData panelī](/ha-washdata) (pieejams arī no sānjoslas).",
+        "data": {
+          "name": "Ierīces nosaukums",
+          "device_type": "Ierīces veids",
+          "power_sensor": "Jaudas sensors",
+          "min_power": "Minimālās jaudas slieksnis (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: {minutes} min. taimeris",
+      "timer_pause_action_title": "Atsākt ciklu",
+      "timer_pause_body_suffix": "Cikls ir apturēts. Atveriet WashData paneli, lai atsāktu.",
+      "unload_dismiss_action_title": "Pārtraukt atgādināšanu",
+      "notify_live_waiting_message": "{device}: Vēl nav atpazīts neviens profils.",
+      "vs_typical_longer": "{pct}% ilgāk nekā parasti",
+      "vs_typical_shorter": "{pct}% īsāk nekā parasti",
+      "invalid_power": "Jaudas slieksnim jābūt lielākam par 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Veļas mašīna",
+        "dryer": "Žāvētājs",
+        "washer_dryer": "Kombinētais veļas mazgājamās mašīnas-žāvētājs",
+        "dishwasher": "Trauku mazgājamā mašīna",
+        "air_fryer": "Gaisa cepeškrāsns",
+        "bread_maker": "Maizes gatavotājs",
+        "pump": "Sūknis / Drenāžas sūknis",
+        "generic": "Cits (papildu)",
+        "other": "Sliekšņa ierīce"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Iezīmēt ciklu",
+      "description": "Piešķiriet esošu profilu iepriekšējam ciklam vai noņemiet iezīmi.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce uz etiķetes."
+        },
+        "cycle_id": {
+          "name": "Cikla ID",
+          "description": "Apzīmējamā cikla ID."
+        },
+        "profile_name": {
+          "name": "Profila nosaukums",
+          "description": "Esoša profila nosaukums (izveidojiet profilus izvēlnē Pārvaldīt profilus). Atstājiet tukšu, lai noņemtu etiķeti."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Izveidot profilu",
+      "description": "Izveidojiet jaunu profilu (savrupu vai pamatojoties uz atsauces ciklu).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce."
+        },
+        "profile_name": {
+          "name": "Profila nosaukums",
+          "description": "Jaunā profila nosaukums (piemēram, \"Lielas slodzes\", \"Delikateses\")."
+        },
+        "reference_cycle_id": {
+          "name": "Atsauces cikla ID",
+          "description": "Izvēles cikla ID šī profila pamatā."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Dzēst profilu",
+      "description": "Dzēsiet profilu un pēc izvēles noņemiet etiķetes cikliem, izmantojot to.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce."
+        },
+        "profile_name": {
+          "name": "Profila nosaukums",
+          "description": "Profils, kas jāizdzēš."
+        },
+        "unlabel_cycles": {
+          "name": "Ciklu atcelšana",
+          "description": "Noņemiet profila etiķeti no cikliem, izmantojot šo profilu."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Automātiski iezīmējiet vecos ciklus",
+      "description": "Ar atpakaļejošu datumu iezīmējiet nemarķētos ciklus, izmantojot profila saskaņošanu.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce."
+        },
+        "confidence_threshold": {
+          "name": "Pārliecības slieksnis",
+          "description": "Minimālā atbilstības ticamība (0,50–0,95), lai lietotu etiķetes."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Eksportēt konfigurāciju",
+      "description": "Eksportējiet šīs ierīces profilus, ciklus un iestatījumus JSON failā (katrai ierīcei).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Eksportējamā veļas mašīnas ierīce."
+        },
+        "path": {
+          "name": "Ceļš",
+          "description": "Izvēles absolūtais rakstāmā faila ceļš (pēc noklusējuma /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importēt konfigurāciju",
+      "description": "Importējiet šīs ierīces profilus, ciklus un iestatījumus no JSON eksporta faila (iestatījumi var tikt pārrakstīti).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce, kurā importēt."
+        },
+        "path": {
+          "name": "Ceļš",
+          "description": "Absolūtais ceļš uz importējamo eksportējamo JSON failu."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Iesniedziet cikla atsauksmes",
+      "description": "Pēc cikla pabeigšanas apstipriniet vai labojiet automātiski noteikto programmu. Norādiet vai nu “entry_id” (papildu) vai “device_id” (ieteicams).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "WashData ierīce (ieteicama enter_id vietā)."
+        },
+        "entry_id": {
+          "name": "Ieejas ID",
+          "description": "Ierīces konfigurācijas ieraksta ID (alternatīva ierīces_id)."
+        },
+        "cycle_id": {
+          "name": "Cikla ID",
+          "description": "Cikla ID, kas parādīts atsauksmju paziņojumā / žurnālos."
+        },
+        "user_confirmed": {
+          "name": "Apstipriniet noteikto programmu",
+          "description": "Iestatiet patiesu, ja noteiktā programma ir pareiza."
+        },
+        "corrected_profile": {
+          "name": "Labots profils",
+          "description": "Ja tas nav apstiprināts, norādiet pareizo profila/programmas nosaukumu."
+        },
+        "corrected_duration": {
+          "name": "Izlabotais ilgums (sekundēs)",
+          "description": "Pēc izvēles koriģētais ilgums sekundēs."
+        },
+        "notes": {
+          "name": "Piezīmes",
+          "description": "Izvēles piezīmes par šo ciklu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Sākt cikla ierakstīšanu",
+      "description": "Sāciet manuāli ierakstīt tīru ciklu (apiet visu atbilstošo loģiku).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce ierakstīšanai."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Apturēt cikla ierakstīšanu",
+      "description": "Pārtrauciet manuālu ierakstīšanu.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "Veļas mašīnas ierīce ierakstīšanas pārtraukšanai."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Apgriezt ciklu",
+      "description": "Apgrieziet iepriekšējā cikla jaudas datus līdz noteiktam laika logam.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "WashData ierīce."
+        },
+        "cycle_id": {
+          "name": "Cikla ID",
+          "description": "Apgriežamā cikla ID."
+        },
+        "trim_start_s": {
+          "name": "Apgriešanas sākums (sekundēs)",
+          "description": "Saglabājiet datus no šīs nobīdes sekundēs. Noklusējums 0."
+        },
+        "trim_end_s": {
+          "name": "Apgriešanas beigas (sekundēs)",
+          "description": "Saglabājiet datus līdz šai nobīdei sekundēs. Noklusējums = pilns ilgums."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Apturēt ciklu",
+      "description": "Apturiet WashData ierīces aktīvo ciklu.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "WashData ierīce, lai apturētu."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Atsākt ciklu",
+      "description": "Atsāciet WashData ierīces apturēto ciklu.",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "WashData ierīce, lai atsāktu."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Aktivizēt ML apmācību",
+      "description": "Manuāli pārapmāciet ierīcē esošos ML modeļus, izmantojot šīs ierīces pašas iezīmētos ciklus (eksperimentāls).",
+      "fields": {
+        "device_id": {
+          "name": "Ierīce",
+          "description": "WashData ierīce, kurai pārapmācīt modeļus."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Darbojas"
+      },
+      "match_ambiguity": {
+        "name": "Atbilstības neskaidrība"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Stāvoklis",
+        "state": {
+          "off": "Izslēgts",
+          "idle": "Dīkstāvē",
+          "starting": "Sākas",
+          "running": "Darbojas",
+          "paused": "Pauzēts",
+          "user_paused": "Lietotāja apturēts",
+          "ending": "Beigas",
+          "finished": "Pabeigts",
+          "anti_wrinkle": "Pretgrumbu",
+          "interrupted": "Pārtrauca",
+          "force_stopped": "Piespiedu kārtā apturēta",
+          "rinse": "Noskalo",
+          "unknown": "Nezināms",
+          "clean": "Tīrs",
+          "delay_wait": "Gaida sākumu"
+        }
+      },
+      "washer_program": {
+        "name": "Programma"
+      },
+      "time_remaining": {
+        "name": "Atlikušais laiks"
+      },
+      "total_duration": {
+        "name": "Kopējais ilgums"
+      },
+      "cycle_progress": {
+        "name": "Progress"
+      },
+      "current_power": {
+        "name": "Pašreizējā jauda"
+      },
+      "elapsed_time": {
+        "name": "Pagājušais laiks"
+      },
+      "debug_info": {
+        "name": "Atkļūdošanas informācija"
+      },
+      "match_confidence": {
+        "name": "Atbilstības pārliecība"
+      },
+      "top_candidates": {
+        "name": "Labākie kandidāti",
+        "state": {
+          "none": "Nav"
+        }
+      },
+      "ambiguity": {
+        "name": "Neskaidrības rādītājs"
+      },
+      "current_phase": {
+        "name": "Pašreizējā fāze"
+      },
+      "profile_cycle_count": {
+        "name": "Profila {profile_name} skaits",
+        "unit_of_measurement": "cikli"
+      },
+      "suggestions": {
+        "name": "Ieteiktie iestatījumi"
+      },
+      "pump_runs_today": {
+        "name": "Sūknis darbojas (pēdējās 24 h)"
+      },
+      "cycle_count": {
+        "name": "Ciklu skaits"
+      },
+      "energy_total": {
+        "name": "Kopējā enerģija"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Cikla programma",
+        "state": {
+          "auto_detect": "Automātiska noteikšana"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Piespiedu beigu cikls"
+      },
+      "pause_cycle": {
+        "name": "Apturēt ciklu"
+      },
+      "resume_cycle": {
+        "name": "Atsākt ciklu"
+      },
+      "record_start": {
+        "name": "Sākt cikla ierakstīšanu"
+      },
+      "record_stop": {
+        "name": "Beigt cikla ierakstīšanu"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Nepieciešams derīgs ierīces_id."
+    },
+    "cycle_id_required": {
+      "message": "Nepieciešams derīgs cikla_id."
+    },
+    "profile_name_required": {
+      "message": "Nepieciešams derīgs profila_nosaukums."
+    },
+    "device_not_found": {
+      "message": "Ierīce nav atrasta."
+    },
+    "no_config_entry": {
+      "message": "Ierīcei nav atrasts neviens konfigurācijas ieraksts."
+    },
+    "integration_not_loaded": {
+      "message": "Integrācija šai ierīcei nav ielādēta."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Cikls nav atrasts vai tam nav datu par barošanu."
+    },
+    "trim_failed_empty_window": {
+      "message": "Apgriešana neizdevās - cikls nav atrasts, nav strāvas datu vai iegūtais logs ir tukšs."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s ir jābūt lielākam par trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Nav aktīva cikla, ko apturēt vai atsākt."
+    },
+    "path_not_allowed": {
+      "message": "Ceļš nav atļauts: {path}. Pievienojiet tā direktoriju sarakstam 'allowlist_external_dirs' failā configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Neizdevās izveidot profilu: {error}"
+    },
+    "export_path_exists": {
+      "message": "Eksporta mērķis jau pastāv: {path}. Izvēlieties citu ceļu vai vispirms noņemiet esošo failu."
+    },
+    "export_write_failed": {
+      "message": "Neizdevās ierakstīt eksportu uz {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Neizdevās piešķirt profilu: {error}"
+    }
+  }
+}

@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Настройка на WashData",
+        "description": "Конфигурирайте вашата пералня или друг уред.\n\nНеобходим е сензор за мощност.\n\nСлед настройката отворете панела на WashData от страничната лента (или отидете на [/ha-washdata](/ha-washdata)), за да преглеждате цикли, да настроите откриването и да управлявате профили.",
+        "data": {
+          "name": "Име на устройството",
+          "device_type": "Тип устройство",
+          "power_sensor": "Сензор за мощност",
+          "min_power": "Минимален праг на мощност (W)"
+        },
+        "data_description": {
+          "name": "Удобно име за това устройство (напр. „Перална машина“, „Миялна машина“).",
+          "device_type": "Какъв тип уред е това? Помага за персонализиране на откриването и етикетирането.",
+          "power_sensor": "Сензорният обект, който отчита консумацията на енергия в реално време (във ватове) от вашия интелигентен щепсел.",
+          "min_power": "Отчитанията на мощност над този праг (във ватове) показват, че уредът работи. Започнете с 2W за повечето устройства."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Обновете името на устройството, типа на уреда или сензора за мощност.\n\nПанелът на WashData (странична лента или [/ha-washdata](/ha-washdata)) е мястото, където се управляват откривате, циклите, профилите и известията.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Неуспешно свързване",
+      "invalid_auth": "Невалидно удостоверяване",
+      "unknown": "Неочаквана грешка",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Устройството вече е конфигурирано",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Преименувайте устройството или променете основните му хардуерни настройки. Всички настройки за откриване, съвпадение и известия са в [панела на WashData](/ha-washdata) (достъпен и от страничната лента).",
+        "data": {
+          "name": "Име на устройството",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: таймер за {minutes} мин",
+      "timer_pause_action_title": "Възобновяване на цикъла",
+      "timer_pause_body_suffix": "Цикълът е на пауза. Отворете панела на WashData, за да го възобновите.",
+      "unload_dismiss_action_title": "Спри напомнянията",
+      "notify_live_waiting_message": "{device}: Все още няма съвпадащ профил.",
+      "vs_typical_longer": "{pct}% по-дълго от обичайното",
+      "vs_typical_shorter": "{pct}% по-кратко от обичайното",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Пералня",
+        "dryer": "Сушилня",
+        "washer_dryer": "Комбинирана пералня-сушилня",
+        "dishwasher": "Съдомиялна машина",
+        "air_fryer": "Въздушен фритюрник",
+        "bread_maker": "Пекарна за хляб",
+        "pump": "Помпа / Помпена помпа",
+        "generic": "Друго (разширено)",
+        "other": "Прагово устройство"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Етикетиране на цикъл",
+      "description": "Присвоете съществуващ профил към минал цикъл или премахнете етикета.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералната машина за етикетиране."
+        },
+        "cycle_id": {
+          "name": "ИД на цикъл",
+          "description": "ID на цикъла за етикетиране."
+        },
+        "profile_name": {
+          "name": "Име на профил",
+          "description": "Името на съществуващ профил (създайте профили в менюто Управление на профили). Оставете празно, за да премахнете етикета."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Създаване на профил",
+      "description": "Създайте нов профил (самостоятелен или базиран на референтен цикъл).",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята."
+        },
+        "profile_name": {
+          "name": "Име на профил",
+          "description": "Име за новия профил (напр. „Heavy Duty“, „Delicates“)."
+        },
+        "reference_cycle_id": {
+          "name": "ИД на референтен цикъл",
+          "description": "Незадължителен идентификатор на цикъл, на който да се основава този профил."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Изтриване на профил",
+      "description": "Изтрийте профил и по избор премахнете етикета на цикли, използвайки го.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята."
+        },
+        "profile_name": {
+          "name": "Име на профил",
+          "description": "Профилът за изтриване."
+        },
+        "unlabel_cycles": {
+          "name": "Премахване на етикети на цикли",
+          "description": "Премахнете етикета на профила от цикли, използващи този профил."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Автоматично етикетиране на стари цикли",
+      "description": "Етикирайте със задна дата немаркирани цикли, като използвате съвпадение на профили.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята."
+        },
+        "confidence_threshold": {
+          "name": "Праг на доверие",
+          "description": "Минимална степен на доверие (0,50-0,95) за прилагане на етикети."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Експортиране на конфигурация",
+      "description": "Експортирайте профилите, циклите и настройките на това устройство в JSON файл (на устройство).",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството пералня за износ."
+        },
+        "path": {
+          "name": "Пътека",
+          "description": "Незадължителен абсолютен файлов път за запис (по подразбиране /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Импортиране на конфигурация",
+      "description": "Импортирайте профили, цикли и настройки за това устройство от JSON файл за експортиране (настройките може да бъдат презаписани).",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята за импортиране."
+        },
+        "path": {
+          "name": "Пътека",
+          "description": "Абсолютен път до експортирания JSON файл за импортиране."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Изпратете обратна връзка за цикъл",
+      "description": "Потвърдете или коригирайте автоматично открита програма след завършен цикъл. Въведете или `entry_id` (разширено) или `device_id` (препоръчително).",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството WashData (препоръчва се вместо entry_id)."
+        },
+        "entry_id": {
+          "name": "ID за влизане",
+          "description": "ID на входа в конфигурацията за устройството (алтернатива на device_id)."
+        },
+        "cycle_id": {
+          "name": "ИД на цикъл",
+          "description": "Идентификаторът на цикъла, показан в известието/регистрационните файлове за обратна връзка."
+        },
+        "user_confirmed": {
+          "name": "Потвърдете откритата програма",
+          "description": "Задайте true, ако откритата програма е правилна."
+        },
+        "corrected_profile": {
+          "name": "Коригиран профил",
+          "description": "Ако не е потвърдено, посочете правилното име на профил/програма."
+        },
+        "corrected_duration": {
+          "name": "Коригирана продължителност (секунди)",
+          "description": "Незадължителна коригирана продължителност в секунди."
+        },
+        "notes": {
+          "name": "Бележки",
+          "description": "Незадължителни бележки за този цикъл."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Начало на цикъла на запис",
+      "description": "Започнете ръчно записване на чист цикъл (заобикаля всички съответстващи логики).",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята за запис."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Стоп на цикъла на запис",
+      "description": "Спрете ръчния запис.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството на пералнята за спиране на записа."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Цикъл на подрязване",
+      "description": "Изрежете данните за мощността от минал цикъл до конкретен времеви прозорец.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството WashData."
+        },
+        "cycle_id": {
+          "name": "ИД на цикъл",
+          "description": "ID на цикъла за подрязване."
+        },
+        "trim_start_s": {
+          "name": "Начало на изрязване (секунди)",
+          "description": "Съхранявайте данните от това отместване за секунди. По подразбиране 0."
+        },
+        "trim_end_s": {
+          "name": "Край на изрязването (секунди)",
+          "description": "Съхранявайте данните до това отместване за секунди. По подразбиране = пълна продължителност."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Цикъл на пауза",
+      "description": "Поставете на пауза активния цикъл за устройство WashData.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството WashData за пауза."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Цикъл на възобновяване",
+      "description": "Възобновете цикъл на пауза за устройство WashData.",
+      "fields": {
+        "device_id": {
+          "name": "устройство",
+          "description": "Устройството WashData за възобновяване."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Ръчно преквалификация на моделите ML на устройство от собствените етикети на това устройство (експериментални).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "работа"
+      },
+      "match_ambiguity": {
+        "name": "Неяснота на съвпадението"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "състояние",
+        "state": {
+          "off": "Изкл",
+          "idle": "празен ход",
+          "starting": "Стартиране",
+          "running": "работи",
+          "paused": "На пауза",
+          "user_paused": "Поставен на пауза от потребителя",
+          "ending": "Край",
+          "finished": "Готово",
+          "anti_wrinkle": "Против бръчки",
+          "interrupted": "Прекъснат",
+          "force_stopped": "Принудително спряно",
+          "rinse": "Изплакване",
+          "unknown": "Неизвестен",
+          "clean": "Чисто",
+          "delay_wait": "Изчакване за стартиране"
+        }
+      },
+      "washer_program": {
+        "name": "програма"
+      },
+      "time_remaining": {
+        "name": "Оставащо време"
+      },
+      "total_duration": {
+        "name": "Обща продължителност"
+      },
+      "cycle_progress": {
+        "name": "Напредък"
+      },
+      "current_power": {
+        "name": "Текуща мощност"
+      },
+      "elapsed_time": {
+        "name": "Изминало време"
+      },
+      "debug_info": {
+        "name": "Информация за отстраняване на грешки"
+      },
+      "match_confidence": {
+        "name": "Съвпадение на увереността"
+      },
+      "top_candidates": {
+        "name": "Топ кандидати",
+        "state": {
+          "none": "Няма"
+        }
+      },
+      "ambiguity": {
+        "name": "Оценка на неяснотата"
+      },
+      "current_phase": {
+        "name": "Текуща фаза"
+      },
+      "profile_cycle_count": {
+        "name": "Профил {profile_name} брой",
+        "unit_of_measurement": "цикли"
+      },
+      "suggestions": {
+        "name": "Предложени настройки"
+      },
+      "pump_runs_today": {
+        "name": "Помпата работи (последните 24 часа)"
+      },
+      "cycle_count": {
+        "name": "Брой цикли"
+      },
+      "energy_total": {
+        "name": "Обща енергия"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Програма за цикъл",
+        "state": {
+          "auto_detect": "Автоматично откриване"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Цикъл на принудителен край"
+      },
+      "pause_cycle": {
+        "name": "Цикъл на пауза"
+      },
+      "resume_cycle": {
+        "name": "Цикъл на възобновяване"
+      },
+      "record_start": {
+        "name": "Започни запис на цикъл"
+      },
+      "record_stop": {
+        "name": "Спри запис на цикъл"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Изисква се валиден device_id."
+    },
+    "cycle_id_required": {
+      "message": "Изисква се валиден cycle_id."
+    },
+    "profile_name_required": {
+      "message": "Изисква се валидно име на профил."
+    },
+    "device_not_found": {
+      "message": "Устройството не е намерено."
+    },
+    "no_config_entry": {
+      "message": "Не е намерен запис в конфигурацията за устройство."
+    },
+    "integration_not_loaded": {
+      "message": "Интеграцията не е заредена за това устройство."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Цикълът не е намерен или няма данни за мощността."
+    },
+    "trim_failed_empty_window": {
+      "message": "Подстригването е неуспешно - цикълът не е открит, няма данни за мощността или полученият прозорец е празен."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s трябва да е по-голямо от trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Няма активен цикъл за пауза или възобновяване."
+    },
+    "path_not_allowed": {
+      "message": "Пътят не е разрешен: {path}. Добавете неговата директория към 'allowlist_external_dirs' в configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Неуспешно създаване на профил: {error}"
+    },
+    "export_path_exists": {
+      "message": "Целта за експорт вече съществува: {path}. Изберете друг път или първо премахнете съществуващия файл."
+    },
+    "export_write_failed": {
+      "message": "Неуспешно записване на експорта в {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Неуспешно присвояване на профил: {error}"
+    }
+  }
+}

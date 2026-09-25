@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Konfiguracja WashData",
+        "description": "Skonfiguruj swoją pralkę lub inne urządzenie.\n\nCzujnik mocy jest wymagany.\n\nPo konfiguracji otwórz panel WashData z paska bocznego (lub przejdź do [/ha-washdata](/ha-washdata)), aby przeglądać cykle, dostosowywać wykrywanie i zarządzać profilami.",
+        "data": {
+          "name": "Nazwa urządzenia",
+          "device_type": "Typ urządzenia",
+          "power_sensor": "Czujnik mocy",
+          "min_power": "Minimalny próg mocy (W)"
+        },
+        "data_description": {
+          "name": "Przyjazna nazwa tego urządzenia (np. „Pralka”, „Zmywarka”).",
+          "device_type": "Jakiego typu jest to urządzenie? Pomaga dostosować wykrywanie i etykietowanie.",
+          "power_sensor": "Encja czujnika, która raportuje zużycie energii w czasie rzeczywistym (w watach) przez inteligentną wtyczkę.",
+          "min_power": "Odczyty mocy powyżej tego progu (w watach) wskazują, że urządzenie pracuje. Zacznij od 2 W dla większości urządzeń."
+        }
+      },
+      "reconfigure": {
+        "title": "Rekonfiguracja WashData",
+        "description": "Zaktualizuj nazwę urządzenia, typ urządzenia lub czujnik mocy.\n\nPanel WashData (pasek boczny lub [/ha-washdata](/ha-washdata)) służy do zarządzania wykrywaniem, cyklami, profilami i powiadomieniami.",
+        "data": {
+          "name": "Nazwa urządzenia",
+          "device_type": "Typ urządzenia",
+          "power_sensor": "Czujnik mocy",
+          "min_power": "Minimalny próg mocy (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nie udało się połączyć",
+      "invalid_auth": "Nieprawidłowe uwierzytelnienie",
+      "unknown": "Nieoczekiwany błąd",
+      "invalid_power": "Próg mocy musi być większy niż 0"
+    },
+    "abort": {
+      "already_configured": "Urządzenie jest już skonfigurowane",
+      "reconfigure_successful": "Rekonfiguracja zakończona pomyślnie"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ustawienia WashData",
+        "description": "Zmień nazwę urządzenia lub zmień jego podstawowe ustawienia sprzętowe. Wszystkie ustawienia wykrywania, dopasowania i powiadomień znajdują się w [panelu WashData](/ha-washdata) (dostępny również z paska bocznego).",
+        "data": {
+          "name": "Nazwa urządzenia",
+          "device_type": "Typ urządzenia",
+          "power_sensor": "Czujnik mocy",
+          "min_power": "Minimalny próg mocy (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: timer {minutes} min",
+      "timer_pause_action_title": "Wznów cykl",
+      "timer_pause_body_suffix": "Cykl jest wstrzymany. Otwórz panel WashData, aby wznowić.",
+      "unload_dismiss_action_title": "Przestań przypominać",
+      "notify_live_waiting_message": "{device}: Nie rozpoznano jeszcze żadnego profilu.",
+      "vs_typical_longer": "o {pct}% dłużej niż zwykle",
+      "vs_typical_shorter": "o {pct}% krócej niż zwykle",
+      "invalid_power": "Próg mocy musi być większy niż 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Pralka",
+        "dryer": "Suszarka",
+        "washer_dryer": "Zestaw pralko-suszarki",
+        "dishwasher": "Pomywaczka",
+        "air_fryer": "Frytkownica powietrzna",
+        "bread_maker": "Wypiekacz chleba",
+        "pump": "Pompa/pompa ściekowa",
+        "generic": "Inne (zaawansowane)",
+        "other": "Urządzenie progowe"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Etykietuj cykl",
+      "description": "Przypisz istniejący profil do poprzedniego cyklu lub usuń etykietę.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do etykietowania."
+        },
+        "cycle_id": {
+          "name": "Identyfikator cyklu",
+          "description": "Identyfikator cyklu do oetykietowania."
+        },
+        "profile_name": {
+          "name": "Nazwa profilu",
+          "description": "Nazwa istniejącego profilu (utwórz profile w menu Zarządzaj profilami). Pozostaw puste, aby usunąć etykietę."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Utwórz profil",
+      "description": "Utwórz nowy profil (samodzielny lub oparty na cyklu referencyjnym).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData."
+        },
+        "profile_name": {
+          "name": "Nazwa profilu",
+          "description": "Nazwa nowego profilu (np. „Intensywne”, „Delikatne”)."
+        },
+        "reference_cycle_id": {
+          "name": "Identyfikator cyklu referencyjnego",
+          "description": "Opcjonalny identyfikator cyklu, na którym można oprzeć ten profil."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Usuń profil",
+      "description": "Usuń profil i opcjonalnie usuń etykietę z cykli go używających.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData."
+        },
+        "profile_name": {
+          "name": "Nazwa profilu",
+          "description": "Profil do usunięcia."
+        },
+        "unlabel_cycles": {
+          "name": "Usuń etykiety z cykli",
+          "description": "Usuń etykietę profilu z cykli korzystających z tego profilu."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Automatyczne etykietowanie starych cykli",
+      "description": "Wstecznie etykietuj nieoetykietowane cykle za pomocą dopasowania profilu.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData."
+        },
+        "confidence_threshold": {
+          "name": "Próg pewności",
+          "description": "Minimalna pewność dopasowania (0,50–0,95), aby zastosować etykiety."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Eksportuj konfigurację",
+      "description": "Eksportuj profile, cykle i ustawienia tego urządzenia do pliku JSON (na urządzenie).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do eksportu."
+        },
+        "path": {
+          "name": "Ścieżka",
+          "description": "Opcjonalna bezwzględna ścieżka pliku do zapisu (domyślnie: /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importuj konfigurację",
+      "description": "Importuj profile, cykle i ustawienia dla tego urządzenia z pliku eksportu JSON (ustawienia mogą zostać nadpisane).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData, do którego chcesz zaimportować."
+        },
+        "path": {
+          "name": "Ścieżka",
+          "description": "Bezwzględna ścieżka do eksportowanego pliku JSON do zaimportowania."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Prześlij opinię dotyczącą cyklu",
+      "description": "Potwierdź lub popraw automatycznie wykryty program po zakończeniu cyklu. Podaj `entry_id` (zaawansowane) lub `device_id` (zalecane).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData (zalecane zamiast entry_id)."
+        },
+        "entry_id": {
+          "name": "Identyfikator wpisu",
+          "description": "Identyfikator wpisu konfiguracji urządzenia (alternatywa dla device_id)."
+        },
+        "cycle_id": {
+          "name": "Identyfikator cyklu",
+          "description": "Identyfikator cyklu pokazany w powiadomieniu/dziennikach opinii."
+        },
+        "user_confirmed": {
+          "name": "Potwierdź wykryty program",
+          "description": "Ustaw true, jeśli wykryty program jest poprawny."
+        },
+        "corrected_profile": {
+          "name": "Poprawiony profil",
+          "description": "Jeśli nie potwierdzasz, podaj prawidłową nazwę profilu/programu."
+        },
+        "corrected_duration": {
+          "name": "Poprawiony czas trwania (sekundy)",
+          "description": "Opcjonalnie poprawiony czas trwania w sekundach."
+        },
+        "notes": {
+          "name": "Notatki",
+          "description": "Opcjonalne uwagi dotyczące tego cyklu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Nagraj start cyklu",
+      "description": "Rozpocznij ręczne nagrywanie czystego cyklu (pomija całą logikę dopasowania).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do nagrywania."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Nagraj zatrzymanie cyklu",
+      "description": "Zatrzymaj nagrywanie ręczne.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do zatrzymania nagrywania."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Przytnij cykl",
+      "description": "Przytnij dane mocy z poprzedniego cyklu do określonego okna czasowego.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData."
+        },
+        "cycle_id": {
+          "name": "Identyfikator cyklu",
+          "description": "Identyfikator cyklu do przycięcia."
+        },
+        "trim_start_s": {
+          "name": "Przycięcie początku (sekundy)",
+          "description": "Zachowuj dane od tego przesunięcia w sekundach. Domyślnie 0."
+        },
+        "trim_end_s": {
+          "name": "Przycięcie końca (sekundy)",
+          "description": "Zachowuj dane do tego przesunięcia w sekundach. Domyślnie = pełny czas trwania."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Wstrzymaj cykl",
+      "description": "Wstrzymaj aktywny cykl urządzenia WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do wstrzymania."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Wznów cykl",
+      "description": "Wznów wstrzymany cykl dla urządzenia WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData do wznowienia."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Wyzwól trenowanie ML",
+      "description": "Ręcznie przetrenuj modele ML na urządzeniu z własnych oznaczonych cykli (eksperymentalne).",
+      "fields": {
+        "device_id": {
+          "name": "Urządzenie",
+          "description": "Urządzenie WashData, dla którego mają być przetrenowane modele."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "Pracuje"
+      },
+      "match_ambiguity": {
+        "name": "Niejednoznaczność dopasowania"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Stan",
+        "state": {
+          "off": "Wyłączony",
+          "idle": "Bezczynny",
+          "starting": "Uruchamianie",
+          "running": "Pracuje",
+          "paused": "Wstrzymany",
+          "user_paused": "Wstrzymane przez użytkownika",
+          "ending": "Kończenie",
+          "finished": "Zakończony",
+          "anti_wrinkle": "Antygniotowy",
+          "interrupted": "Przerwany",
+          "force_stopped": "Wymuszone zatrzymanie",
+          "rinse": "Płukanie",
+          "unknown": "Nieznany",
+          "clean": "Czysty",
+          "delay_wait": "Oczekiwanie na start"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Pozostały czas"
+      },
+      "total_duration": {
+        "name": "Całkowity czas trwania"
+      },
+      "cycle_progress": {
+        "name": "Postęp"
+      },
+      "current_power": {
+        "name": "Aktualna moc"
+      },
+      "elapsed_time": {
+        "name": "Czas, który upłynął"
+      },
+      "debug_info": {
+        "name": "Informacje debugowania"
+      },
+      "match_confidence": {
+        "name": "Pewność dopasowania"
+      },
+      "top_candidates": {
+        "name": "Najlepsi kandydaci",
+        "state": {
+          "none": "Brak"
+        }
+      },
+      "ambiguity": {
+        "name": "Wynik niejednoznaczności"
+      },
+      "current_phase": {
+        "name": "Bieżąca faza"
+      },
+      "profile_cycle_count": {
+        "name": "Profil {profile_name} - liczba",
+        "unit_of_measurement": "cykle"
+      },
+      "suggestions": {
+        "name": "Dostępne sugerowane ustawienia"
+      },
+      "pump_runs_today": {
+        "name": "Pompa pracuje (ostatnie 24 godziny)"
+      },
+      "cycle_count": {
+        "name": "Liczba cykli"
+      },
+      "energy_total": {
+        "name": "Całkowita energia"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Program cyklu",
+        "state": {
+          "auto_detect": "Automatyczne wykrywanie"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Wymuś zakończenie cyklu"
+      },
+      "pause_cycle": {
+        "name": "Wstrzymaj cykl"
+      },
+      "resume_cycle": {
+        "name": "Wznów cykl"
+      },
+      "record_start": {
+        "name": "Rozpocznij nagrywanie cyklu"
+      },
+      "record_stop": {
+        "name": "Zatrzymaj nagrywanie cyklu"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Wymagany jest prawidłowy identyfikator urządzenia."
+    },
+    "cycle_id_required": {
+      "message": "Wymagany jest prawidłowy identyfikator cyklu."
+    },
+    "profile_name_required": {
+      "message": "Wymagana jest prawidłowa nazwa_profilu."
+    },
+    "device_not_found": {
+      "message": "Nie znaleziono urządzenia."
+    },
+    "no_config_entry": {
+      "message": "Nie znaleziono wpisu konfiguracji dla urządzenia."
+    },
+    "integration_not_loaded": {
+      "message": "Integracja nie załadowana dla tego urządzenia."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Nie znaleziono cyklu lub brak danych mocy."
+    },
+    "trim_failed_empty_window": {
+      "message": "Przycinanie nie powiodło się - nie znaleziono cyklu, brak danych mocy lub wynikowe okno jest puste."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s musi być większe niż trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Brak aktywnego cyklu, który można wstrzymać lub wznowić."
+    },
+    "path_not_allowed": {
+      "message": "Ścieżka jest niedozwolona: {path}. Dodaj jej katalog do 'allowlist_external_dirs' w configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Nie można utworzyć profilu: {error}"
+    },
+    "export_path_exists": {
+      "message": "Cel eksportu już istnieje: {path}. Wybierz inną ścieżkę lub najpierw usuń istniejący plik."
+    },
+    "export_write_failed": {
+      "message": "Nie można zapisać eksportu do {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Nie można przypisać profilu: {error}"
+    }
+  }
+}

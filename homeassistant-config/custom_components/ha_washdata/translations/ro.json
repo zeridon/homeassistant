@@ -1,0 +1,441 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configurare WashData",
+        "description": "Configurați mașina de spălat sau alt aparat.\n\nEste necesar un senzor de putere.\n\nDupă configurare, deschideți panoul WashData din bara laterală (sau accesați [/ha-washdata](/ha-washdata)) pentru a vizualiza ciclurile, a ajusta detectarea și a gestiona profilurile.",
+        "data": {
+          "name": "Numele dispozitivului",
+          "device_type": "Tip de dispozitiv",
+          "power_sensor": "Senzor de putere",
+          "min_power": "Pragul minim de putere (W)"
+        },
+        "data_description": {
+          "name": "Un nume prietenos pentru acest dispozitiv (de exemplu, „Mașină de spălat”, „Mașină de spălat vase”).",
+          "device_type": "Ce tip de aparat este acesta? Ajută la personalizarea detectării și etichetării.",
+          "power_sensor": "Entitatea senzor care raportează consumul de energie în timp real (în wați) de la priza inteligentă.",
+          "min_power": "Citirile de putere peste acest prag (în wați) indică faptul că aparatul funcționează. Începeți cu 2W pentru majoritatea dispozitivelor."
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure WashData",
+        "description": "Actualizați numele dispozitivului, tipul aparatului sau senzorul de putere.\n\nPanoul WashData (bara laterală sau [/ha-washdata](/ha-washdata)) este locul unde se gestionează detectarea, ciclurile, profilurile și notificările.",
+        "data": {
+          "name": "Device Name",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Nu s-a putut conecta",
+      "invalid_auth": "Autentificare nevalidă",
+      "unknown": "Eroare neașteptată",
+      "invalid_power": "Power threshold must be greater than 0"
+    },
+    "abort": {
+      "already_configured": "Dispozitivul este deja configurat",
+      "reconfigure_successful": "Reconfiguration was successful"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WashData Settings",
+        "description": "Redenumiți dispozitivul sau modificați setările hardware de bază. Toate setările de detectare, potrivire și notificare se află în [panoul WashData](/ha-washdata) (accesibil și din bara laterală).",
+        "data": {
+          "name": "Numele dispozitivului",
+          "device_type": "Device Type",
+          "power_sensor": "Power Sensor",
+          "min_power": "Minimum Power Threshold (W)"
+        }
+      }
+    },
+    "error": {
+      "timer_default_message": "{device}: cronometru de {minutes} min",
+      "timer_pause_action_title": "Reluați ciclul",
+      "timer_pause_body_suffix": "Ciclul este în pauză. Deschideți panoul WashData pentru a relua.",
+      "unload_dismiss_action_title": "Oprește mementourile",
+      "notify_live_waiting_message": "{device}: Niciun profil nu a fost recunoscut încă.",
+      "vs_typical_longer": "cu {pct}% mai mult decât de obicei",
+      "vs_typical_shorter": "cu {pct}% mai puțin decât de obicei",
+      "invalid_power": "Power threshold must be greater than 0"
+    }
+  },
+  "selector": {
+    "device_type": {
+      "options": {
+        "washing_machine": "Maşină de spălat",
+        "dryer": "Uscător",
+        "washer_dryer": "Combo mașină de spălat cu uscător",
+        "dishwasher": "Maşină de spălat vase",
+        "air_fryer": "Friteuza cu aer",
+        "bread_maker": "Aparat de paine",
+        "pump": "Pompă / Pompă de colector",
+        "generic": "Altele (avansate)",
+        "other": "Dispozitiv de prag"
+      }
+    }
+  },
+  "services": {
+    "label_cycle": {
+      "name": "Etichetați ciclul",
+      "description": "Atribuiți un profil existent unui ciclu anterior sau eliminați eticheta.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat de etichetat."
+        },
+        "cycle_id": {
+          "name": "ID-ul ciclului",
+          "description": "ID-ul ciclului de etichetat."
+        },
+        "profile_name": {
+          "name": "Nume profil",
+          "description": "Numele unui profil existent (creați profiluri în meniul Gestionare profiluri). Lăsați necompletat pentru a elimina eticheta."
+        }
+      }
+    },
+    "create_profile": {
+      "name": "Creați un profil",
+      "description": "Creați un profil nou (autonom sau bazat pe un ciclu de referință).",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat."
+        },
+        "profile_name": {
+          "name": "Nume profil",
+          "description": "Nume pentru noul profil (de exemplu, „Rezistente”, „Delicate”)."
+        },
+        "reference_cycle_id": {
+          "name": "ID ciclu de referință",
+          "description": "ID-ul de ciclu opțional pe care să se bazeze acest profil."
+        }
+      }
+    },
+    "delete_profile": {
+      "name": "Ștergeți profilul",
+      "description": "Ștergeți un profil și, opțional, eliminați etichetarea ciclurilor care îl folosesc.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat."
+        },
+        "profile_name": {
+          "name": "Nume profil",
+          "description": "Profilul de șters."
+        },
+        "unlabel_cycles": {
+          "name": "Eliminați etichetarea ciclurilor",
+          "description": "Eliminați eticheta profilului din ciclurile care îl folosesc."
+        }
+      }
+    },
+    "auto_label_cycles": {
+      "name": "Etichetare automată a ciclurilor vechi",
+      "description": "Etichetați retroactiv ciclurile neetichetate folosind potrivirea profilului.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat."
+        },
+        "confidence_threshold": {
+          "name": "Pragul de încredere",
+          "description": "Încrederea minimă de potrivire (0,50-0,95) pentru aplicarea etichetelor."
+        }
+      }
+    },
+    "export_config": {
+      "name": "Exportați configurația",
+      "description": "Exportați profilurile, ciclurile și setările acestui dispozitiv într-un fișier JSON (per dispozitiv).",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat de exportat."
+        },
+        "path": {
+          "name": "Cale",
+          "description": "Calea absolută opțională a fișierului de scris (implicit la /config/ha_washdata_export_{entry}.json)."
+        }
+      }
+    },
+    "import_config": {
+      "name": "Importați configurația",
+      "description": "Importați profiluri, cicluri și setări pentru acest dispozitiv dintr-un fișier de export JSON (setările pot fi suprascrise).",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat în care să importați."
+        },
+        "path": {
+          "name": "Cale",
+          "description": "Calea absolută către fișierul JSON de export pentru import."
+        }
+      }
+    },
+    "submit_cycle_feedback": {
+      "name": "Trimiteți feedback pentru ciclu",
+      "description": "Confirmați sau corectați un program detectat automat după un ciclu finalizat. Furnizați fie „entry_id” (avansat), fie „device_id” (recomandat).",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul WashData (recomandat în locul entry_id)."
+        },
+        "entry_id": {
+          "name": "ID de intrare",
+          "description": "ID-ul de intrare de configurare pentru dispozitiv (alternativă la device_id)."
+        },
+        "cycle_id": {
+          "name": "ID-ul ciclului",
+          "description": "ID-ul ciclului afișat în notificarea/jurnalele de feedback."
+        },
+        "user_confirmed": {
+          "name": "Confirmați programul detectat",
+          "description": "Setați ca adevărat dacă programul detectat este corect."
+        },
+        "corrected_profile": {
+          "name": "Profil corectat",
+          "description": "Dacă nu este confirmat, furnizați numele corect al profilului/programului."
+        },
+        "corrected_duration": {
+          "name": "Durata corectată (secunde)",
+          "description": "Durată opțională corectată în secunde."
+        },
+        "notes": {
+          "name": "Note",
+          "description": "Note opționale despre acest ciclu."
+        }
+      }
+    },
+    "record_start": {
+      "name": "Porniți înregistrarea ciclului",
+      "description": "Începeți înregistrarea manuală a unui ciclu curat (ocolește toată logica de potrivire).",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat de înregistrat."
+        }
+      }
+    },
+    "record_stop": {
+      "name": "Opriți înregistrarea ciclului",
+      "description": "Opriți înregistrarea manuală.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul mașinii de spălat pentru a opri înregistrarea."
+        }
+      }
+    },
+    "trim_cycle": {
+      "name": "Tăiați ciclul",
+      "description": "Tăiați datele de putere ale unui ciclu anterior la o anumită fereastră de timp.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul WashData."
+        },
+        "cycle_id": {
+          "name": "ID-ul ciclului",
+          "description": "ID-ul ciclului de tăiat."
+        },
+        "trim_start_s": {
+          "name": "Începutul tăierii (secunde)",
+          "description": "Păstrați datele de la acest offset în secunde. Implicit 0."
+        },
+        "trim_end_s": {
+          "name": "Sfârșitul tăierii (secunde)",
+          "description": "Păstrați datele până la acest offset în secunde. Implicit = durata totală."
+        }
+      }
+    },
+    "pause_cycle": {
+      "name": "Pauză ciclu",
+      "description": "Întrerupeți ciclul activ pentru un dispozitiv WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul WashData se întrerupe."
+        }
+      }
+    },
+    "resume_cycle": {
+      "name": "Reluați ciclul",
+      "description": "Reluați un ciclu întrerupt pentru un dispozitiv WashData.",
+      "fields": {
+        "device_id": {
+          "name": "Dispozitiv",
+          "description": "Dispozitivul WashData trebuie reluat."
+        }
+      }
+    },
+    "trigger_ml_training": {
+      "name": "Trigger ML Training",
+      "description": "Manually retrain the on-device ML models from this device's own labelled cycles (experimental).",
+      "fields": {
+        "device_id": {
+          "name": "Device",
+          "description": "The WashData device to retrain models for."
+        }
+      }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "running": {
+        "name": "În funcțiune"
+      },
+      "match_ambiguity": {
+        "name": "Ambiguitate la potrivire"
+      }
+    },
+    "sensor": {
+      "washer_state": {
+        "name": "Stare",
+        "state": {
+          "off": "Oprit",
+          "idle": "Inactiv",
+          "starting": "Pornire",
+          "running": "În funcțiune",
+          "paused": "Pauză",
+          "user_paused": "Pus în pauză de utilizator",
+          "ending": "Se termină",
+          "finished": "Terminat",
+          "anti_wrinkle": "Antirid",
+          "interrupted": "Întrerupt",
+          "force_stopped": "Oprit forțat",
+          "rinse": "Clătire",
+          "unknown": "Necunoscut",
+          "clean": "Curat",
+          "delay_wait": "Așteaptă să Înceapă"
+        }
+      },
+      "washer_program": {
+        "name": "Program"
+      },
+      "time_remaining": {
+        "name": "Timp rămas"
+      },
+      "total_duration": {
+        "name": "Durata totală"
+      },
+      "cycle_progress": {
+        "name": "Progres"
+      },
+      "current_power": {
+        "name": "Puterea curentă"
+      },
+      "elapsed_time": {
+        "name": "Timp scurs"
+      },
+      "debug_info": {
+        "name": "Informații de depanare"
+      },
+      "match_confidence": {
+        "name": "Încrederea în potrivire"
+      },
+      "top_candidates": {
+        "name": "Principalii candidați",
+        "state": {
+          "none": "Niciunul"
+        }
+      },
+      "ambiguity": {
+        "name": "Scor de ambiguitate"
+      },
+      "current_phase": {
+        "name": "Faza curentă"
+      },
+      "profile_cycle_count": {
+        "name": "Număr de cicluri {profile_name}",
+        "unit_of_measurement": "cicluri"
+      },
+      "suggestions": {
+        "name": "Setări sugerate disponibile"
+      },
+      "pump_runs_today": {
+        "name": "Funcționarea pompei (ultimele 24 de ore)"
+      },
+      "cycle_count": {
+        "name": "Număr de cicluri"
+      },
+      "energy_total": {
+        "name": "Energie totală"
+      }
+    },
+    "select": {
+      "program_select": {
+        "name": "Programul ciclului",
+        "state": {
+          "auto_detect": "Detectare automată"
+        }
+      }
+    },
+    "button": {
+      "force_end_cycle": {
+        "name": "Forțați sfârșitul ciclului"
+      },
+      "pause_cycle": {
+        "name": "Pauză ciclu"
+      },
+      "resume_cycle": {
+        "name": "Reluați ciclul"
+      },
+      "record_start": {
+        "name": "Porniți înregistrarea ciclului"
+      },
+      "record_stop": {
+        "name": "Opriți înregistrarea ciclului"
+      }
+    }
+  },
+  "exceptions": {
+    "device_id_required": {
+      "message": "Este necesar un device_id valid."
+    },
+    "cycle_id_required": {
+      "message": "Este necesar un cycle_id valid."
+    },
+    "profile_name_required": {
+      "message": "Este necesar un nume_profil valid."
+    },
+    "device_not_found": {
+      "message": "Dispozitivul nu a fost găsit."
+    },
+    "no_config_entry": {
+      "message": "Nu a fost găsită nicio intrare de configurare pentru dispozitiv."
+    },
+    "integration_not_loaded": {
+      "message": "Integrarea nu a fost încărcată pentru acest dispozitiv."
+    },
+    "cycle_not_found_or_no_power": {
+      "message": "Ciclul nu a fost găsit sau nu are date de putere."
+    },
+    "trim_failed_empty_window": {
+      "message": "Eșec la tăiere - ciclul nu a fost găsit, nu există date de putere sau fereastra rezultată este goală."
+    },
+    "trim_invalid_range": {
+      "message": "trim_end_s trebuie să fie mai mare decât trim_start_s."
+    },
+    "no_active_cycle": {
+      "message": "Niciun ciclu activ de întrerupt sau reluat."
+    },
+    "path_not_allowed": {
+      "message": "Calea nu este permisă: {path}. Adăugați directorul acesteia la 'allowlist_external_dirs' în configuration.yaml."
+    },
+    "create_profile_failed": {
+      "message": "Nu s-a putut crea profilul: {error}"
+    },
+    "export_path_exists": {
+      "message": "Ținta de export există deja: {path}. Alegeți o altă cale sau eliminați mai întâi fișierul existent."
+    },
+    "export_write_failed": {
+      "message": "Nu s-a putut scrie exportul în {path}: {error}"
+    },
+    "assign_profile_failed": {
+      "message": "Nu s-a putut atribui profilul: {error}"
+    }
+  }
+}
