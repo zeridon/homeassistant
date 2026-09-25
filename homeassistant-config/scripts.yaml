@@ -95,20 +95,22 @@ radio_3:
 '1657861979875':
   alias: MagicFM
   sequence:
-  - service: media_player.volume_set
-    data:
-      volume_level: 0.17
+  - data:
+      volume_level: 0.19
     target:
       entity_id: media_player.dining_room_speaker
-  - service: media_player.play_media
-    data:
-      media_content_id: https://bss1.neterra.tv/magicfm/magicfm.m3u8
-      media_content_type: music
+    action: media_player.volume_set
+  - data:
       extra:
         title: MagicFM
         stream_type: LIVE
+      media:
+        media_content_id: https://bss1.neterra.tv/magicfm/magicfm.m3u8
+        media_content_type: music
+        metadata: {}
     target:
       entity_id: media_player.dining_room_speaker
+    action: media_player.play_media
   mode: single
   icon: mdi:magic-staff
 update_shelly_firmware:
