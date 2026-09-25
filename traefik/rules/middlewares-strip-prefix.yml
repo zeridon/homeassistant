@@ -1,0 +1,19 @@
+http:
+  middlewares:
+    # Example: Strips any single top-level prefix (e.g., /anything/rest/of/path -> /rest/of/path)
+    add-slash-to-single-segment:
+      redirectregex:
+        regex: "^(?P<protocol>https?)://(?P<hostname>[^/]+)/(?P<path>[a-z0-9_-]+)$"
+        replacement: "${protocol}://${hostname}/${path}/"
+        permanent: true
+
+    remove-first-segment:
+      replacePathRegex:
+        regex: "^/[^/]+/(.*)"
+        replacement: "/$1"
+
+    strip-prefix:
+      chain:
+        middlewares:
+          - add-slash-to-single-segment
+          - remove-first-segment

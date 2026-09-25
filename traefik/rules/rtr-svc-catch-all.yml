@@ -1,0 +1,9 @@
+http:
+  routers:
+    http-catchall:
+      entrypoints: "web-bad"
+      priority: 1
+      rule: "Host(`*`)"
+      middlewares:
+        - redirect-to-https
+      service: noop@internal
