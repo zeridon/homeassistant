@@ -22,7 +22,7 @@ jobs:
 
   home_assistant:
     runs-on: ubuntu-latest
-    needs: [yamllint, remarklint]
+    needs: [remarklint]
     strategy:
       matrix:
         version: ["stable", "beta", "dev"]
